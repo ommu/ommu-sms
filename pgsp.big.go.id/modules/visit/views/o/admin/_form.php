@@ -30,7 +30,7 @@
 		<div class="clearfix">
 			<?php echo $form->labelEx($model,'guest_id'); ?>
 			<div class="desc">
-				<?php echo $form->textField($model,'guest_id',array('size'=>11,'maxlength'=>11)); ?>
+				<?php echo $form->textField($model,'guest_id',array('maxlength'=>11)); ?>
 				<?php echo $form->error($model,'guest_id'); ?>
 			</div>
 		</div>

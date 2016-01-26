@@ -20,13 +20,13 @@
 	//'htmlOptions' => array('enctype' => 'multipart/form-data')
 )); ?>
 
-<?php //begin.Messages ?>
-<div id="ajax-message">
-	<?php echo $form->errorSummary($model); ?>
-</div>
-<?php //begin.Messages ?>
-
 <fieldset>
+
+	<?php //begin.Messages ?>
+	<div id="ajax-message">
+		<?php echo $form->errorSummary($model); ?>
+	</div>
+	<?php //begin.Messages ?>
 
 	<div class="clearfix publish">
 		<?php echo $form->labelEx($model,'status'); ?>
@@ -113,7 +113,7 @@
 	<div class="clearfix">
 		<?php echo $form->labelEx($model,'organization_phone'); ?>
 		<div class="desc">
-			<?php echo $form->textField($model,'organization_phone',array('size'=>15,'maxlength'=>15)); ?>
+			<?php echo $form->textField($model,'organization_phone',array('maxlength'=>15)); ?>
 			<?php echo $form->error($model,'organization_phone'); ?>
 			<?php /*<div class="small-px silent"></div>*/?>
 		</div>
@@ -155,42 +155,6 @@
 		</div>
 	</div>
 
-	<div class="clearfix">
-		<?php echo $form->labelEx($model,'creation_date'); ?>
-		<div class="desc">
-			<?php echo $form->textField($model,'creation_date'); ?>
-			<?php echo $form->error($model,'creation_date'); ?>
-			<?php /*<div class="small-px silent"></div>*/?>
-		</div>
-	</div>
-
-	<div class="clearfix">
-		<?php echo $form->labelEx($model,'creation_id'); ?>
-		<div class="desc">
-			<?php echo $form->textField($model,'creation_id',array('size'=>11,'maxlength'=>11)); ?>
-			<?php echo $form->error($model,'creation_id'); ?>
-			<?php /*<div class="small-px silent"></div>*/?>
-		</div>
-	</div>
-
-	<div class="clearfix">
-		<?php echo $form->labelEx($model,'modified_date'); ?>
-		<div class="desc">
-			<?php echo $form->textField($model,'modified_date'); ?>
-			<?php echo $form->error($model,'modified_date'); ?>
-			<?php /*<div class="small-px silent"></div>*/?>
-		</div>
-	</div>
-
-	<div class="clearfix">
-		<?php echo $form->labelEx($model,'modified_id'); ?>
-		<div class="desc">
-			<?php echo $form->textField($model,'modified_id',array('size'=>11,'maxlength'=>11)); ?>
-			<?php echo $form->error($model,'modified_id'); ?>
-			<?php /*<div class="small-px silent"></div>*/?>
-		</div>
-	</div>
-
 	<div class="submit clearfix">
 		<label>&nbsp;</label>
 		<div class="desc">
@@ -199,14 +163,6 @@
 	</div>
 
 </fieldset>
-<?php /*
-<div class="dialog-content">
-</div>
-<div class="dialog-submit">
-	<?php echo CHtml::submitButton($model->isNewRecord ? Phrase::trans(1,0) : Phrase::trans(2,0) ,array('onclick' => 'setEnableSave()')); ?>
-	<?php echo CHtml::button(Phrase::trans(4,0), array('id'=>'closed')); ?>
-</div>
-*/?>
 <?php $this->endWidget(); ?>
 
 
