@@ -37,6 +37,11 @@
 class Visits extends CActiveRecord
 {
 	public $defaultColumns = array();
+	
+	// Variable Search
+	public $guest_search;
+	public $creation_search;
+	public $modified_search;
 
 	/**
 	 * Returns the static model of the specified AR class.
@@ -71,7 +76,8 @@ class Visits extends CActiveRecord
 			array('modified_date', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('visit_id, status, guest_id, start_date, finish_date, creation_date, creation_id, modified_date, modified_id', 'safe', 'on'=>'search'),
+			array('visit_id, status, guest_id, start_date, finish_date, creation_date, creation_id, modified_date, modified_id,
+				guest_search, creation_search, modified_search', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -83,7 +89,9 @@ class Visits extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'guest_relation' => array(self::BELONGS_TO, 'OmmuVisitGuest', 'guest_id'),
+			'guest_TO' => array(self::BELONGS_TO, 'VisitGuest', 'guest_id'),
+			'creation_TO' => array(self::BELONGS_TO, 'Users', 'creation_id'),
+			'modified_TO' => array(self::BELONGS_TO, 'Users', 'modified_id'),
 		);
 	}
 
@@ -102,6 +110,9 @@ class Visits extends CActiveRecord
 			'creation_id' => 'Creation',
 			'modified_date' => 'Modified Date',
 			'modified_id' => 'Modified',
+			'guest_search' => 'Guest',
+			'creation_search' => 'Creation',
+			'modified_search' => 'Modified',
 		);
 	}
 
@@ -145,6 +156,25 @@ class Visits extends CActiveRecord
 			$criteria->compare('t.modified_id',$_GET['modified']);
 		else
 			$criteria->compare('t.modified_id',$this->modified_id);
+		
+		// Custom Search
+		$criteria->with = array(
+			'guest_TO' => array(
+				'alias'=>'guest_TO',
+				'select'=>'organization_name',
+			),
+			'creation_TO' => array(
+				'alias'=>'creation_TO',
+				'select'=>'displayname',
+			),
+			'modified_TO' => array(
+				'alias'=>'modified_TO',
+				'select'=>'displayname',
+			),
+		);
+		$criteria->compare('guest_TO.organization_name',strtolower($this->guest_search), true);
+		$criteria->compare('creation_TO.displayname',strtolower($this->creation_search), true);
+		$criteria->compare('modified_TO.displayname',strtolower($this->modified_search), true);
 
 		if(!isset($_GET['Visits_sort']))
 			$criteria->order = 'visit_id DESC';
@@ -206,21 +236,10 @@ class Visits extends CActiveRecord
 				'header' => 'No',
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
 			);
-			if(!isset($_GET['type'])) {
-				$this->defaultColumns[] = array(
-					'name' => 'status',
-					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("status",array("id"=>$data->visit_id)), $data->status, 1)',
-					'htmlOptions' => array(
-						'class' => 'center',
-					),
-					'filter'=>array(
-						1=>Phrase::trans(588,0),
-						0=>Phrase::trans(589,0),
-					),
-					'type' => 'raw',
-				);
-			}
-			$this->defaultColumns[] = 'guest_id';
+			$this->defaultColumns[] = array(
+				'name' => 'guest_search',
+				'value' => '$data->guest_TO->organization_name',
+			);
 			$this->defaultColumns[] = array(
 				'name' => 'start_date',
 				'value' => 'Utility::dateFormat($data->start_date)',
@@ -274,6 +293,10 @@ class Visits extends CActiveRecord
 				), true),
 			);
 			$this->defaultColumns[] = array(
+				'name' => 'creation_search',
+				'value' => '$data->creation_TO->displayname',
+			);
+			$this->defaultColumns[] = array(
 				'name' => 'creation_date',
 				'value' => 'Utility::dateFormat($data->creation_date)',
 				'htmlOptions' => array(
@@ -299,34 +322,20 @@ class Visits extends CActiveRecord
 					),
 				), true),
 			);
-			$this->defaultColumns[] = 'creation_id';
-			$this->defaultColumns[] = array(
-				'name' => 'modified_date',
-				'value' => 'Utility::dateFormat($data->modified_date)',
-				'htmlOptions' => array(
-					'class' => 'center',
-				),
-				'filter' => Yii::app()->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
-					'model'=>$this,
-					'attribute'=>'modified_date',
-					'language' => 'ja',
-					'i18nScriptFile' => 'jquery.ui.datepicker-en.js',
-					//'mode'=>'datetime',
+			if(!isset($_GET['type'])) {
+				$this->defaultColumns[] = array(
+					'name' => 'status',
+					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("status",array("id"=>$data->visit_id)), $data->status, 1)',
 					'htmlOptions' => array(
-						'id' => 'modified_date_filter',
+						'class' => 'center',
 					),
-					'options'=>array(
-						'showOn' => 'focus',
-						'dateFormat' => 'dd-mm-yy',
-						'showOtherMonths' => true,
-						'selectOtherMonths' => true,
-						'changeMonth' => true,
-						'changeYear' => true,
-						'showButtonPanel' => true,
+					'filter'=>array(
+						1=>Phrase::trans(588,0),
+						0=>Phrase::trans(589,0),
 					),
-				), true),
-			);
-			$this->defaultColumns[] = 'modified_id';
+					'type' => 'raw',
+				);
+			}
 		}
 		parent::afterConstruct();
 	}
@@ -351,70 +360,14 @@ class Visits extends CActiveRecord
 	/**
 	 * before validate attributes
 	 */
-	/*
 	protected function beforeValidate() {
 		if(parent::beforeValidate()) {
-			// Create action
+			if($this->isNewRecord)
+				$this->creation_id = Yii::app()->user->id;		
+			else
+				$this->modified_id = Yii::app()->user->id;
 		}
 		return true;
 	}
-	*/
-
-	/**
-	 * after validate attributes
-	 */
-	/*
-	protected function afterValidate()
-	{
-		parent::afterValidate();
-			// Create action
-		return true;
-	}
-	*/
-	
-	/**
-	 * before save attributes
-	 */
-	/*
-	protected function beforeSave() {
-		if(parent::beforeSave()) {
-			//$this->start_date = date('Y-m-d', strtotime($this->start_date));
-			//$this->finish_date = date('Y-m-d', strtotime($this->finish_date));
-		}
-		return true;	
-	}
-	*/
-	
-	/**
-	 * After save attributes
-	 */
-	/*
-	protected function afterSave() {
-		parent::afterSave();
-		// Create action
-	}
-	*/
-
-	/**
-	 * Before delete attributes
-	 */
-	/*
-	protected function beforeDelete() {
-		if(parent::beforeDelete()) {
-			// Create action
-		}
-		return true;
-	}
-	*/
-
-	/**
-	 * After delete attributes
-	 */
-	/*
-	protected function afterDelete() {
-		parent::afterDelete();
-		// Create action
-	}
-	*/
 
 }

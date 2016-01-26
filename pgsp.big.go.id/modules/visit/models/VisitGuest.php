@@ -44,6 +44,10 @@
 class VisitGuest extends CActiveRecord
 {
 	public $defaultColumns = array();
+	
+	// Variable Search
+	public $creation_search;
+	public $modified_search;
 
 	/**
 	 * Returns the static model of the specified AR class.
@@ -80,7 +84,8 @@ class VisitGuest extends CActiveRecord
 			array('modified_date', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('guest_id, status, start_date, finish_date, organization, organization_name, organization_address, organization_phone, organization_visitor, messages, message_file, message_reply, creation_date, creation_id, modified_date, modified_id', 'safe', 'on'=>'search'),
+			array('guest_id, status, start_date, finish_date, organization, organization_name, organization_address, organization_phone, organization_visitor, messages, message_file, message_reply, creation_date, creation_id, modified_date, modified_id, 
+				creation_search, modified_search', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -92,7 +97,9 @@ class VisitGuest extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'ommuVisits_relation' => array(self::HAS_MANY, 'OmmuVisits', 'guest_id'),
+			'creation_TO' => array(self::BELONGS_TO, 'Users', 'creation_id'),
+			'modified_TO' => array(self::BELONGS_TO, 'Users', 'modified_id'),
+			'visit_MANY' => array(self::HAS_MANY, 'Visits', 'guest_id'),
 		);
 	}
 
@@ -118,6 +125,8 @@ class VisitGuest extends CActiveRecord
 			'creation_id' => 'Creation',
 			'modified_date' => 'Modified Date',
 			'modified_id' => 'Modified',
+			'creation_search' => 'Creation',
+			'modified_search' => 'Modified',
 		);
 	}
 
@@ -165,6 +174,20 @@ class VisitGuest extends CActiveRecord
 			$criteria->compare('t.modified_id',$_GET['modified']);
 		else
 			$criteria->compare('t.modified_id',$this->modified_id);
+		
+		// Custom Search
+		$criteria->with = array(
+			'creation_TO' => array(
+				'alias'=>'creation_TO',
+				'select'=>'displayname',
+			),
+			'modified_TO' => array(
+				'alias'=>'modified_TO',
+				'select'=>'displayname',
+			),
+		);
+		$criteria->compare('creation_TO.displayname',strtolower($this->creation_search), true);
+		$criteria->compare('modified_TO.displayname',strtolower($this->modified_search), true);
 
 		if(!isset($_GET['VisitGuest_sort']))
 			$criteria->order = 'guest_id DESC';
@@ -233,20 +256,6 @@ class VisitGuest extends CActiveRecord
 				'header' => 'No',
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
 			);
-			if(!isset($_GET['type'])) {
-				$this->defaultColumns[] = array(
-					'name' => 'status',
-					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("status",array("id"=>$data->guest_id)), $data->status, 1)',
-					'htmlOptions' => array(
-						'class' => 'center',
-					),
-					'filter'=>array(
-						1=>Phrase::trans(588,0),
-						0=>Phrase::trans(589,0),
-					),
-					'type' => 'raw',
-				);
-			}
 			$this->defaultColumns[] = array(
 				'name' => 'start_date',
 				'value' => 'Utility::dateFormat($data->start_date)',
@@ -301,6 +310,20 @@ class VisitGuest extends CActiveRecord
 			);
 			if(!isset($_GET['type'])) {
 				$this->defaultColumns[] = array(
+					'name' => 'status',
+					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("status",array("id"=>$data->guest_id)), $data->status, 1)',
+					'htmlOptions' => array(
+						'class' => 'center',
+					),
+					'filter'=>array(
+						1=>Phrase::trans(588,0),
+						0=>Phrase::trans(589,0),
+					),
+					'type' => 'raw',
+				);
+			}
+			if(!isset($_GET['type'])) {
+				$this->defaultColumns[] = array(
 					'name' => 'organization',
 					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("organization",array("id"=>$data->guest_id)), $data->organization, 1)',
 					'htmlOptions' => array(
@@ -320,6 +343,7 @@ class VisitGuest extends CActiveRecord
 			$this->defaultColumns[] = 'messages';
 			$this->defaultColumns[] = 'message_file';
 			$this->defaultColumns[] = 'message_reply';
+			$this->defaultColumns[] = 'creation_id';
 			$this->defaultColumns[] = array(
 				'name' => 'creation_date',
 				'value' => 'Utility::dateFormat($data->creation_date)',
@@ -346,34 +370,6 @@ class VisitGuest extends CActiveRecord
 					),
 				), true),
 			);
-			$this->defaultColumns[] = 'creation_id';
-			$this->defaultColumns[] = array(
-				'name' => 'modified_date',
-				'value' => 'Utility::dateFormat($data->modified_date)',
-				'htmlOptions' => array(
-					'class' => 'center',
-				),
-				'filter' => Yii::app()->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
-					'model'=>$this,
-					'attribute'=>'modified_date',
-					'language' => 'ja',
-					'i18nScriptFile' => 'jquery.ui.datepicker-en.js',
-					//'mode'=>'datetime',
-					'htmlOptions' => array(
-						'id' => 'modified_date_filter',
-					),
-					'options'=>array(
-						'showOn' => 'focus',
-						'dateFormat' => 'dd-mm-yy',
-						'showOtherMonths' => true,
-						'selectOtherMonths' => true,
-						'changeMonth' => true,
-						'changeYear' => true,
-						'showButtonPanel' => true,
-					),
-				), true),
-			);
-			$this->defaultColumns[] = 'modified_id';
 		}
 		parent::afterConstruct();
 	}
@@ -398,14 +394,15 @@ class VisitGuest extends CActiveRecord
 	/**
 	 * before validate attributes
 	 */
-	/*
 	protected function beforeValidate() {
 		if(parent::beforeValidate()) {
-			// Create action
+			if($this->isNewRecord)
+				$this->creation_id = Yii::app()->user->id;		
+			else
+				$this->modified_id = Yii::app()->user->id;
 		}
 		return true;
 	}
-	*/
 
 	/**
 	 * after validate attributes
