@@ -161,7 +161,7 @@ class Visits extends CActiveRecord
 		$criteria->with = array(
 			'guest_TO' => array(
 				'alias'=>'guest_TO',
-				'select'=>'author_id, organization, organization_name',
+				'select'=>'author_id, organization, organization_name, visitor',
 			),
 			'creation_TO' => array(
 				'alias'=>'creation_TO',
@@ -239,6 +239,13 @@ class Visits extends CActiveRecord
 			$this->defaultColumns[] = array(
 				'name' => 'guest_search',
 				'value' => '$data->guest_TO->organization == 1 ? $data->guest_TO->organization_name : $data->guest_TO->author_TO->name',
+			);
+			$this->defaultColumns[] = array(
+				'header' => 'Visitor',
+				'value' => '$data->guest_TO->visitor',
+				'htmlOptions' => array(
+					'class' => 'center',
+				),
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'start_date',
