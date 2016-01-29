@@ -1,7 +1,7 @@
 <?php
 /**
  * Visit Guests (visit-guest)
- * @var $this GuestController
+ * @var $this RequestController
  * @var $model VisitGuest
  * @var $form CActiveForm
  *
@@ -15,13 +15,13 @@
 
 	$this->breadcrumbs=array(
 		'Visit Guests'=>array('manage'),
-		$model->guest_id=>array('view','id'=>$model->guest_id),
-		'Update',
+		'Create',
 	);
 ?>
 
 <div class="form">
 	<?php echo $this->renderPartial('_form', array(
 		'model'=>$model,
+		'author'=>$author,
 	)); ?>
 </div>

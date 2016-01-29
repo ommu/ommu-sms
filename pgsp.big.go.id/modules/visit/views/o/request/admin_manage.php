@@ -1,7 +1,7 @@
 <?php
 /**
  * Visit Guests (visit-guest)
- * @var $this GuestController
+ * @var $this RequestController
  * @var $model VisitGuest
  *
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>

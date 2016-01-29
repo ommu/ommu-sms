@@ -1,7 +1,7 @@
 <?php
 /**
- * GuestController
- * @var $this GuestController
+ * RequestController
+ * @var $this RequestController
  * @var $model VisitGuest
  * @var $form CActiveForm
  * version: 0.0.1
@@ -29,7 +29,7 @@
  *----------------------------------------------------------------------------------------------------------
  */
 
-class GuestController extends Controller
+class RequestController extends Controller
 {
 	/**
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
