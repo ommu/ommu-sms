@@ -23,13 +23,14 @@
  * The followings are the available columns in table 'ommu_visit_guest':
  * @property string $guest_id
  * @property integer $status
+ * @property string $author_id
  * @property string $start_date
  * @property string $finish_date
  * @property integer $organization
  * @property string $organization_name
  * @property string $organization_address
  * @property string $organization_phone
- * @property integer $organization_visitor
+ * @property integer $visitor
  * @property string $messages
  * @property string $message_file
  * @property string $message_reply
@@ -44,6 +45,7 @@
 class VisitGuest extends CActiveRecord
 {
 	public $defaultColumns = array();
+	public $old_file;
 	
 	// Variable Search
 	public $creation_search;
@@ -76,15 +78,19 @@ class VisitGuest extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('status, start_date, finish_date, organization_name, organization_address, organization_phone, organization_visitor, messages, message_file, message_reply, creation_date, creation_id, modified_id', 'required'),
-			array('status, organization, organization_visitor', 'numerical', 'integerOnly'=>true),
-			array('organization_name', 'length', 'max'=>64),
-			array('organization_phone', 'length', 'max'=>15),
+			array('start_date, finish_date, organization, visitor, messages', 'required'),
+			array('status, message_reply', 'required', 'on'=>'reply'),
+			array('status', 'required', 'on'=>'edit'),
+			array('status, organization, visitor', 'numerical', 'integerOnly'=>true),
+			array('visitor', 'length', 'max'=>3),
 			array('creation_id, modified_id', 'length', 'max'=>11),
-			array('modified_date', 'safe'),
+			array('organization_phone', 'length', 'max'=>15),
+			array('organization_name', 'length', 'max'=>64),
+			array('organization, organization_name, organization_address, organization_phone, message_file, message_reply,
+				old_file', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('guest_id, status, start_date, finish_date, organization, organization_name, organization_address, organization_phone, organization_visitor, messages, message_file, message_reply, creation_date, creation_id, modified_date, modified_id, 
+			array('guest_id, status, author_id, start_date, finish_date, organization, organization_name, organization_address, organization_phone, visitor, messages, message_file, message_reply, creation_date, creation_id, modified_date, modified_id, 
 				creation_search, modified_search', 'safe', 'on'=>'search'),
 		);
 	}
@@ -97,6 +103,7 @@ class VisitGuest extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'author_TO' => array(self::BELONGS_TO, 'OmmuAuthors', 'author_id'),
 			'creation_TO' => array(self::BELONGS_TO, 'Users', 'creation_id'),
 			'modified_TO' => array(self::BELONGS_TO, 'Users', 'modified_id'),
 			'visit_MANY' => array(self::HAS_MANY, 'Visits', 'guest_id'),
@@ -111,13 +118,14 @@ class VisitGuest extends CActiveRecord
 		return array(
 			'guest_id' => 'Guest',
 			'status' => 'Status',
+			'author_id' => 'Author',
 			'start_date' => 'Start Date',
 			'finish_date' => 'Finish Date',
 			'organization' => 'Organization',
 			'organization_name' => 'Organization Name',
 			'organization_address' => 'Organization Address',
 			'organization_phone' => 'Organization Phone',
-			'organization_visitor' => 'Organization Visitor',
+			'visitor' => 'Visitor',
 			'messages' => 'Messages',
 			'message_file' => 'Message File',
 			'message_reply' => 'Message Reply',
@@ -125,6 +133,7 @@ class VisitGuest extends CActiveRecord
 			'creation_id' => 'Creation',
 			'modified_date' => 'Modified Date',
 			'modified_id' => 'Modified',
+			'old_file' => 'Old Message File',
 			'creation_search' => 'Creation',
 			'modified_search' => 'Modified',
 		);
@@ -150,6 +159,7 @@ class VisitGuest extends CActiveRecord
 
 		$criteria->compare('t.guest_id',strtolower($this->guest_id),true);
 		$criteria->compare('t.status',$this->status);
+		$criteria->compare('t.author_id',strtolower($this->author_id),true);
 		if($this->start_date != null && !in_array($this->start_date, array('0000-00-00 00:00:00', '0000-00-00')))
 			$criteria->compare('date(t.start_date)',date('Y-m-d', strtotime($this->start_date)));
 		if($this->finish_date != null && !in_array($this->finish_date, array('0000-00-00 00:00:00', '0000-00-00')))
@@ -158,7 +168,7 @@ class VisitGuest extends CActiveRecord
 		$criteria->compare('t.organization_name',strtolower($this->organization_name),true);
 		$criteria->compare('t.organization_address',strtolower($this->organization_address),true);
 		$criteria->compare('t.organization_phone',strtolower($this->organization_phone),true);
-		$criteria->compare('t.organization_visitor',$this->organization_visitor);
+		$criteria->compare('t.visitor',$this->visitor);
 		$criteria->compare('t.messages',strtolower($this->messages),true);
 		$criteria->compare('t.message_file',strtolower($this->message_file),true);
 		$criteria->compare('t.message_reply',strtolower($this->message_reply),true);
@@ -220,13 +230,14 @@ class VisitGuest extends CActiveRecord
 		} else {
 			//$this->defaultColumns[] = 'guest_id';
 			$this->defaultColumns[] = 'status';
+			$this->defaultColumns[] = 'author_id';
 			$this->defaultColumns[] = 'start_date';
 			$this->defaultColumns[] = 'finish_date';
 			$this->defaultColumns[] = 'organization';
 			$this->defaultColumns[] = 'organization_name';
 			$this->defaultColumns[] = 'organization_address';
 			$this->defaultColumns[] = 'organization_phone';
-			$this->defaultColumns[] = 'organization_visitor';
+			$this->defaultColumns[] = 'visitor';
 			$this->defaultColumns[] = 'messages';
 			$this->defaultColumns[] = 'message_file';
 			$this->defaultColumns[] = 'message_reply';
@@ -255,6 +266,24 @@ class VisitGuest extends CActiveRecord
 			$this->defaultColumns[] = array(
 				'header' => 'No',
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
+			);
+			if(!isset($_GET['type'])) {
+				$this->defaultColumns[] = array(
+					'name' => 'organization',
+					'value' => '$data->organization == 1 ? "Organization" : "Personal"',
+					'htmlOptions' => array(
+						'class' => 'center',
+					),
+					'filter'=>array(
+						1=>'Organization',
+						0=>'Personal',
+					),
+					'type' => 'raw',
+				);
+			}
+			$this->defaultColumns[] = array(
+				'name' => 'author_id',
+				'value' => '$data->organization == 1 ? "author_id ($data->organization_name)" : "author_id"',
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'start_date',
@@ -308,42 +337,18 @@ class VisitGuest extends CActiveRecord
 					),
 				), true),
 			);
-			if(!isset($_GET['type'])) {
-				$this->defaultColumns[] = array(
-					'name' => 'status',
-					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("status",array("id"=>$data->guest_id)), $data->status, 1)',
-					'htmlOptions' => array(
-						'class' => 'center',
-					),
-					'filter'=>array(
-						1=>Phrase::trans(588,0),
-						0=>Phrase::trans(589,0),
-					),
-					'type' => 'raw',
-				);
-			}
-			if(!isset($_GET['type'])) {
-				$this->defaultColumns[] = array(
-					'name' => 'organization',
-					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("organization",array("id"=>$data->guest_id)), $data->organization, 1)',
-					'htmlOptions' => array(
-						'class' => 'center',
-					),
-					'filter'=>array(
-						1=>Phrase::trans(588,0),
-						0=>Phrase::trans(589,0),
-					),
-					'type' => 'raw',
-				);
-			}
-			$this->defaultColumns[] = 'organization_name';
-			$this->defaultColumns[] = 'organization_address';
-			$this->defaultColumns[] = 'organization_phone';
-			$this->defaultColumns[] = 'organization_visitor';
-			$this->defaultColumns[] = 'messages';
-			$this->defaultColumns[] = 'message_file';
-			$this->defaultColumns[] = 'message_reply';
-			$this->defaultColumns[] = 'creation_id';
+			$this->defaultColumns[] = array(
+				'name' => 'visitor',
+				'value' => '$data->visitor',
+				'htmlOptions' => array(
+					'class' => 'center',
+				),
+				'type' => 'raw',
+			);
+			$this->defaultColumns[] = array(
+				'name' => 'creation_search',
+				'value' => '$data->creation_TO->displayname',
+			);
 			$this->defaultColumns[] = array(
 				'name' => 'creation_date',
 				'value' => 'Utility::dateFormat($data->creation_date)',
@@ -369,6 +374,16 @@ class VisitGuest extends CActiveRecord
 						'showButtonPanel' => true,
 					),
 				), true),
+			);
+			$this->defaultColumns[] = array(
+				'name' => 'status',
+				'value' => '$data->status == 0 ? "Pending" : ($data->status == 1 ? "Approved" : "Rejected")',
+				'filter'=>array(
+					0=>'Pending',
+					1=>'Approved',
+					2=>'Rejected',
+				),
+				'type' => 'raw',
 			);
 		}
 		parent::afterConstruct();
@@ -400,65 +415,68 @@ class VisitGuest extends CActiveRecord
 				$this->creation_id = Yii::app()->user->id;		
 			else
 				$this->modified_id = Yii::app()->user->id;
+			
+			if($this->organization == 1) {
+				if($this->organization_name == '')
+					$this->addError('organization_name', 'Organization Name cannot be blank.');
+				if($this->organization_address == '')
+					$this->addError('organization_address', 'Organization Address cannot be blank.');
+				if($this->organization_phone == '')
+					$this->addError('organization_phone', 'Organization Phone cannot be blank.');
+			}
+			
+			$media = CUploadedFile::getInstance($this, 'message_file');
+			if($media->name != '') {
+				$extension = pathinfo($media->name, PATHINFO_EXTENSION);
+				if(!in_array(strtolower($extension), array('pdf','doc','opt','docx','ppt','pptx','zip', 'rar', '7z')))
+					$this->addError('message_file', 'The file "'.$media->name.'" cannot be uploaded. Only files with these extensions are allowed: pdf, doc, opt, docx, ppt, pptx, zip, rar, 7z.');
+			}
 		}
 		return true;
 	}
-
-	/**
-	 * after validate attributes
-	 */
-	/*
-	protected function afterValidate()
-	{
-		parent::afterValidate();
-			// Create action
-		return true;
-	}
-	*/
 	
 	/**
 	 * before save attributes
 	 */
-	/*
 	protected function beforeSave() {
 		if(parent::beforeSave()) {
-			//$this->start_date = date('Y-m-d', strtotime($this->start_date));
-			//$this->finish_date = date('Y-m-d', strtotime($this->finish_date));
+			$currentAction = strtolower(Yii::app()->controller->id.'/'.Yii::app()->controller->action->id);
+			$action = strtolower(Yii::app()->controller->action->id);
+			
+			$this->start_date = date('Y-m-d', strtotime($this->start_date));
+			$this->finish_date = date('Y-m-d', strtotime($this->finish_date));
+				
+			//upload proposal
+			if(in_array($action, array('add','edit'))) {
+				$visit_path = "public/visit";
+				$this->message_file = CUploadedFile::getInstance($this, 'message_file');
+				if($this->message_file instanceOf CUploadedFile) {
+					$fileName = time().'_'.Utility::getUrlTitle($this->start_date.' '.$this->finish_date).'.'.strtolower($this->message_file->extensionName);
+					if($this->message_file->saveAs($visit_path.'/'.$fileName)) {						
+						if(!$this->isNewRecord && $this->old_file != '' && file_exists($visit_path.'/'.$this->old_file))
+							rename($visit_path.'/'.$this->old_file, 'public/visit/verwijderen/'.$this->guest_id.'_'.$this->old_file);
+						$this->message_file = $fileName;
+					}
+				}
+				
+				if(!$this->isNewRecord && $this->message_file == '') {
+					$this->message_file = $this->old_file;
+				}
+			}
 		}
 		return true;	
 	}
-	*/
-	
-	/**
-	 * After save attributes
-	 */
-	/*
-	protected function afterSave() {
-		parent::afterSave();
-		// Create action
-	}
-	*/
-
-	/**
-	 * Before delete attributes
-	 */
-	/*
-	protected function beforeDelete() {
-		if(parent::beforeDelete()) {
-			// Create action
-		}
-		return true;
-	}
-	*/
 
 	/**
 	 * After delete attributes
 	 */
-	/*
 	protected function afterDelete() {
 		parent::afterDelete();
-		// Create action
+		//delete visit image
+		$visit_path = "public/visit";
+		if($this->message_file != '' && file_exists($visit_path.'/'.$this->message_file)) {
+			rename($visit_path.'/'.$this->message_file, 'public/visit/verwijderen/'.$this->guest_id.'_'.$this->message_file);
+		}
 	}
-	*/
 
 }

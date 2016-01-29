@@ -13,10 +13,9 @@
  *	Add
  *	Edit
  *	View
+ *	Reply
  *	RunAction
  *	Delete
- *	Publish
- *	Headline
  *
  *	LoadModel
  *	performAjaxValidation
@@ -87,7 +86,7 @@ class GuestController extends Controller
 				//'expression'=>'isset(Yii::app()->user->level) && (Yii::app()->user->level != 1)',
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('manage','add','edit','view','runaction','delete','status'),
+				'actions'=>array('manage','add','edit','view','reply','runaction','delete'),
 				'users'=>array('@'),
 				'expression'=>'isset(Yii::app()->user->level) && (Yii::app()->user->level == 1)',
 			),
@@ -146,12 +145,29 @@ class GuestController extends Controller
 	public function actionAdd() 
 	{
 		$model=new VisitGuest;
+		$author=new OmmuAuthors;
 
 		// Uncomment the following line if AJAX validation is needed
 		$this->performAjaxValidation($model);
 
-		if(isset($_POST['VisitGuest'])) {
+		if(isset($_POST['VisitGuest'], $_POST['OmmuAuthors'])) {
 			$model->attributes=$_POST['VisitGuest'];
+			$author->attributes=$_POST['OmmuAuthors'];
+			$author->scenario='phone';
+			
+			$authorModel = OmmuAuthors::model()->find(array(
+				'select' => 'author_id, email',
+				'condition' => 'publish = 1 AND email = :email',
+				'params' => array(
+					':email' => strtolower($author->email),
+				),
+			));
+			if($authorModel != null) {
+				$model->author_id = $authorModel->author_id;
+			} else {
+				if($author->save())
+					$model->author_id = $author->author_id;
+			}
 			
 			if($model->save()) {
 				Yii::app()->user->setFlash('success', 'VisitGuest success created.');
@@ -164,6 +180,7 @@ class GuestController extends Controller
 		$this->pageMeta = '';
 		$this->render('admin_add',array(
 			'model'=>$model,
+			'author'=>$author,
 		));
 	}
 
@@ -192,6 +209,36 @@ class GuestController extends Controller
 		$this->pageDescription = '';
 		$this->pageMeta = '';
 		$this->render('admin_edit',array(
+			'model'=>$model,
+		));
+	}
+
+	/**
+	 * Updates a particular model.
+	 * If update is successful, the browser will be redirected to the 'view' page.
+	 * @param integer $id the ID of the model to be updated
+	 */
+	public function actionReply($id) 
+	{
+		$model=$this->loadModel($id);
+
+		// Uncomment the following line if AJAX validation is needed
+		$this->performAjaxValidation($model);
+
+		if(isset($_POST['VisitGuest'])) {
+			$model->attributes=$_POST['VisitGuest'];
+			$model->scenario='reply';
+			
+			if($model->save()) {
+				Yii::app()->user->setFlash('success', 'VisitGuest success reply.');
+				$this->redirect(array('manage'));
+			}
+		}
+
+		$this->pageTitle = 'Reply Visit Guests';
+		$this->pageDescription = '';
+		$this->pageMeta = '';
+		$this->render('admin_reply',array(
 			'model'=>$model,
 		));
 	}
@@ -279,104 +326,6 @@ class GuestController extends Controller
 			$this->pageDescription = '';
 			$this->pageMeta = '';
 			$this->render('admin_delete');
-		}
-	}
-
-	/**
-	 * Deletes a particular model.
-	 * If deletion is successful, the browser will be redirected to the 'admin' page.
-	 * @param integer $id the ID of the model to be deleted
-	 */
-	public function actionPublish($id) 
-	{
-		$model=$this->loadModel($id);
-		
-		if($model->publish == 1) {
-		//if($model->actived == 1) {
-		//if($model->enabled == 1) {
-		//if($model->status == 1) {
-			$title = Phrase::trans(276,0);
-			//$title = Phrase::trans(278,0);
-			//$title = Phrase::trans(284,0);
-			//$title = Phrase::trans(292,0);
-			$replace = 0;
-		} else {
-			$title = Phrase::trans(275,0);
-			//$title = Phrase::trans(277,0);
-			//$title = Phrase::trans(283,0);
-			//$title = Phrase::trans(291,0);
-			$replace = 1;
-		}
-
-		if(Yii::app()->request->isPostRequest) {
-			// we only allow deletion via POST request
-			if(isset($id)) {
-				//change value active or publish
-				$model->publish = $replace;
-				//$model->actived = $replace;
-				//$model->enabled = $replace;
-				//$model->status = $replace;
-
-				if($model->update()) {
-					echo CJSON::encode(array(
-						'type' => 5,
-						'get' => Yii::app()->controller->createUrl('manage'),
-						'id' => 'partial-visit-guest',
-						'msg' => '<div class="errorSummary success"><strong>VisitGuest success published.</strong></div>',
-					));
-				}
-			}
-
-		} else {
-			$this->dialogDetail = true;
-			$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
-			$this->dialogWidth = 350;
-
-			$this->pageTitle = $title;
-			$this->pageDescription = '';
-			$this->pageMeta = '';
-			$this->render('admin_publish',array(
-				'title'=>$title,
-				'model'=>$model,
-			));
-		}
-	}
-
-	/**
-	 * Deletes a particular model.
-	 * If deletion is successful, the browser will be redirected to the 'admin' page.
-	 * @param integer $id the ID of the model to be deleted
-	 */
-	public function actionHeadline($id) 
-	{
-		$model=$this->loadModel($id);
-
-		if(Yii::app()->request->isPostRequest) {
-			// we only allow deletion via POST request
-			if(isset($id)) {
-				//change value active or publish
-				$model->headline = 1;
-				$model->publish = 1;
-
-				if($model->update()) {
-					echo CJSON::encode(array(
-						'type' => 5,
-						'get' => Yii::app()->controller->createUrl('manage'),
-						'id' => 'partial-visit-guest',
-						'msg' => '<div class="errorSummary success"><strong>VisitGuest success updated.</strong></div>',
-					));
-				}
-			}
-
-		} else {
-			$this->dialogDetail = true;
-			$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
-			$this->dialogWidth = 350;
-
-			$this->pageTitle = Phrase::trans(338,0);
-			$this->pageDescription = '';
-			$this->pageMeta = '';
-			$this->render('admin_headline');
 		}
 	}
 

@@ -69,14 +69,18 @@
 				'header' => Phrase::trans(151,0),
 				'class'=>'CButtonColumn',
 				'buttons' => array(
+					'reply' => array(
+						'label' => 'reply',
+						'options' => array(							
+							'class' => 'reply',
+						),
+						'url' => 'Yii::app()->controller->createUrl("reply",array("id"=>$data->primaryKey))'),
 					'view' => array(
 						'label' => 'view',
 						'options' => array(							
 							'class' => 'view',
-							'off_address' => '',
-							'target' => '_blank',
 						),
-						'url' => 'Yii::app()->controller->createUrl("site/view",array("id"=>$data->primaryKey))'),
+						'url' => 'Yii::app()->controller->createUrl("view",array("id"=>$data->primaryKey))'),
 					'update' => array(
 						'label' => 'update',
 						'options' => array(
@@ -90,7 +94,7 @@
 						),
 						'url' => 'Yii::app()->controller->createUrl("delete",array("id"=>$data->primaryKey))')
 				),
-				'template' => '{view}|{update}|{delete}',
+				'template' => '{reply}|{view}|{update}|{delete}',
 			));
 
 			$this->widget('application.components.system.OGridView', array(

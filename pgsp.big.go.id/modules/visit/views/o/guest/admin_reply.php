@@ -3,6 +3,7 @@
  * Visit Guests (visit-guest)
  * @var $this GuestController
  * @var $model VisitGuest
+ * @var $form CActiveForm
  *
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
@@ -14,18 +15,14 @@
 
 	$this->breadcrumbs=array(
 		'Visit Guests'=>array('manage'),
-		$model->guest_id,
+		$model->guest_id=>array('view','id'=>$model->guest_id),
+		'Update',
 	);
 ?>
 
 <?php $this->widget('application.components.system.FDetailView', array(
 	'data'=>$model,
 	'attributes'=>array(
-		//'guest_id',
-		array(
-			'name'=>'status',
-			'value'=>$model->status == 0 ? 'Pending' : ($model->status == 1 ? 'Approve' : 'Rejected'),
-		),
 		array(
 			'name'=>'start_date',
 			'value'=>Utility::dateFormat($model->start_date),
@@ -68,11 +65,6 @@
 			'type'=>'raw',
 		),
 		array(
-			'name'=>'message_reply',
-			'value'=>$model->message_reply != '' ? '' : '-',
-			'type'=>'raw',
-		),
-		array(
 			'name'=>'creation_date',
 			'value'=>Utility::dateFormat($model->creation_date, true),
 		),
@@ -90,3 +82,9 @@
 		),
 	),
 )); ?>
+
+<div class="form" style="margin-top: 15px;">
+	<?php echo $this->renderPartial('_form', array(
+		'model'=>$model,
+	)); ?>
+</div>

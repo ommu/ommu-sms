@@ -60,8 +60,8 @@
 		</li>
 
 		<li>
-			<?php echo $model->getAttributeLabel('organization_visitor'); ?><br/>
-			<?php echo $form->textField($model,'organization_visitor'); ?>
+			<?php echo $model->getAttributeLabel('visitor'); ?><br/>
+			<?php echo $form->textField($model,'visitor'); ?>
 		</li>
 
 		<li>
