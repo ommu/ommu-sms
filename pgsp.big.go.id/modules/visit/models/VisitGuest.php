@@ -283,7 +283,8 @@ class VisitGuest extends CActiveRecord
 			}
 			$this->defaultColumns[] = array(
 				'name' => 'author_id',
-				'value' => '$data->organization == 1 ? "author_id ($data->organization_name)" : "author_id"',
+				'value' => '$data->author_id != 0 ? ($data->organization == 1 ? $data->author_TO->name." (".$data->organization_name.")" : $data->author_TO->name) : $data->organization_name',
+				
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'start_date',

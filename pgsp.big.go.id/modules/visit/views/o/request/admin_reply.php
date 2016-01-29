@@ -86,5 +86,6 @@
 <div class="form" style="margin-top: 15px;">
 	<?php echo $this->renderPartial('_form', array(
 		'model'=>$model,
+		'schedule'=>$schedule,
 	)); ?>
 </div>

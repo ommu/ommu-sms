@@ -185,7 +185,7 @@ EOP;
 						'dateFormat' => 'dd-mm-yy',
 					),
 					'htmlOptions'=>array(
-						'class' => 'span-4',
+						'class' => 'span-3',
 					 ),
 				)); ?>
 				<?php echo $form->error($model,'start_date'); ?>
@@ -207,7 +207,7 @@ EOP;
 						'dateFormat' => 'dd-mm-yy',
 					),
 					'htmlOptions'=>array(
-						'class' => 'span-4',
+						'class' => 'span-3',
 					 ),
 				)); ?>
 				<?php echo $form->error($model,'finish_date'); ?>
@@ -265,16 +265,62 @@ EOP;
 		</div>
 	<?php }?>
 
-	<?php if(!$model->isNewRecord && $action == 'reply') {?>
-		<div class="clearfix publish">
+	<?php if(!$model->isNewRecord && $action == 'reply') {?>		
+		<div class="clearfix">
 			<label><?php echo $model->getAttributeLabel('status')?> <span class="required">*</span></label>
 			<div class="desc">
 				<?php echo $form->dropDownList($model,'status', array(
 					'0'=>'Pending',
-					'1'=>'Approved',
+					'1'=>'Approved (Add to Schedule)',
 					'2'=>'Rejected',
 				), array('prompt'=>'')); ?>
 				<?php echo $form->error($model,'status'); ?>
+			</div>
+		</div>
+
+		<div class="clearfix">
+			<?php echo $form->labelEx($schedule,'start_date'); ?>
+			<div class="desc">
+				<?php
+				$schedule->start_date = date('d-m-Y', strtotime($model->start_date));
+				!$schedule->isNewRecord ? ($schedule->start_date != '0000-00-00' ? $schedule->start_date = date('d-m-Y', strtotime($schedule->start_date)) : '') : '';
+				//echo $form->textField($schedule,'start_date');
+				$this->widget('zii.widgets.jui.CJuiDatePicker',array(
+					'model'=>$schedule,
+					'attribute'=>'start_date',
+					//'mode'=>'datetime',
+					'options'=>array(
+						'dateFormat' => 'dd-mm-yy',
+					),
+					'htmlOptions'=>array(
+						'class' => 'span-3',
+					 ),
+				)); ?>
+				<?php echo $form->error($schedule,'start_date'); ?>
+				<?php /*<div class="small-px silent"></div>*/?>
+			</div>
+		</div>
+
+		<div class="clearfix">
+			<?php echo $form->labelEx($schedule,'finish_date'); ?>
+			<div class="desc">
+				<?php
+				$schedule->finish_date = date('d-m-Y', strtotime($model->finish_date));
+				!$schedule->isNewRecord ? ($schedule->finish_date != '0000-00-00' ? $schedule->finish_date = date('d-m-Y', strtotime($schedule->finish_date)) : '') : '';
+				//echo $form->textField($schedule,'finish_date');
+				$this->widget('zii.widgets.jui.CJuiDatePicker',array(
+					'model'=>$schedule,
+					'attribute'=>'finish_date',
+					//'mode'=>'datetime',
+					'options'=>array(
+						'dateFormat' => 'dd-mm-yy',
+					),
+					'htmlOptions'=>array(
+						'class' => 'span-3',
+					 ),
+				)); ?>
+				<?php echo $form->error($schedule,'finish_date'); ?>
+				<?php /*<div class="small-px silent"></div>*/?>
 			</div>
 		</div>
 		

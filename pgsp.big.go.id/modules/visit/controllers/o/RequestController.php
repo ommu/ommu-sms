@@ -221,17 +221,25 @@ class RequestController extends Controller
 	public function actionReply($id) 
 	{
 		$model=$this->loadModel($id);
+		$schedule=new Visits;
 
 		// Uncomment the following line if AJAX validation is needed
 		$this->performAjaxValidation($model);
 
-		if(isset($_POST['VisitGuest'])) {
+		if(isset($_POST['VisitGuest'], $_POST['Visits'])) {
 			$model->attributes=$_POST['VisitGuest'];
 			$model->scenario='reply';
+			$schedule->attributes=$_POST['Visits'];
 			
 			if($model->save()) {
+				if($model->status == 1) {
+					$schedule->status = $model->status;
+					$schedule->guest_id = $model->guest_id;
+					$schedule->save();
+				}
 				Yii::app()->user->setFlash('success', 'VisitGuest success reply.');
 				$this->redirect(array('manage'));
+				
 			}
 		}
 
@@ -240,6 +248,7 @@ class RequestController extends Controller
 		$this->pageMeta = '';
 		$this->render('admin_reply',array(
 			'model'=>$model,
+			'schedule'=>$schedule,
 		));
 	}
 	

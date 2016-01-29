@@ -70,10 +70,10 @@ class Visits extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('status, guest_id, start_date, finish_date, creation_date, creation_id, modified_id', 'required'),
+			array('guest_id, start_date, finish_date', 'required'),
 			array('status', 'numerical', 'integerOnly'=>true),
 			array('guest_id, creation_id, modified_id', 'length', 'max'=>11),
-			array('modified_date', 'safe'),
+			array('creation_id, modified_id', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('visit_id, status, guest_id, start_date, finish_date, creation_date, creation_id, modified_date, modified_id,
@@ -161,7 +161,7 @@ class Visits extends CActiveRecord
 		$criteria->with = array(
 			'guest_TO' => array(
 				'alias'=>'guest_TO',
-				'select'=>'organization_name',
+				'select'=>'author_id, organization, organization_name',
 			),
 			'creation_TO' => array(
 				'alias'=>'creation_TO',
@@ -238,7 +238,7 @@ class Visits extends CActiveRecord
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'guest_search',
-				'value' => '$data->guest_TO->organization_name',
+				'value' => '$data->guest_TO->organization == 1 ? $data->guest_TO->organization_name : $data->guest_TO->author_TO->name',
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'start_date',
@@ -368,6 +368,17 @@ class Visits extends CActiveRecord
 				$this->modified_id = Yii::app()->user->id;
 		}
 		return true;
+	}
+	
+	/**
+	 * before save attributes
+	 */
+	protected function beforeSave() {
+		if(parent::beforeSave()) {			
+			$this->start_date = date('Y-m-d', strtotime($this->start_date));
+			$this->finish_date = date('Y-m-d', strtotime($this->finish_date));
+		}
+		return true;	
 	}
 
 }
