@@ -1,6 +1,6 @@
 <?php
 /**
- * Visit Guests (visit-guest)
+ * Visit Request (visit-guest)
  * @var $this RequestController
  * @var $model VisitGuest
  *
@@ -13,7 +13,7 @@
  */
 
 	$this->breadcrumbs=array(
-		'Visit Guests'=>array('manage'),
+		'Visit Request'=>array('manage'),
 		$model->guest_id,
 	);
 ?>

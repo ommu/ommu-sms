@@ -129,7 +129,7 @@ class RequestController extends Controller
 		}
 		$columns = $model->getGridColumn($columnTemp);
 
-		$this->pageTitle = 'Visit Guests Manage';
+		$this->pageTitle = 'Visit Request Manage';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
 		$this->render('admin_manage',array(
@@ -175,7 +175,7 @@ class RequestController extends Controller
 			}
 		}
 
-		$this->pageTitle = 'Create Visit Guests';
+		$this->pageTitle = 'Create Visit Request';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
 		$this->render('admin_add',array(
@@ -205,7 +205,7 @@ class RequestController extends Controller
 			}
 		}
 
-		$this->pageTitle = 'Update Visit Guests';
+		$this->pageTitle = 'Update Visit Request';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
 		$this->render('admin_edit',array(
@@ -235,7 +235,7 @@ class RequestController extends Controller
 			}
 		}
 
-		$this->pageTitle = 'Reply Visit Guests';
+		$this->pageTitle = 'Reply Visit Request';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
 		$this->render('admin_reply',array(
@@ -251,7 +251,7 @@ class RequestController extends Controller
 	{
 		$model=$this->loadModel($id);
 
-		$this->pageTitle = 'View Visit Guests';
+		$this->pageTitle = 'View Visit Request';
 		$this->pageDescription = '';
 		$this->pageMeta = $setting->meta_keyword;
 		$this->render('admin_view',array(

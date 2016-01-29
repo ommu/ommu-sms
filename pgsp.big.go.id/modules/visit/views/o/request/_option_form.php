@@ -1,6 +1,6 @@
 <?php
 /**
- * Visit Guests (visit-guest)
+ * Visit Request (visit-guest)
  * @var $this RequestController
  * @var $model VisitGuest
  * @var $form CActiveForm
