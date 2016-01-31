@@ -18,5 +18,11 @@
 		'Create',
 	);
 ?>
-	
-<?php echo $this->renderPartial('_form', array('model'=>$model)); ?>
+
+<div class="form">
+	<?php echo $this->renderPartial('_form', array(
+		'model'=>$model,
+		'author'=>$author,
+		'guest'=>$guest,
+	)); ?>
+</div>

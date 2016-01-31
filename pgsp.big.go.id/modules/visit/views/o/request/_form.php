@@ -265,7 +265,7 @@ EOP;
 		</div>
 	<?php }?>
 
-	<?php if(!$model->isNewRecord && $action == 'reply') {?>		
+	<?php if(!$model->isNewRecord && $action == 'reply') {?>
 		<div class="clearfix">
 			<label><?php echo $model->getAttributeLabel('status')?> <span class="required">*</span></label>
 			<div class="desc">

@@ -156,9 +156,40 @@ class AdminController extends Controller
 			$author->scenario='phone';
 			$guest->attributes=$_POST['VisitGuest'];
 			
-			if($model->save()) {
-				Yii::app()->user->setFlash('success', 'Visits success created.');
-				$this->redirect(array('manage'));
+			$authorModel = OmmuAuthors::model()->find(array(
+				'select' => 'author_id, email',
+				'condition' => 'publish = 1 AND email = :email',
+				'params' => array(
+					':email' => strtolower($author->email),
+				),
+			));
+			if($authorModel != null) {
+				$guest->author_id = $authorModel->author_id;
+			} else {
+				if($author->save())
+					$guest->author_id = $author->author_id;
+			}
+			
+			$guest->start_date = $model->start_date;
+			$guest->finish_date = $model->finish_date;
+			if(in_array($guest->status, array(1,2)) && $guest->messages == "")
+				$guest->messages = "-";
+			if(in_array($guest->status, array(1,2)) && $guest->message_reply == "")
+				$guest->message_reply = "-";
+			if($guest->save())
+				$model->guest_id = $guest->guest_id;
+			
+			if($model->validate()) {
+				if($guest->status == 1) {
+					$model->status = $guest->status;
+					if($model->save()) {
+						Yii::app()->user->setFlash('success', 'Visits success created.');
+						$this->redirect(array('manage'));
+					}					
+				} else if(in_array($guest->status, array(1,2))) {
+					Yii::app()->user->setFlash('success', 'Visits success created.');
+					$this->redirect(array('manage'));
+				}
 			}
 		}
 
