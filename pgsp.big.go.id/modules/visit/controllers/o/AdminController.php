@@ -10,6 +10,7 @@
  * TOC :
  *	Index
  *	Manage
+ *	Upload
  *	Add
  *	Edit
  *	View
@@ -85,7 +86,7 @@ class AdminController extends Controller
 				//'expression'=>'isset(Yii::app()->user->level) && (Yii::app()->user->level != 1)',
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('manage','add','edit','view','runaction','delete'),
+				'actions'=>array('manage','add','upload','edit','view','runaction','delete'),
 				'users'=>array('@'),
 				'expression'=>'isset(Yii::app()->user->level) && in_array(Yii::app()->user->level, array(1,2))',
 			),
@@ -134,6 +135,55 @@ class AdminController extends Controller
 		$this->render('admin_manage',array(
 			'model'=>$model,
 			'columns' => $columns,
+		));
+	}	/**
+	 * Creates a new model.
+	 * If creation is successful, the browser will be redirected to the 'view' page.
+	 */
+	public function actionUpload() 
+	{
+		ini_set('max_execution_time', 0);
+		ob_start();
+		
+		$path = 'public/visit/';
+		
+		if(isset($_FILES['visitExcel'])) {
+			$fileName = CUploadedFile::getInstanceByName('visitExcel');
+			if(in_array(strtolower($fileName->extensionName), array('xls','xlsx'))) {
+				$file = time().'_visit_excel.'.strtolower($fileName->extensionName);
+				if($fileName->saveAs($path.'/'.$file)) {
+					Yii::import('ext.excel_reader.OExcelReader');
+					$xls = new OExcelReader($path.'/'.$file);
+					
+					for ($row = 2; $row <= $xls->sheets[0]['numRows']; $row++) {
+						
+					}
+					
+					Yii::app()->user->setFlash('success', 'Export Excell Success.');
+					$this->redirect(array('manage'));
+					
+				} else {
+					Yii::app()->user->setFlash('error', 'Gagal menyimpan file.');
+				}
+			} else {
+				Yii::app()->user->setFlash('error', 'Hanya file .xls dan .xlsx yang dibolehkan.');
+			}
+		}
+
+		ob_end_flush();
+		
+		unset(Yii::app()->session['grant_year_id']);
+		unset(Yii::app()->session['grant_year']);
+		
+		$this->dialogDetail = true;
+		$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
+		$this->dialogWidth = 600;
+
+		$this->pageTitle = 'Upload Visit';
+		$this->pageDescription = '';
+		$this->pageMeta = '';
+		$this->render('admin_upload',array(
+			'model'=>$model,
 		));
 	}
 	
