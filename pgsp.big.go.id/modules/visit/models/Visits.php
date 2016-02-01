@@ -238,7 +238,7 @@ class Visits extends CActiveRecord
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'guest_search',
-				'value' => '$data->guest_TO->organization == 1 ? $data->guest_TO->organization_name." (".$data->guest_TO->author_TO->name.")" : $data->guest_TO->author_TO->name',
+				'value' => '$data->guest_TO->organization == 1 ? ($data->guest_TO->author_id != 0 ? $data->guest_TO->organization_name." (".$data->guest_TO->author_TO->name.")" : $data->guest_TO->organization_name) : $data->guest_TO->author_TO->name',
 			);
 			$this->defaultColumns[] = array(
 				'header' => 'Visitor',

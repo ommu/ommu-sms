@@ -10,7 +10,7 @@
  * TOC :
  *	Index
  *	Manage
- *	Upload
+ *	Import
  *	Add
  *	Edit
  *	View
@@ -86,7 +86,7 @@ class AdminController extends Controller
 				//'expression'=>'isset(Yii::app()->user->level) && (Yii::app()->user->level != 1)',
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('manage','add','upload','edit','view','runaction','delete'),
+				'actions'=>array('manage','import','add','edit','view','runaction','delete'),
 				'users'=>array('@'),
 				'expression'=>'isset(Yii::app()->user->level) && in_array(Yii::app()->user->level, array(1,2))',
 			),
@@ -140,12 +140,13 @@ class AdminController extends Controller
 	 * Creates a new model.
 	 * If creation is successful, the browser will be redirected to the 'view' page.
 	 */
-	public function actionUpload() 
+	public function actionImport() 
 	{
 		ini_set('max_execution_time', 0);
 		ob_start();
 		
 		$path = 'public/visit/';
+		$error = [];
 		
 		if(isset($_FILES['visitExcel'])) {
 			$fileName = CUploadedFile::getInstanceByName('visitExcel');
@@ -155,11 +156,75 @@ class AdminController extends Controller
 					Yii::import('ext.excel_reader.OExcelReader');
 					$xls = new OExcelReader($path.'/'.$file);
 					
-					for ($row = 2; $row <= $xls->sheets[0]['numRows']; $row++) {
+					for ($row = 3; $row <= $xls->sheets[0]['numRows']; $row++) {
+						$no						= trim($xls->sheets[0]['cells'][$row][1]);
+						$author_name			= ucwords(strtolower(trim($xls->sheets[0]['cells'][$row][2])));
+						$author_email			= strtolower(trim($xls->sheets[0]['cells'][$row][3]));
+						$author_phone			= strtolower(trim($xls->sheets[0]['cells'][$row][4]));
+						$organization_name 		= ucfirst(strtolower(trim($xls->sheets[0]['cells'][$row][5])));
+						$organization_address	= ucwords(strtolower(trim($xls->sheets[0]['cells'][$row][6])));
+						$organization_phone		= strtolower(trim($xls->sheets[0]['cells'][$row][7]));
+						$visitor				= trim($xls->sheets[0]['cells'][$row][8]);
+						$start_date				= date('Y-m-d', strtotime(trim($xls->sheets[0]['cells'][$row][9])));
+						$finish_date			= date('Y-m-d', strtotime(trim($xls->sheets[0]['cells'][$row][10])));
+						$status					= trim($xls->sheets[0]['cells'][$row][11]);
+						$message				= ucfirst(strtolower(trim($xls->sheets[0]['cells'][$row][12])));
+						$message_reply			= ucfirst(strtolower(trim($xls->sheets[0]['cells'][$row][13])));
 						
+						$author=new OmmuAuthors;
+						$visit=new Visits;
+						$guest=new VisitGuest;
+						
+						if($author_email != '' || $organization_name != '') {			
+							if($author_email != '') {
+								$authorModel = OmmuAuthors::model()->find(array(
+									'select' => 'author_id, email',
+									'condition' => 'publish = 1 AND email = :email',
+									'params' => array(
+										':email' => $author_email,
+									),
+								));
+								if($authorModel != null) {
+									$guest->author_id = $authorModel->author_id;
+								} else {
+									$author->name = $author_name;
+									$author->email = $author_email;
+									if($author_phone != '')
+										$author->author_phone = $author_phone;
+									if($author->save())
+										$guest->author_id = $author->author_id;
+								}
+							} else
+								$guest->author_id = 0;
+							
+							if($organization_name != '') {
+								$guest->organization = 1;
+								$guest->organization_name = $organization_name;
+								$guest->organization_address = $organization_address != '' ? $organization_address : '-';
+								$guest->organization_phone = $organization_phone !='' ? $organization_phone : '-';							
+							} else
+								$guest->organization = 0;
+							
+							$guest->status = $status;
+							$guest->start_date = $start_date;
+							$guest->finish_date = $finish_date;
+							$guest->visitor = $visitor;
+							$guest->messages = in_array($status, array('1','2')) && $message != '' ? $message : '-';
+							$guest->message_reply = in_array($status, array('1','2')) && $message_reply != '' ? $message_reply : '-';	
+							
+							if($guest->save())
+								$visit->guest_id = $guest->guest_id;
+							
+							if($guest->status == '1') {
+								$visit->status = $guest->status;
+								$visit->start_date = $guest->start_date;
+								$visit->finish_date = $guest->finish_date;
+								$visit->save();								
+							}							
+						}			
 					}
 					
-					Yii::app()->user->setFlash('success', 'Export Excell Success.');
+					Yii::app()->user->setFlash('success', 'Import Excell Success.');
 					$this->redirect(array('manage'));
 					
 				} else {
@@ -172,9 +237,6 @@ class AdminController extends Controller
 
 		ob_end_flush();
 		
-		unset(Yii::app()->session['grant_year_id']);
-		unset(Yii::app()->session['grant_year']);
-		
 		$this->dialogDetail = true;
 		$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
 		$this->dialogWidth = 600;
@@ -182,7 +244,7 @@ class AdminController extends Controller
 		$this->pageTitle = 'Upload Visit';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
-		$this->render('admin_upload',array(
+		$this->render('admin_import',array(
 			'model'=>$model,
 		));
 	}
