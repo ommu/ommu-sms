@@ -448,7 +448,7 @@ class VisitGuest extends CActiveRecord
 			$this->finish_date = date('Y-m-d', strtotime($this->finish_date));
 				
 			//upload proposal
-			if(in_array($action, array('add','edit'))) {
+			if(in_array($action, array('add','edit')) || $currentAction == 'request/form') {
 				$visit_path = "public/visit";
 				$this->message_file = CUploadedFile::getInstance($this, 'message_file');
 				if($this->message_file instanceOf CUploadedFile) {

@@ -38,22 +38,9 @@ class RequestController extends Controller
 	 */
 	public function init() 
 	{
-		if(!Yii::app()->user->isGuest) {
-			if(Yii::app()->user->level == 1) {
-				$arrThemes = Utility::getCurrentTemplate('admin');
-				Yii::app()->theme = $arrThemes['folder'];
-				$this->layout = $arrThemes['layout'];
-			} else {
-				$this->redirect(Yii::app()->createUrl('site/login'));
-			}
-		} else {
-			$this->redirect(Yii::app()->createUrl('site/login'));
-		}
-		/*
 		$arrThemes = Utility::getCurrentTemplate('public');
 		Yii::app()->theme = $arrThemes['folder'];
 		$this->layout = $arrThemes['layout'];
-		*/
 	}
 
 	/**
@@ -148,7 +135,7 @@ class RequestController extends Controller
 	 * Creates a new model.
 	 * If creation is successful, the browser will be redirected to the 'view' page.
 	 */
-	public function actionAdd() 
+	public function actionForm() 
 	{
 		$model=new VisitGuest;
 

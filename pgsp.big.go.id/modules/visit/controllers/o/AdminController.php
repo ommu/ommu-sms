@@ -151,7 +151,7 @@ class AdminController extends Controller
 		if(isset($_FILES['visitExcel'])) {
 			$fileName = CUploadedFile::getInstanceByName('visitExcel');
 			if(in_array(strtolower($fileName->extensionName), array('xls','xlsx'))) {
-				$file = time().'_visit_excel.'.strtolower($fileName->extensionName);
+				$file = time().'_'.Utility::getUrlTitle(date('d-m-Y H:i:s')).'_'.Utility::getUrlTitle(Yii::app()->user->displayname).'.'.strtolower($fileName->extensionName);
 				if($fileName->saveAs($path.'/'.$file)) {
 					Yii::import('ext.excel_reader.OExcelReader');
 					$xls = new OExcelReader($path.'/'.$file);

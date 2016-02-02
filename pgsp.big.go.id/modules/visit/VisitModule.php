@@ -23,6 +23,7 @@ class VisitModule extends CWebModule
 			$publicControllers = array(
 				'site',
 				'user',
+				'request',
 			);
 			
 			// pake ini untuk set theme per action di controller..
