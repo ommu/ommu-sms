@@ -113,7 +113,7 @@ EOP;
 		</div>
 
 		<div class="clearfix">
-			<label><?php echo $guest->getAttributeLabel('organization_phone')?> <span class="required">*</span></label>
+			<?php echo $form->labelEx($guest,'organization_phone'); ?>
 			<div class="desc">
 				<?php echo $form->textField($guest,'organization_phone',array('maxlength'=>15,'class'=>'span-4')); ?>
 				<?php echo $form->error($guest,'organization_phone'); ?>

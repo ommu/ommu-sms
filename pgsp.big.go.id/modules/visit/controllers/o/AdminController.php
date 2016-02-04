@@ -323,6 +323,7 @@ class AdminController extends Controller
 	public function actionEdit($id) 
 	{
 		$model=$this->loadModel($id);
+		$guest=VisitGuest::model()->findByPk($model->guest_id);
 
 		// Uncomment the following line if AJAX validation is needed
 		$this->performAjaxValidation($model);
@@ -341,6 +342,7 @@ class AdminController extends Controller
 		$this->pageMeta = '';
 		$this->render('admin_edit',array(
 			'model'=>$model,
+			'guest'=>$guest,
 		));
 	}
 	

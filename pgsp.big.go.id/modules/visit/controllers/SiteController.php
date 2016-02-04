@@ -92,8 +92,8 @@ class SiteController extends Controller
 	public function actionIndex() 
 	{
 		$criteria=new CDbCriteria;
-		$criteria->condition = 'publish = :publish';
-		$criteria->params = array(':publish'=>1);
+		$criteria->condition = 'status = :status';
+		$criteria->params = array(':status'=>1);
 		$criteria->order = 'creation_date DESC';
 
 		$dataProvider = new CActiveDataProvider('Visits', array(

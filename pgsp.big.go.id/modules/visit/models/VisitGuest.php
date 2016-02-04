@@ -422,8 +422,6 @@ class VisitGuest extends CActiveRecord
 					$this->addError('organization_name', 'Organization Name cannot be blank.');
 				if($this->organization_address == '')
 					$this->addError('organization_address', 'Organization Address cannot be blank.');
-				if($this->organization_phone == '')
-					$this->addError('organization_phone', 'Organization Phone cannot be blank.');
 			}
 			
 			$media = CUploadedFile::getInstance($this, 'message_file');
