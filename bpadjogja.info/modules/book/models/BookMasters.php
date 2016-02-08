@@ -394,7 +394,7 @@ class BookMasters extends CActiveRecord
 					$this->addError('cover', 'The file "'.$cover->name.'" cannot be uploaded. Only files with these extensions are allowed: bmp, gif, jpg, png.');
 			}
 			
-			if($controller == 'request') {
+			if(in_array($controller, array('request','o/request'))) {
 				if($this->author_id == 0)
 					$this->author_id = '';
 				if($this->interpreter_id == 0)
@@ -412,7 +412,7 @@ class BookMasters extends CActiveRecord
 			$this->title = strtolower($this->title);
 			$this->publish_city = strtolower($this->publish_city);
 			
-			if(($this->isNewRecord && ($this->publisher_id == '' && $this->publisher_input != '')) || (!$this->isNewRecord && (($this->publisher_id == $this->old_publisher_id) && ($this->publisher_input != $this->old_publisher_input)))) {
+			if(($this->isNewRecord && ($this->publisher_id == '' && $this->publisher_input != '')) || (!$this->isNewRecord && (($this->publisher_id == $this->old_publisher_id) && ($this->publisher_input != $this->old_publisher_input)) || ($this->publisher_input != '' && ($this->publisher_id == '' || $this->publisher_id == 0)))) {
 				$model = BookMasterPublishers::model()->find(array(
 					'select' => 'publisher_id, publisher_name',
 					'condition' => 'publish = 1 AND publisher_name = :name',
@@ -472,7 +472,7 @@ class BookMasters extends CActiveRecord
 				}
 			}
 			
-			if($controller == 'request') {
+			if(in_array($controller, array('request','o/request'))) {
 				//author and interpreter
 				if($this->author_id != '' || $this->author_id != 0) {
 					$author=new BookAuthor;
