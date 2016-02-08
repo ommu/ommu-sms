@@ -212,7 +212,7 @@ class BookReviews extends CActiveRecord
 		$criteria->compare('modified_relation.displayname',strtolower($this->modified_search), true);
 
 		if(!isset($_GET['BookReviews_sort']))
-			$criteria->order = 'review_id DESC';
+			$criteria->order = 't.review_id DESC';
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

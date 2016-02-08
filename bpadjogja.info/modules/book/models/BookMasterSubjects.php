@@ -136,7 +136,7 @@ class BookMasterSubjects extends CActiveRecord
 		$criteria->compare('creation.displayname',strtolower($this->creation_search), true);
 
 		if(!isset($_GET['BookMasterSubjects_sort']))
-			$criteria->order = 'subject_id DESC';
+			$criteria->order = 't.subject_id DESC';
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

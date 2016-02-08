@@ -231,7 +231,7 @@ class BookMasters extends CActiveRecord
 		$criteria->compare('modified.displayname',strtolower($this->modified_search), true);
 
 		if(!isset($_GET['BookMasters_sort']))
-			$criteria->order = 'book_id DESC';
+			$criteria->order = 't.book_id DESC';
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

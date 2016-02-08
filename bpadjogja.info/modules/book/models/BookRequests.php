@@ -166,7 +166,7 @@ class BookRequests extends CActiveRecord
 		$criteria->compare('creation_relation.displayname',strtolower($this->creation_search), true);
 
 		if(!isset($_GET['BookRequests_sort']))
-			$criteria->order = 'request_id DESC';
+			$criteria->order = 't.request_id DESC';
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

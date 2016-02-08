@@ -162,7 +162,7 @@ class BookAuthor extends CActiveRecord
 		$criteria->compare('creation_relation.displayname',strtolower($this->creation_search), true);
 
 		if(!isset($_GET['BookAuthor_sort']))
-			$criteria->order = 'id DESC';
+			$criteria->order = 't.id DESC';
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
