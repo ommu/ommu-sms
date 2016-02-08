@@ -87,13 +87,13 @@
 				<div class="desc">
 					<?php 
 					//echo $form->textField($model,'author_input',array('maxlength'=>64,'class'=>'span-6'));
-					$url = Yii::app()->controller->createUrl('author/ajaxadd', array('type'=>'book'));
+					$url = Yii::app()->controller->createUrl('o/author/ajaxadd', array('type'=>'book'));
 					$book = $model->book_id;
 					$authorId = 'BookMasters_author_input';
 					$this->widget('zii.widgets.jui.CJuiAutoComplete', array(
 						'model' => $model,
 						'attribute' => 'author_input',
-						'source' => Yii::app()->controller->createUrl('masterauthor/suggest'),
+						'source' => Yii::app()->controller->createUrl('o/masterauthor/suggest'),
 						'options' => array(
 							//'delay '=> 50,
 							'minLength' => 1,
@@ -133,13 +133,13 @@
 				<div class="desc">
 					<?php 
 					//echo $form->textField($model,'interpreter_input',array('maxlength'=>64,'class'=>'span-6'));
-					$url = Yii::app()->controller->createUrl('interpreter/ajaxadd', array('type'=>'book'));
+					$url = Yii::app()->controller->createUrl('o/interpreter/ajaxadd', array('type'=>'book'));
 					$book = $model->book_id;
 					$interpreterId = 'BookMasters_interpreter_input';
 					$this->widget('zii.widgets.jui.CJuiAutoComplete', array(
 						'model' => $model,
 						'attribute' => 'interpreter_input',
-						'source' => Yii::app()->controller->createUrl('masterauthor/suggest'),
+						'source' => Yii::app()->controller->createUrl('o/masterauthor/suggest'),
 						'options' => array(
 							//'delay '=> 50,
 							'minLength' => 1,
@@ -182,12 +182,12 @@
 					echo $form->hiddenField($model,'publisher_id');
 					$model->publisher_input = $model->publisher->publisher_name;
 					//echo $form->textField($model,'publisher_input',array('maxlength'=>64,'class'=>'span-6')); 
-					$url = Yii::app()->controller->createUrl('masterpublisher/ajaxadd', array('type'=>'book'));
+					$url = Yii::app()->controller->createUrl('o/masterpublisher/ajaxadd', array('type'=>'book'));
 					$publisherId = 'BookMasters_publisher_input';
 					$this->widget('zii.widgets.jui.CJuiAutoComplete', array(
 						'model' => $model,
 						'attribute' => 'publisher_input',
-						'source' => Yii::app()->controller->createUrl('masterpublisher/suggest'),
+						'source' => Yii::app()->controller->createUrl('o/masterpublisher/suggest'),
 						'options' => array(
 							//'delay '=> 50,
 							'minLength' => 1,
@@ -250,13 +250,13 @@
 				<div class="desc">
 					<?php 
 					//echo $form->textField($model,'subject_input',array('maxlength'=>64,'class'=>'span-6'));
-					$url = Yii::app()->controller->createUrl('subject/ajaxadd', array('type'=>'book'));
+					$url = Yii::app()->controller->createUrl('o/subject/ajaxadd', array('type'=>'book'));
 					$book = $model->book_id;
 					$subjectId = 'BookMasters_subject_input';
 					$this->widget('zii.widgets.jui.CJuiAutoComplete', array(
 						'model' => $model,
 						'attribute' => 'subject_input',
-						'source' => Yii::app()->controller->createUrl('mastersubject/suggest'),
+						'source' => Yii::app()->controller->createUrl('o/mastersubject/suggest'),
 						'options' => array(
 							//'delay '=> 50,
 							'minLength' => 1,
