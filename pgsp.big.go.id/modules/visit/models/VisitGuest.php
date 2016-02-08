@@ -119,15 +119,23 @@ class VisitGuest extends CActiveRecord
 			'guest_id' => 'Guest',
 			'status' => 'Status',
 			'author_id' => 'Author',
-			'start_date' => 'Start Date',
-			'finish_date' => 'Finish Date',
+			//'start_date' => 'Start Date',
+			//'finish_date' => 'Finish Date',
+			'start_date' => 'Tanggal Mulai',
+			'finish_date' => 'Tanggal Selesai',
 			'organization' => 'Organization',
-			'organization_name' => 'Organization Name',
-			'organization_address' => 'Organization Address',
-			'organization_phone' => 'Organization Phone',
-			'visitor' => 'Visitor',
-			'messages' => 'Messages',
-			'message_file' => 'Message File',
+			//'organization_name' => 'Organization Name',
+			//'organization_address' => 'Organization Address',
+			//'organization_phone' => 'Organization Phone',
+			//'visitor' => 'Visitor',
+			///'messages' => 'Messages',
+			//'message_file' => 'Message File',
+			'organization_name' => 'Nama Organisasi',
+			'organization_address' => 'Alamat Organisasi',
+			'organization_phone' => 'Telepon Organisasi',
+			'visitor' => 'Jumlah Pengunjung',
+			'messages' => 'Pesan',
+			'message_file' => 'Lampiran',
 			'message_reply' => 'Message Reply',
 			'creation_date' => 'Creation Date',
 			'creation_id' => 'Creation',
@@ -424,11 +432,14 @@ class VisitGuest extends CActiveRecord
 					$this->addError('organization_address', 'Organization Address cannot be blank.');
 			}
 			
+			if(($this->start_date != '' && $this->finish_date != '') && ($this->start_date > $this->finish_date))
+				$this->addError('finish_date', 'Tanggal selesai harus lebih besar dari tanggal mulai');
+			
 			$media = CUploadedFile::getInstance($this, 'message_file');
 			if($media->name != '') {
 				$extension = pathinfo($media->name, PATHINFO_EXTENSION);
-				if(!in_array(strtolower($extension), array('pdf','doc','opt','docx','ppt','pptx','zip', 'rar', '7z')))
-					$this->addError('message_file', 'The file "'.$media->name.'" cannot be uploaded. Only files with these extensions are allowed: pdf, doc, opt, docx, ppt, pptx, zip, rar, 7z.');
+				if(!in_array(strtolower($extension), array('bmp','gif','jpg','jpeg','png','pdf','doc','opt','docx','ppt','pptx','zip', 'rar', '7z')))
+					$this->addError('message_file', 'The file "'.$media->name.'" cannot be uploaded. Only files with these extensions are allowed: bmp, gif, jpg, jpeg, png, pdf, doc, opt, docx, ppt, pptx, zip, rar, 7z.');
 			}
 		}
 		return true;

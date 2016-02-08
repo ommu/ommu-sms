@@ -104,8 +104,10 @@ class Visits extends CActiveRecord
 			'visit_id' => 'Visit',
 			'status' => 'Status',
 			'guest_id' => 'Guest',
-			'start_date' => 'Start Date',
-			'finish_date' => 'Finish Date',
+			//'start_date' => 'Start Date',
+			//'finish_date' => 'Finish Date',
+			'start_date' => 'Tanggal Mulai',
+			'finish_date' => 'Tanggal Selesai',
 			'creation_date' => 'Creation Date',
 			'creation_id' => 'Creation',
 			'modified_date' => 'Modified Date',
@@ -373,6 +375,9 @@ class Visits extends CActiveRecord
 				$this->creation_id = Yii::app()->user->id;		
 			else
 				$this->modified_id = Yii::app()->user->id;
+			
+			if(($this->start_date != '' && $this->finish_date != '') && ($this->start_date > $this->finish_date))
+				$this->addError('finish_date', 'Tanggal selesai harus lebih besar dari tanggal mulai');
 		}
 		return true;
 	}
