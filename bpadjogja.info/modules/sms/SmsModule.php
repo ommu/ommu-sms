@@ -1,9 +1,10 @@
 <?php
 /**
- * SmsModule *
+ * SmsModule
+ *
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
- * @copyright Copyright (c) 2015 Ommu Platform (ommu.co)
- * @link https://github.com/oMMu/Ommu-Photo-Albums
+ * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
+ * @link http://company.ommu.co
  * @contect (+62)856-299-4114
  *
  *----------------------------------------------------------------------------------------------------------
@@ -22,6 +23,7 @@ class SmsModule extends CWebModule
 		$this->setImport(array(
 			'sms.models.*',
 			'sms.components.*',
+			'sms.components.system.*',
 		));
 	}
 

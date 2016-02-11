@@ -10,3 +10,9 @@ author			: Putra Sudaryanto [putra@sudaryanto.me]
 db_table_name	: 
  
 db_sql_filename	: 
+
+content_menu	:
+# controller o/outbox
+	- urlTitle: Compose SMS
+		urlRules: {sms, o/outbox, manage, siteType: 0,1, userLevel: 1}
+		urlPath: {url: add, attr: -, icon: -}

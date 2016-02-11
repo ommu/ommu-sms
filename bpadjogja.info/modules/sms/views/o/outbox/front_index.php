@@ -3,7 +3,7 @@
  * Sms Outboxes (sms-outbox)
  * @var $this OutboxController
  * @var $model SmsOutbox
- * @var $form CActiveForm
+ * @var $dataProvider CActiveDataProvider
  *
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
@@ -14,12 +14,17 @@
  */
 
 	$this->breadcrumbs=array(
-		'Sms Outboxes'=>array('manage'),
-		$model->outbox_id=>array('view','id'=>$model->outbox_id),
-		'Update',
+		'Sms Outboxes',
 	);
 ?>
 
-<div class="form">
-	<?php echo $this->renderPartial('_form', array('model'=>$model)); ?>
-</div>
+<?php $this->widget('application.components.system.FListView', array(
+	'dataProvider'=>$dataProvider,
+	'itemView'=>'_view',
+	'pager' => array(
+		'header' => '',
+	), 
+	'summaryText' => '',
+	'itemsCssClass' => 'items clearfix',
+	'pagerCssClass'=>'pager clearfix',
+)); ?>

@@ -1,8 +1,8 @@
 <?php
 /**
- * OutboxController
- * @var $this OutboxController
- * @var $model SmsOutbox
+ * InboxController
+ * @var $this InboxController
+ * @var $model SmsInbox
  * @var $form CActiveForm
  * version: 0.0.1
  * Reference start
@@ -23,14 +23,14 @@
  *
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
- * @created date 12 February 2016, 04:07 WIB
+ * @created date 12 February 2016, 04:06 WIB
  * @link http://company.ommu.co
  * @contect (+62)856-299-4114
  *
  *----------------------------------------------------------------------------------------------------------
  */
 
-class OutboxController extends Controller
+class InboxController extends Controller
 {
 	/**
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
@@ -116,7 +116,7 @@ class OutboxController extends Controller
 		$this->layout = $arrThemes['layout'];
 		Utility::applyCurrentTheme($this->module);
 		
-		$setting = SmsOutbox::model()->findByPk(1,array(
+		$setting = SmsInbox::model()->findByPk(1,array(
 			'select' => 'meta_description, meta_keyword',
 		));
 
@@ -125,14 +125,14 @@ class OutboxController extends Controller
 		$criteria->params = array(':publish'=>1);
 		$criteria->order = 'creation_date DESC';
 
-		$dataProvider = new CActiveDataProvider('SmsOutbox', array(
+		$dataProvider = new CActiveDataProvider('SmsInbox', array(
 			'criteria'=>$criteria,
 			'pagination'=>array(
 				'pageSize'=>10,
 			),
 		));
 
-		$this->pageTitle = 'Sms Outboxes';
+		$this->pageTitle = 'Sms Inboxes';
 		$this->pageDescription = $setting->meta_description;
 		$this->pageMeta = $setting->meta_keyword;
 		$this->render('front_index',array(
@@ -158,7 +158,7 @@ class OutboxController extends Controller
 
 		$model=$this->loadModel($id);
 
-		$this->pageTitle = 'View Sms Outboxes';
+		$this->pageTitle = 'View Sms Inboxes';
 		$this->pageDescription = '';
 		$this->pageMeta = $setting->meta_keyword;
 		$this->render('front_view',array(
@@ -176,10 +176,10 @@ class OutboxController extends Controller
 	 */
 	public function actionManage() 
 	{
-		$model=new SmsOutbox('search');
+		$model=new SmsInbox('search');
 		$model->unsetAttributes();  // clear any default values
-		if(isset($_GET['SmsOutbox'])) {
-			$model->attributes=$_GET['SmsOutbox'];
+		if(isset($_GET['SmsInbox'])) {
+			$model->attributes=$_GET['SmsInbox'];
 		}
 
 		$columnTemp = array();
@@ -192,7 +192,7 @@ class OutboxController extends Controller
 		}
 		$columns = $model->getGridColumn($columnTemp);
 
-		$this->pageTitle = 'Sms Outboxes Manage';
+		$this->pageTitle = 'Sms Inboxes Manage';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
 		$this->render('admin_manage',array(
@@ -207,13 +207,13 @@ class OutboxController extends Controller
 	 */
 	public function actionAdd() 
 	{
-		$model=new SmsOutbox;
+		$model=new SmsInbox;
 
 		// Uncomment the following line if AJAX validation is needed
 		$this->performAjaxValidation($model);
 
-		if(isset($_POST['SmsOutbox'])) {
-			$model->attributes=$_POST['SmsOutbox'];
+		if(isset($_POST['SmsInbox'])) {
+			$model->attributes=$_POST['SmsInbox'];
 
 			/* 
 			$jsonError = CActiveForm::validate($model);
@@ -238,8 +238,8 @@ class OutboxController extends Controller
 						echo CJSON::encode(array(
 							'type' => 5,
 							'get' => Yii::app()->controller->createUrl('manage'),
-							'id' => 'partial-sms-outbox',
-							'msg' => '<div class="errorSummary success"><strong>SmsOutbox success created.</strong></div>',
+							'id' => 'partial-sms-inbox',
+							'msg' => '<div class="errorSummary success"><strong>SmsInbox success created.</strong></div>',
 						));
 					} else {
 						print_r($model->getErrors());
@@ -251,14 +251,14 @@ class OutboxController extends Controller
 
 			if(isset($_GET['enablesave']) && $_GET['enablesave'] == 1) {
 				if($model->save()) {
-					Yii::app()->user->setFlash('success', 'SmsOutbox success created.');
-					//$this->redirect(array('view','id'=>$model->outbox_id));
+					Yii::app()->user->setFlash('success', 'SmsInbox success created.');
+					//$this->redirect(array('view','id'=>$model->inbox_id));
 					$this->redirect(array('manage'));
 				}
 			}
 		}
 
-		$this->pageTitle = 'Create Sms Outboxes';
+		$this->pageTitle = 'Create Sms Inboxes';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
 		$this->render('admin_add',array(
@@ -278,8 +278,8 @@ class OutboxController extends Controller
 		// Uncomment the following line if AJAX validation is needed
 		$this->performAjaxValidation($model);
 
-		if(isset($_POST['SmsOutbox'])) {
-			$model->attributes=$_POST['SmsOutbox'];
+		if(isset($_POST['SmsInbox'])) {
+			$model->attributes=$_POST['SmsInbox'];
 
 			/* 
 			$jsonError = CActiveForm::validate($model);
@@ -304,8 +304,8 @@ class OutboxController extends Controller
 						echo CJSON::encode(array(
 							'type' => 5,
 							'get' => Yii::app()->controller->createUrl('manage'),
-							'id' => 'partial-sms-outbox',
-							'msg' => '<div class="errorSummary success"><strong>SmsOutbox success updated.</strong></div>',
+							'id' => 'partial-sms-inbox',
+							'msg' => '<div class="errorSummary success"><strong>SmsInbox success updated.</strong></div>',
 						));
 					} else {
 						print_r($model->getErrors());
@@ -317,14 +317,14 @@ class OutboxController extends Controller
 
 			if(isset($_GET['enablesave']) && $_GET['enablesave'] == 1) {
 				if($model->save()) {
-					Yii::app()->user->setFlash('success', 'SmsOutbox success updated.');
-					//$this->redirect(array('view','id'=>$model->outbox_id));
+					Yii::app()->user->setFlash('success', 'SmsInbox success updated.');
+					//$this->redirect(array('view','id'=>$model->inbox_id));
 					$this->redirect(array('manage'));
 				}
 			}
 		}
 
-		$this->pageTitle = 'Update Sms Outboxes';
+		$this->pageTitle = 'Update Sms Inboxes';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
 		$this->render('admin_edit',array(
@@ -346,19 +346,19 @@ class OutboxController extends Controller
 			$criteria->addInCondition('id', $id);
 
 			if($actions == 'publish') {
-				SmsOutbox::model()->updateAll(array(
+				SmsInbox::model()->updateAll(array(
 					'publish' => 1,
 				),$criteria);
 			} elseif($actions == 'unpublish') {
-				SmsOutbox::model()->updateAll(array(
+				SmsInbox::model()->updateAll(array(
 					'publish' => 0,
 				),$criteria);
 			} elseif($actions == 'trash') {
-				SmsOutbox::model()->updateAll(array(
+				SmsInbox::model()->updateAll(array(
 					'publish' => 2,
 				),$criteria);
 			} elseif($actions == 'delete') {
-				SmsOutbox::model()->deleteAll($criteria);
+				SmsInbox::model()->deleteAll($criteria);
 			}
 		}
 
@@ -384,8 +384,8 @@ class OutboxController extends Controller
 					echo CJSON::encode(array(
 						'type' => 5,
 						'get' => Yii::app()->controller->createUrl('manage'),
-						'id' => 'partial-sms-outbox',
-						'msg' => '<div class="errorSummary success"><strong>SmsOutbox success deleted.</strong></div>',
+						'id' => 'partial-sms-inbox',
+						'msg' => '<div class="errorSummary success"><strong>SmsInbox success deleted.</strong></div>',
 					));
 				}
 			}
@@ -395,7 +395,7 @@ class OutboxController extends Controller
 			$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
 			$this->dialogWidth = 350;
 
-			$this->pageTitle = 'SmsOutbox Delete.';
+			$this->pageTitle = 'SmsInbox Delete.';
 			$this->pageDescription = '';
 			$this->pageMeta = '';
 			$this->render('admin_delete');
@@ -441,8 +441,8 @@ class OutboxController extends Controller
 					echo CJSON::encode(array(
 						'type' => 5,
 						'get' => Yii::app()->controller->createUrl('manage'),
-						'id' => 'partial-sms-outbox',
-						'msg' => '<div class="errorSummary success"><strong>SmsOutbox success published.</strong></div>',
+						'id' => 'partial-sms-inbox',
+						'msg' => '<div class="errorSummary success"><strong>SmsInbox success published.</strong></div>',
 					));
 				}
 			}
@@ -482,8 +482,8 @@ class OutboxController extends Controller
 					echo CJSON::encode(array(
 						'type' => 5,
 						'get' => Yii::app()->controller->createUrl('manage'),
-						'id' => 'partial-sms-outbox',
-						'msg' => '<div class="errorSummary success"><strong>SmsOutbox success updated.</strong></div>',
+						'id' => 'partial-sms-inbox',
+						'msg' => '<div class="errorSummary success"><strong>SmsInbox success updated.</strong></div>',
 					));
 				}
 			}
@@ -507,7 +507,7 @@ class OutboxController extends Controller
 	 */
 	public function loadModel($id) 
 	{
-		$model = SmsOutbox::model()->findByPk($id);
+		$model = SmsInbox::model()->findByPk($id);
 		if($model===null)
 			throw new CHttpException(404, Phrase::trans(193,0));
 		return $model;
@@ -519,7 +519,7 @@ class OutboxController extends Controller
 	 */
 	protected function performAjaxValidation($model) 
 	{
-		if(isset($_POST['ajax']) && $_POST['ajax']==='sms-outbox-form') {
+		if(isset($_POST['ajax']) && $_POST['ajax']==='sms-inbox-form') {
 			echo CActiveForm::validate($model);
 			Yii::app()->end();
 		}

@@ -7,7 +7,7 @@
  *
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
- * @created date 11 February 2016, 18:56 WIB
+ * @created date 12 February 2016, 04:07 WIB
  * @link http://company.ommu.co
  * @contect (+62)856-299-4114
  *
@@ -20,8 +20,8 @@
 )); ?>
 	<ul>
 		<li>
-			<?php echo $model->getAttributeLabel('smslog_id'); ?><br/>
-			<?php echo $form->textField($model,'smslog_id'); ?>
+			<?php echo $model->getAttributeLabel('outbox_id'); ?><br/>
+			<?php echo $form->textField($model,'outbox_id'); ?>
 		</li>
 
 		<li>
@@ -40,13 +40,13 @@
 		</li>
 
 		<li>
-			<?php echo $model->getAttributeLabel('reply_id'); ?><br/>
-			<?php echo $form->textField($model,'reply_id',array('size'=>11,'maxlength'=>11)); ?>
+			<?php echo $model->getAttributeLabel('smsc_source'); ?><br/>
+			<?php echo $form->textField($model,'smsc_source',array('size'=>15,'maxlength'=>15)); ?>
 		</li>
 
 		<li>
-			<?php echo $model->getAttributeLabel('smsc_source'); ?><br/>
-			<?php echo $form->textField($model,'smsc_source',array('size'=>15,'maxlength'=>15)); ?>
+			<?php echo $model->getAttributeLabel('smsc_destination'); ?><br/>
+			<?php echo $form->textField($model,'smsc_destination',array('size'=>15,'maxlength'=>15)); ?>
 		</li>
 
 		<li>
@@ -55,8 +55,8 @@
 		</li>
 
 		<li>
-			<?php echo $model->getAttributeLabel('destination_message'); ?><br/>
-			<?php echo $form->textArea($model,'destination_message',array('rows'=>6, 'cols'=>50)); ?>
+			<?php echo $model->getAttributeLabel('message'); ?><br/>
+			<?php echo $form->textArea($model,'message',array('rows'=>6, 'cols'=>50)); ?>
 		</li>
 
 		<li>
@@ -72,11 +72,6 @@
 		<li>
 			<?php echo $model->getAttributeLabel('updated_date'); ?><br/>
 			<?php echo $form->textField($model,'updated_date'); ?>
-		</li>
-
-		<li>
-			<?php echo $model->getAttributeLabel('reply_date'); ?><br/>
-			<?php echo $form->textField($model,'reply_date'); ?>
 		</li>
 
 		<li>

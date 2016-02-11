@@ -6,7 +6,7 @@
  *
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
- * @created date 11 February 2016, 18:56 WIB
+ * @created date 12 February 2016, 04:07 WIB
  * @link http://company.ommu.co
  * @contect (+62)856-299-4114
  *
@@ -14,7 +14,7 @@
 
 	$this->breadcrumbs=array(
 		'Sms Outboxes'=>array('manage'),
-		$model->smslog_id,
+		$model->outbox_id,
 	);
 ?>
 
@@ -29,9 +29,9 @@ if(Yii::app()->user->hasFlash('success'))
 	'data'=>$model,
 	'attributes'=>array(
 		array(
-			'name'=>'smslog_id',
-			'value'=>$model->smslog_id,
-			//'value'=>'value'=>$model->smslog_id != '' ? $model->smslog_id : '-',
+			'name'=>'outbox_id',
+			'value'=>$model->outbox_id,
+			//'value'=>'value'=>$model->outbox_id != '' ? $model->outbox_id : '-',
 		),
 		array(
 			'name'=>'status',
@@ -49,14 +49,14 @@ if(Yii::app()->user->hasFlash('success'))
 			//'value'=>'value'=>$model->group_id != '' ? $model->group_id : '-',
 		),
 		array(
-			'name'=>'reply_id',
-			'value'=>$model->reply_id,
-			//'value'=>'value'=>$model->reply_id != '' ? $model->reply_id : '-',
-		),
-		array(
 			'name'=>'smsc_source',
 			'value'=>$model->smsc_source,
 			//'value'=>'value'=>$model->smsc_source != '' ? $model->smsc_source : '-',
+		),
+		array(
+			'name'=>'smsc_destination',
+			'value'=>$model->smsc_destination,
+			//'value'=>'value'=>$model->smsc_destination != '' ? $model->smsc_destination : '-',
 		),
 		array(
 			'name'=>'destination_nomor',
@@ -64,9 +64,9 @@ if(Yii::app()->user->hasFlash('success'))
 			//'value'=>'value'=>$model->destination_nomor != '' ? $model->destination_nomor : '-',
 		),
 		array(
-			'name'=>'destination_message',
-			'value'=>'value'=>$model->destination_message != '' ? $model->destination_message : '-',
-			//'value'=>'value'=>$model->destination_message != '' ? CHtml::link($model->destination_message, Yii::app()->request->baseUrl.'/public/visit/'.$model->destination_message, array('target' => '_blank')) : '-',
+			'name'=>'message',
+			'value'=>'value'=>$model->message != '' ? $model->message : '-',
+			//'value'=>'value'=>$model->message != '' ? CHtml::link($model->message, Yii::app()->request->baseUrl.'/public/visit/'.$model->message, array('target' => '_blank')) : '-',
 			'type'=>'raw',
 		),
 		array(
@@ -81,10 +81,6 @@ if(Yii::app()->user->hasFlash('success'))
 		array(
 			'name'=>'updated_date',
 			'value'=>Utility::dateFormat($model->updated_date, true),
-		),
-		array(
-			'name'=>'reply_date',
-			'value'=>Utility::dateFormat($model->reply_date, true),
 		),
 		array(
 			'name'=>'c_timestamp',

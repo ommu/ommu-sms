@@ -1,13 +1,13 @@
 <?php
 /**
- * Sms Outboxes (sms-outbox)
- * @var $this OutboxController
- * @var $model SmsOutbox
+ * Sms Inboxes (sms-inbox)
+ * @var $this InboxController
+ * @var $model SmsInbox
  * @var $form CActiveForm
  *
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
- * @created date 12 February 2016, 04:07 WIB
+ * @created date 12 February 2016, 04:06 WIB
  * @link http://company.ommu.co
  * @contect (+62)856-299-4114
  *

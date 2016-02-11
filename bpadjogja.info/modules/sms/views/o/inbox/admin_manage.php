@@ -1,19 +1,19 @@
 <?php
 /**
- * Sms Outboxes (sms-outbox)
- * @var $this OutboxController
- * @var $model SmsOutbox
+ * Sms Inboxes (sms-inbox)
+ * @var $this InboxController
+ * @var $model SmsInbox
  *
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
- * @created date 12 February 2016, 04:07 WIB
+ * @created date 12 February 2016, 04:06 WIB
  * @link http://company.ommu.co
  * @contect (+62)856-299-4114
  *
  */
 
 	$this->breadcrumbs=array(
-		'Sms Outboxes'=>array('manage'),
+		'Sms Inboxes'=>array('manage'),
 		'Manage',
 	);
 	$this->menu=array(
@@ -49,7 +49,7 @@
 </div>
 <?php //end.Grid Option ?>
 
-<div id="partial-sms-outbox">
+<div id="partial-sms-inbox">
 	<?php //begin.Messages ?>
 	<div id="ajax-message">
 	<?php
@@ -94,7 +94,7 @@
 			));
 
 			$this->widget('application.components.system.OGridView', array(
-				'id'=>'sms-outbox-grid',
+				'id'=>'sms-inbox-grid',
 				'dataProvider'=>$model->search(),
 				'filter'=>$model,
 				'columns' => $columnData,

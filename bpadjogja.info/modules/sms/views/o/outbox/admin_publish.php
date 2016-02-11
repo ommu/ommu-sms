@@ -15,7 +15,7 @@
 
 	$this->breadcrumbs=array(
 		'Sms Outboxes'=>array('manage'),
-		'Delete',
+		'Publish',
 	);
 ?>
 
@@ -26,9 +26,13 @@
 )); ?>
 
 	<div class="dialog-content">
-		<?php echo Phrase::trans(172,0);?>	</div>
+		<?php echo $model->publish == 1 ? Phrase::trans(282,0) : Phrase::trans(281,0)?>
+		<?php //echo $model->actived == 1 ? Phrase::trans(280,0) : Phrase::trans(279,0)?>
+		<?php //echo $model->enabled == 1 ? Phrase::trans(286,0) : Phrase::trans(285,0)?>
+		<?php //echo $model->status == 1 ? Phrase::trans(294,0) : Phrase::trans(293,0)?>
+	</div>
 	<div class="dialog-submit">
-		<?php echo CHtml::submitButton(Phrase::trans(173,0), array('onclick' => 'setEnableSave()')); ?>
+		<?php echo CHtml::submitButton($title, array('onclick' => 'setEnableSave()')); ?>
 		<?php echo CHtml::button(Phrase::trans(174,0), array('id'=>'closed')); ?>
 	</div>
 	
