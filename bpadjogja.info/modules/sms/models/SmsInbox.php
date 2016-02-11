@@ -66,7 +66,7 @@ class SmsInbox extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('user_id, smsc_source, smsc_sender, sender_nomor, message, creation_date, c_timestamp', 'required'),
+			array('sender_nomor, message', 'required'),
 			array('readed, queue_no, group, reply, c_timestamp', 'numerical', 'integerOnly'=>true),
 			array('user_id', 'length', 'max'=>11),
 			array('smsc_source, smsc_sender, sender_nomor', 'length', 'max'=>15),
@@ -199,30 +199,16 @@ class SmsInbox extends CActiveRecord
 	 */
 	protected function afterConstruct() {
 		if(count($this->defaultColumns) == 0) {
-			/*
-			$this->defaultColumns[] = array(
-				'class' => 'CCheckBoxColumn',
-				'name' => 'id',
-				'selectableRows' => 2,
-				'checkBoxHtmlOptions' => array('name' => 'trash_id[]')
-			);
-			*/
 			$this->defaultColumns[] = array(
 				'header' => 'No',
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
 			);
 			$this->defaultColumns[] = 'user_id';
-			$this->defaultColumns[] = 'smsc_source';
-			$this->defaultColumns[] = 'smsc_sender';
 			$this->defaultColumns[] = 'sender_nomor';
 			$this->defaultColumns[] = 'message';
-			$this->defaultColumns[] = 'readed';
-			$this->defaultColumns[] = 'queue_no';
-			$this->defaultColumns[] = 'group';
-			$this->defaultColumns[] = 'reply';
 			$this->defaultColumns[] = array(
 				'name' => 'message_date',
-				'value' => 'Utility::dateFormat($data->message_date)',
+				'value' => 'Utility::dateFormat($data->message_date, true)',
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
@@ -246,33 +232,10 @@ class SmsInbox extends CActiveRecord
 					),
 				), true),
 			);
-			$this->defaultColumns[] = array(
-				'name' => 'creation_date',
-				'value' => 'Utility::dateFormat($data->creation_date)',
-				'htmlOptions' => array(
-					'class' => 'center',
-				),
-				'filter' => Yii::app()->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
-					'model'=>$this,
-					'attribute'=>'creation_date',
-					'language' => 'ja',
-					'i18nScriptFile' => 'jquery.ui.datepicker-en.js',
-					//'mode'=>'datetime',
-					'htmlOptions' => array(
-						'id' => 'creation_date_filter',
-					),
-					'options'=>array(
-						'showOn' => 'focus',
-						'dateFormat' => 'dd-mm-yy',
-						'showOtherMonths' => true,
-						'selectOtherMonths' => true,
-						'changeMonth' => true,
-						'changeYear' => true,
-						'showButtonPanel' => true,
-					),
-				), true),
-			);
-			$this->defaultColumns[] = 'c_timestamp';
+			$this->defaultColumns[] = 'readed';
+			$this->defaultColumns[] = 'queue_no';
+			$this->defaultColumns[] = 'group';
+			$this->defaultColumns[] = 'reply';
 		}
 		parent::afterConstruct();
 	}
@@ -297,69 +260,11 @@ class SmsInbox extends CActiveRecord
 	/**
 	 * before validate attributes
 	 */
-	/*
 	protected function beforeValidate() {
-		if(parent::beforeValidate()) {
-			// Create action
+		if(parent::beforeValidate()) {			
+			$this->c_timestamp = time();
 		}
 		return true;
 	}
-	*/
-
-	/**
-	 * after validate attributes
-	 */
-	/*
-	protected function afterValidate()
-	{
-		parent::afterValidate();
-			// Create action
-		return true;
-	}
-	*/
-	
-	/**
-	 * before save attributes
-	 */
-	/*
-	protected function beforeSave() {
-		if(parent::beforeSave()) {
-			//$this->message_date = date('Y-m-d', strtotime($this->message_date));
-		}
-		return true;	
-	}
-	*/
-	
-	/**
-	 * After save attributes
-	 */
-	/*
-	protected function afterSave() {
-		parent::afterSave();
-		// Create action
-	}
-	*/
-
-	/**
-	 * Before delete attributes
-	 */
-	/*
-	protected function beforeDelete() {
-		if(parent::beforeDelete()) {
-			// Create action
-		}
-		return true;
-	}
-	*/
-
-	/**
-	 * After delete attributes
-	 */
-	/*
-	protected function afterDelete() {
-		parent::afterDelete();
-		// Create action
-	}
-	*/
 
 }
