@@ -31,6 +31,7 @@
  * @property integer $queue_no
  * @property integer $group
  * @property integer $reply
+ * @property integer $status
  * @property string $message_date
  * @property string $creation_date
  * @property integer $c_timestamp
@@ -73,7 +74,7 @@ class SmsInbox extends CActiveRecord
 			array('message_date', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('inbox_id, user_id, smsc_source, smsc_sender, sender_nomor, message, readed, queue_no, group, reply, message_date, creation_date, c_timestamp', 'safe', 'on'=>'search'),
+			array('inbox_id, user_id, smsc_source, smsc_sender, sender_nomor, message, readed, queue_no, group, reply, status, message_date, creation_date, c_timestamp', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -104,6 +105,7 @@ class SmsInbox extends CActiveRecord
 			'queue_no' => 'Queue No',
 			'group' => 'Group',
 			'reply' => 'Reply',
+			'status' => 'Status',
 			'message_date' => 'Message Date',
 			'creation_date' => 'Creation Date',
 			'c_timestamp' => 'C Timestamp',
@@ -141,6 +143,7 @@ class SmsInbox extends CActiveRecord
 		$criteria->compare('t.queue_no',$this->queue_no);
 		$criteria->compare('t.group',$this->group);
 		$criteria->compare('t.reply',$this->reply);
+		$criteria->compare('t.status',$this->status);
 		if($this->message_date != null && !in_array($this->message_date, array('0000-00-00 00:00:00', '0000-00-00')))
 			$criteria->compare('date(t.message_date)',date('Y-m-d', strtotime($this->message_date)));
 		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00', '0000-00-00')))
@@ -186,6 +189,7 @@ class SmsInbox extends CActiveRecord
 			$this->defaultColumns[] = 'queue_no';
 			$this->defaultColumns[] = 'group';
 			$this->defaultColumns[] = 'reply';
+			$this->defaultColumns[] = 'status';
 			$this->defaultColumns[] = 'message_date';
 			$this->defaultColumns[] = 'creation_date';
 			$this->defaultColumns[] = 'c_timestamp';
@@ -236,6 +240,7 @@ class SmsInbox extends CActiveRecord
 			$this->defaultColumns[] = 'queue_no';
 			$this->defaultColumns[] = 'group';
 			$this->defaultColumns[] = 'reply';
+			$this->defaultColumns[] = 'status';
 		}
 		parent::afterConstruct();
 	}
