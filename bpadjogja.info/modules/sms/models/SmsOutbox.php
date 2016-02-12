@@ -40,6 +40,10 @@
 class SmsOutbox extends CActiveRecord
 {
 	public $defaultColumns = array();
+	
+	// Variable Search
+	public $user_search;
+	public $creation_search;
 
 	/**
 	 * Returns the static model of the specified AR class.
@@ -75,7 +79,8 @@ class SmsOutbox extends CActiveRecord
 			array('updated_date', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('outbox_id, status, user_id, group_id, smsc_source, smsc_destination, destination_nomor, message, creation_date, creation_id, updated_date, c_timestamp', 'safe', 'on'=>'search'),
+			array('outbox_id, status, user_id, group_id, smsc_source, smsc_destination, destination_nomor, message, creation_date, creation_id, updated_date, c_timestamp,
+				user_search, creation_search', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -87,6 +92,8 @@ class SmsOutbox extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'user_TO' => array(self::BELONGS_TO, 'Users', 'user_id'),
+			'creation_TO' => array(self::BELONGS_TO, 'Users', 'creation_id'),
 			//'ommuSmsKannelDlrs_relation' => array(self::HAS_MANY, 'OmmuSmsKannelDlr', 'smslog_id'),
 		);
 	}
@@ -109,6 +116,8 @@ class SmsOutbox extends CActiveRecord
 			'creation_id' => 'Creation',
 			'updated_date' => 'Updated Date',
 			'c_timestamp' => 'C Timestamp',
+			'user_search' => 'User',
+			'creation_search' => 'Creation',
 		);
 	}
 
@@ -136,7 +145,10 @@ class SmsOutbox extends CActiveRecord
 			$criteria->compare('t.user_id',$_GET['user']);
 		else
 			$criteria->compare('t.user_id',$this->user_id);
-		$criteria->compare('t.group_id',strtolower($this->group_id),true);
+		if(isset($_GET['group']))
+			$criteria->compare('t.group_id',$_GET['group']);
+		else
+			$criteria->compare('t.group_id',$this->group_id);
 		$criteria->compare('t.smsc_source',strtolower($this->smsc_source),true);
 		$criteria->compare('t.smsc_destination',strtolower($this->smsc_destination),true);
 		$criteria->compare('t.destination_nomor',strtolower($this->destination_nomor),true);
@@ -206,27 +218,32 @@ class SmsOutbox extends CActiveRecord
 				'header' => 'No',
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
 			);
-			if(!isset($_GET['type'])) {
-				$this->defaultColumns[] = array(
-					'name' => 'status',
-					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("status",array("id"=>$data->outbox_id)), $data->status, 1)',
-					'htmlOptions' => array(
-						'class' => 'center',
-					),
-					'filter'=>array(
-						1=>Phrase::trans(588,0),
-						0=>Phrase::trans(589,0),
-					),
-					'type' => 'raw',
-				);
-			}
-			$this->defaultColumns[] = 'user_id';
-			$this->defaultColumns[] = 'group_id';
-			$this->defaultColumns[] = 'smsc_source';
-			$this->defaultColumns[] = 'smsc_destination';
+			$this->defaultColumns[] = array(
+				'name' => 'status',
+				'value' => '$data->status == 0 ? "Pending" : ($data->status == 1 ? "Sent" : ($data->status == 2 ? "Failed" : "Delivered"))',
+				'htmlOptions' => array(
+					'class' => 'center',
+				),
+				'filter'=>array(
+					0=>'Pending',
+					1=>'Sent',
+					2=>'Failed',
+					3=>'Delivered',
+				),
+				'type' => 'raw',
+			);
+			/*
+			$this->defaultColumns[] = array(
+				'name' => 'group_id',
+				'value' => '$data->group_id == 0 ? "-" : ""',
+			);
+			*/
 			$this->defaultColumns[] = 'destination_nomor';
 			$this->defaultColumns[] = 'message';
-			/*
+			$this->defaultColumns[] = array(
+				'name' => 'creation_search',
+				'value' => '$data->creation_TO->displayname',
+			);
 			$this->defaultColumns[] = array(
 				'name' => 'creation_date',
 				'value' => 'Utility::dateFormat($data->creation_date)',
@@ -253,35 +270,6 @@ class SmsOutbox extends CActiveRecord
 					),
 				), true),
 			);
-			$this->defaultColumns[] = 'creation_id';
-			$this->defaultColumns[] = array(
-				'name' => 'updated_date',
-				'value' => 'Utility::dateFormat($data->updated_date)',
-				'htmlOptions' => array(
-					'class' => 'center',
-				),
-				'filter' => Yii::app()->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
-					'model'=>$this,
-					'attribute'=>'updated_date',
-					'language' => 'ja',
-					'i18nScriptFile' => 'jquery.ui.datepicker-en.js',
-					//'mode'=>'datetime',
-					'htmlOptions' => array(
-						'id' => 'updated_date_filter',
-					),
-					'options'=>array(
-						'showOn' => 'focus',
-						'dateFormat' => 'dd-mm-yy',
-						'showOtherMonths' => true,
-						'selectOtherMonths' => true,
-						'changeMonth' => true,
-						'changeYear' => true,
-						'showButtonPanel' => true,
-					),
-				), true),
-			);
-			$this->defaultColumns[] = 'c_timestamp';
-			*/
 		}
 		parent::afterConstruct();
 	}
