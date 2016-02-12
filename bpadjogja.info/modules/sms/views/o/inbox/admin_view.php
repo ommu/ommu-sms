@@ -25,66 +25,37 @@
 		array(
 			'name'=>'inbox_id',
 			'value'=>$model->inbox_id,
-			//'value'=>'value'=>$model->inbox_id != '' ? $model->inbox_id : '-',
 		),
 		array(
 			'name'=>'user_id',
 			'value'=>$model->user_id,
-			//'value'=>'value'=>$model->user_id != '' ? $model->user_id : '-',
-		),
-		array(
-			'name'=>'smsc_source',
-			'value'=>$model->smsc_source,
-			//'value'=>'value'=>$model->smsc_source != '' ? $model->smsc_source : '-',
-		),
-		array(
-			'name'=>'smsc_sender',
-			'value'=>$model->smsc_sender,
-			//'value'=>'value'=>$model->smsc_sender != '' ? $model->smsc_sender : '-',
 		),
 		array(
 			'name'=>'sender_nomor',
 			'value'=>$model->sender_nomor,
-			//'value'=>'value'=>$model->sender_nomor != '' ? $model->sender_nomor : '-',
 		),
 		array(
 			'name'=>'message',
-			'value'=>'value'=>$model->message != '' ? $model->message : '-',
-			//'value'=>'value'=>$model->message != '' ? CHtml::link($model->message, Yii::app()->request->baseUrl.'/public/visit/'.$model->message, array('target' => '_blank')) : '-',
+			'value'=>$model->message != '' ? $model->message : '-',
 			'type'=>'raw',
 		),
 		array(
-			'name'=>'readed',
-			'value'=>$model->readed,
-			//'value'=>'value'=>$model->readed != '' ? $model->readed : '-',
+			'name'=>'smsc_source',
+			'value'=>$model->smsc_source,
 		),
 		array(
-			'name'=>'queue_no',
-			'value'=>$model->queue_no,
-			//'value'=>'value'=>$model->queue_no != '' ? $model->queue_no : '-',
+			'name'=>'smsc_sender',
+			'value'=>$model->smsc_sender,
 		),
-		array(
-			'name'=>'group',
-			'value'=>$model->group,
-			//'value'=>'value'=>$model->group != '' ? $model->group : '-',
-		),
-		array(
-			'name'=>'reply',
-			'value'=>$model->reply,
-			//'value'=>'value'=>$model->reply != '' ? $model->reply : '-',
-		),
+		/*
 		array(
 			'name'=>'message_date',
 			'value'=>Utility::dateFormat($model->message_date, true),
 		),
+		*/
 		array(
 			'name'=>'creation_date',
 			'value'=>Utility::dateFormat($model->creation_date, true),
-		),
-		array(
-			'name'=>'c_timestamp',
-			'value'=>$model->c_timestamp,
-			//'value'=>'value'=>$model->c_timestamp != '' ? $model->c_timestamp : '-',
 		),
 	),
 )); ?>

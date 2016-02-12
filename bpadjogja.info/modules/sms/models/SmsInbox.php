@@ -39,6 +39,9 @@
 class SmsInbox extends CActiveRecord
 {
 	public $defaultColumns = array();
+	
+	// Variable Search
+	public $user_search;
 
 	/**
 	 * Returns the static model of the specified AR class.
@@ -74,7 +77,8 @@ class SmsInbox extends CActiveRecord
 			array('message_date', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('inbox_id, user_id, smsc_source, smsc_sender, sender_nomor, message, readed, queue_no, group, reply, status, message_date, creation_date, c_timestamp', 'safe', 'on'=>'search'),
+			array('inbox_id, user_id, smsc_source, smsc_sender, sender_nomor, message, readed, queue_no, group, reply, status, message_date, creation_date, c_timestamp,
+				user_search', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -86,6 +90,7 @@ class SmsInbox extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'user_TO' => array(self::BELONGS_TO, 'Users', 'user_id'),
 		);
 	}
 
@@ -109,6 +114,7 @@ class SmsInbox extends CActiveRecord
 			'message_date' => 'Message Date',
 			'creation_date' => 'Creation Date',
 			'c_timestamp' => 'C Timestamp',
+			'user_search' => 'User',
 		);
 	}
 
@@ -149,6 +155,15 @@ class SmsInbox extends CActiveRecord
 		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00', '0000-00-00')))
 			$criteria->compare('date(t.creation_date)',date('Y-m-d', strtotime($this->creation_date)));
 		$criteria->compare('t.c_timestamp',$this->c_timestamp);
+		
+		// Custom Search
+		$criteria->with = array(
+			'user_TO' => array(
+				'alias'=>'user_TO',
+				'select'=>'displayname'
+			),
+		);
+		$criteria->compare('user_TO.displayname',strtolower($this->user_search), true);
 
 		if(!isset($_GET['SmsInbox_sort']))
 			$criteria->order = 't.inbox_id DESC';
@@ -207,18 +222,21 @@ class SmsInbox extends CActiveRecord
 				'header' => 'No',
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
 			);
-			$this->defaultColumns[] = 'user_id';
+			$this->defaultColumns[] = array(
+				'name' => 'user_search',
+				'value' => '$data->user_id != 0 ? $data->user_TO->displayname : "-"',
+			);
 			$this->defaultColumns[] = 'sender_nomor';
 			$this->defaultColumns[] = 'message';
 			$this->defaultColumns[] = array(
-				'name' => 'message_date',
-				'value' => 'Utility::dateFormat($data->message_date, true)',
+				'name' => 'creation_date',
+				'value' => 'Utility::dateFormat($data->creation_date, true)',
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
 				'filter' => Yii::app()->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
 					'model'=>$this,
-					'attribute'=>'message_date',
+					'attribute'=>'creation_date',
 					'language' => 'ja',
 					'i18nScriptFile' => 'jquery.ui.datepicker-en.js',
 					//'mode'=>'datetime',
@@ -236,11 +254,6 @@ class SmsInbox extends CActiveRecord
 					),
 				), true),
 			);
-			$this->defaultColumns[] = 'readed';
-			$this->defaultColumns[] = 'queue_no';
-			$this->defaultColumns[] = 'group';
-			$this->defaultColumns[] = 'reply';
-			$this->defaultColumns[] = 'status';
 		}
 		parent::afterConstruct();
 	}

@@ -162,6 +162,20 @@ class SmsOutbox extends CActiveRecord
 		if($this->updated_date != null && !in_array($this->updated_date, array('0000-00-00 00:00:00', '0000-00-00')))
 			$criteria->compare('date(t.updated_date)',date('Y-m-d', strtotime($this->updated_date)));
 		$criteria->compare('t.c_timestamp',$this->c_timestamp);
+		
+		// Custom Search
+		$criteria->with = array(
+			'user_TO' => array(
+				'alias'=>'user_TO',
+				'select'=>'displayname'
+			),
+			'creation_TO' => array(
+				'alias'=>'creation_TO',
+				'select'=>'displayname'
+			),
+		);
+		$criteria->compare('user_TO.displayname',strtolower($this->user_search), true);
+		$criteria->compare('creation_TO.displayname',strtolower($this->creation_search), true);
 
 		if(!isset($_GET['SmsOutbox_sort']))
 			$criteria->order = 't.outbox_id DESC';
