@@ -30,6 +30,12 @@
 class SmsGroupPhonebook extends CActiveRecord
 {
 	public $defaultColumns = array();
+	
+	// Variable Search
+	public $group_search;
+	public $phonebook_search;
+	public $phonebook_nomor_search;
+	public $creation_search;
 
 	/**
 	 * Returns the static model of the specified AR class.
@@ -58,12 +64,13 @@ class SmsGroupPhonebook extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('group_id, phonebook_id, creation_date, creation_id', 'required'),
+			array('group_id, phonebook_id', 'required'),
 			array('group_id', 'numerical', 'integerOnly'=>true),
 			array('phonebook_id, creation_id', 'length', 'max'=>11),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, group_id, phonebook_id, creation_date, creation_id', 'safe', 'on'=>'search'),
+			array('id, group_id, phonebook_id, creation_date, creation_id,
+				group_search, phonebook_search, phonebook_nomor_search, creation_search', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -75,6 +82,9 @@ class SmsGroupPhonebook extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'group_TO' => array(self::BELONGS_TO, 'Users', 'group_id'),
+			'phonebook_TO' => array(self::BELONGS_TO, 'Users', 'phonebook_id'),
+			'creation_TO' => array(self::BELONGS_TO, 'Users', 'creation_id'),
 		);
 	}
 
@@ -89,6 +99,10 @@ class SmsGroupPhonebook extends CActiveRecord
 			'phonebook_id' => 'Phonebook',
 			'creation_date' => 'Creation Date',
 			'creation_id' => 'Creation',
+			'group_search' => 'Group',
+			'phonebook_search' => 'Phonebook',
+			'phonebook_nomor_search' => 'Phonebook Nomor',
+			'creation_search' => 'Creation',
 		);
 	}
 
@@ -119,6 +133,27 @@ class SmsGroupPhonebook extends CActiveRecord
 			$criteria->compare('t.creation_id',$_GET['creation']);
 		else
 			$criteria->compare('t.creation_id',$this->creation_id);
+		
+		// Custom Search
+		$criteria->with = array(
+			'group_TO' => array(
+				'alias'=>'group_TO',
+				'select'=>'group_name, group_desc'
+			),
+			),
+			'phonebook_TO' => array(
+				'alias'=>'phonebook_TO',
+				'select'=>'phonebook_nomor, phonebook_name'
+			),
+			'creation_TO' => array(
+				'alias'=>'creation_TO',
+				'select'=>'displayname'
+			),
+		);
+		$criteria->compare('group_TO.group_name',strtolower($this->group_search), true);
+		$criteria->compare('phonebook_TO.phonebook_name',strtolower($this->phonebook_search), true);
+		$criteria->compare('phonebook_TO.phonebook_nomor',strtolower($this->phonebook_nomor_search), true);
+		$criteria->compare('creation_TO.displayname',strtolower($this->creation_search), true);
 
 		if(!isset($_GET['SmsGroupPhonebook_sort']))
 			$criteria->order = 't.id DESC';
@@ -176,8 +211,22 @@ class SmsGroupPhonebook extends CActiveRecord
 				'header' => 'No',
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
 			);
-			$this->defaultColumns[] = 'group_id';
-			$this->defaultColumns[] = 'phonebook_id';
+			$this->defaultColumns[] = array(
+				'name' => 'group_search',
+				'value' => '$data->group_TO->group_name',
+			);
+			$this->defaultColumns[] = array(
+				'name' => 'phonebook_search',
+				'value' => '$data->phonebook_TO->phonebook_name',
+			);
+			$this->defaultColumns[] = array(
+				'name' => 'phonebook_nomor_search',
+				'value' => '$data->phonebook_TO->phonebook_nomor',
+			);
+			$this->defaultColumns[] = array(
+				'name' => 'creation_search',
+				'value' => '$data->creation_TO->displayname',
+			);
 			$this->defaultColumns[] = array(
 				'name' => 'creation_date',
 				'value' => 'Utility::dateFormat($data->creation_date)',
@@ -204,7 +253,6 @@ class SmsGroupPhonebook extends CActiveRecord
 					),
 				), true),
 			);
-			$this->defaultColumns[] = 'creation_id';
 		}
 		parent::afterConstruct();
 	}
@@ -229,68 +277,12 @@ class SmsGroupPhonebook extends CActiveRecord
 	/**
 	 * before validate attributes
 	 */
-	/*
 	protected function beforeValidate() {
 		if(parent::beforeValidate()) {
-			// Create action
+			if($this->isNewRecord)
+				$this->creation_id = Yii::app()->user->id;
 		}
 		return true;
 	}
-	*/
-
-	/**
-	 * after validate attributes
-	 */
-	/*
-	protected function afterValidate()
-	{
-		parent::afterValidate();
-			// Create action
-		return true;
-	}
-	*/
-	
-	/**
-	 * before save attributes
-	 */
-	/*
-	protected function beforeSave() {
-		if(parent::beforeSave()) {
-		}
-		return true;	
-	}
-	*/
-	
-	/**
-	 * After save attributes
-	 */
-	/*
-	protected function afterSave() {
-		parent::afterSave();
-		// Create action
-	}
-	*/
-
-	/**
-	 * Before delete attributes
-	 */
-	/*
-	protected function beforeDelete() {
-		if(parent::beforeDelete()) {
-			// Create action
-		}
-		return true;
-	}
-	*/
-
-	/**
-	 * After delete attributes
-	 */
-	/*
-	protected function afterDelete() {
-		parent::afterDelete();
-		// Create action
-	}
-	*/
 
 }
