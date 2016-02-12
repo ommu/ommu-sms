@@ -1,29 +1,29 @@
 <?php
 /**
- * InboxController
- * @var $this InboxController
- * @var $model SmsInbox
+ * OutboxController
+ * @var $this OutboxController
+ * @var $model SmsOutbox
  * @var $form CActiveForm
  * version: 0.0.1
  * Reference start
  *
  * TOC :
  *	Index
- *	Receiver
+ *	Dlr
  *
  *	LoadModel
  *	performAjaxValidation
  *
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
- * @created date 12 February 2016, 04:06 WIB
+ * @created date 12 February 2016, 04:07 WIB
  * @link http://company.ommu.co
  * @contect (+62)856-299-4114
  *
  *----------------------------------------------------------------------------------------------------------
  */
 
-class InboxController extends Controller
+class OutboxController extends Controller
 {
 	/**
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
@@ -62,7 +62,7 @@ class InboxController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index', 'receiver'),
+				'actions'=>array('index','dlr'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -86,37 +86,56 @@ class InboxController extends Controller
 	 */
 	public function actionIndex() 
 	{
-		$this->redirect(array('o/inbox/manage'));
+		$this->redirect(array('manage'));
 	}
 	
 	/**
 	 * Lists all models.
 	 */
-	public function actionReceiver() 
+	public function actionDlr() 
 	{
 		//if($_SERVER["SERVER_ADDR"] != '127.0.0.1' && $_SERVER["HTTP_HOST"] != 'localhost')
-			//exit();
+		//	exit();
 		
 		$requests = $_REQUEST;
-		//print_r($requests);
-		$smsc_source = $requests['Q'];
-		$smsc_sender = $requests['q'];
-		$sender_nomor = $requests['p'];
-		$message = $requests['a'];
-		$status = $requests['d'];
-		$message_date = $requests['t'];
+		$type = $requests['type'];
+		$outbox_id = $requests['outbox_id'];
+		$user_id = $requests['user_id'];
+		$smsc_s = $requests['smsc_s'];
+		$smsc_d = $requests['smsc_d'];
 		
-		if ($smsc_source && $smsc_sender && $sender_nomor && $message && $status && $message_date) {
-			$model=new SmsInbox;
-			$model->smsc_source = $smsc_source;
-			$model->smsc_sender = $smsc_sender;
-			$model->sender_nomor = $sender_nomor;
-			$model->message = $message;
-			$model->status = $status;
-			$model->message_date = $message_date;
-			$model->save();
+		if ($type && $outbox_id && $user_id) {
+			$stat = 0;
+			switch ($type) {
+				case 1: $stat = 6; break;	// delivered to phone = delivered 3
+				case 2: $stat = 5; break;	// non delivered to phone = failed 2 
+				case 4: $stat = 3; break;	// queued on SMSC = pending 0 
+				case 8: $stat = 4; break;	// delivered to SMSC = sent 1
+				case 16: $stat = 5; break;	// non delivered to SMSC = failed 2
+				case 9: $stat = 4; break;	// sent 1
+				case 12: $stat = 4; break;	// sent 1
+				case 18: $stat = 5; break;	// failed 2
+			}
+			$c_status = $stat;
+			if ($stat) {
+				$c_status = $stat - 3;
+			}			
+			SmsUtility::setSmsDeliveryStatus($outbox_id, $user_id, $c_status, $smsc_s, $smsc_d);
+			
+			$conn  = Yii::app()->db;
+			$query = "SELECT dlr_id FROM ommu_sms_kannel_dlr WHERE outbox_id='$outbox_id'";
+			$command = $conn->createCommand($query);
+			$result  = $command->query();
+			if($result->rowCount > 0) {
+				$sql = "UPDATE ommu_sms_kannel_dlr SET dlr_type='$type', c_timestamp='".time()."' WHERE outbox_id='$outbox_id'";
+				$command = $conn->createCommand($sql);
+				$command->query();				
+			} else {
+				$sql = "INSERT INTO ommu_sms_kannel_dlr (dlr_type, outbox_id) VALUES ('$type', '$outbox_id')";
+				$command = $conn->createCommand($sql);
+				$command->query();				
+			}			
 		}
-		
 	}
 
 	/**
@@ -126,7 +145,7 @@ class InboxController extends Controller
 	 */
 	public function loadModel($id) 
 	{
-		$model = SmsInbox::model()->findByPk($id);
+		$model = SmsOutbox::model()->findByPk($id);
 		if($model===null)
 			throw new CHttpException(404, Phrase::trans(193,0));
 		return $model;
@@ -138,7 +157,7 @@ class InboxController extends Controller
 	 */
 	protected function performAjaxValidation($model) 
 	{
-		if(isset($_POST['ajax']) && $_POST['ajax']==='sms-inbox-form') {
+		if(isset($_POST['ajax']) && $_POST['ajax']==='sms-outbox-form') {
 			echo CActiveForm::validate($model);
 			Yii::app()->end();
 		}

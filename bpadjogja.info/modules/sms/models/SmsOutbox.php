@@ -68,7 +68,7 @@ class SmsOutbox extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('user_id, group_id, smsc_source, smsc_destination, destination_nomor, message, creation_date, creation_id, c_timestamp', 'required'),
+			array('destination_nomor, message', 'required'),
 			array('status, c_timestamp', 'numerical', 'integerOnly'=>true),
 			array('user_id, group_id, creation_id', 'length', 'max'=>11),
 			array('smsc_source, smsc_destination, destination_nomor', 'length', 'max'=>15),
@@ -87,7 +87,7 @@ class SmsOutbox extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'ommuSmsKannelDlrs_relation' => array(self::HAS_MANY, 'OmmuSmsKannelDlr', 'smslog_id'),
+			//'ommuSmsKannelDlrs_relation' => array(self::HAS_MANY, 'OmmuSmsKannelDlr', 'smslog_id'),
 		);
 	}
 
@@ -202,14 +202,6 @@ class SmsOutbox extends CActiveRecord
 	 */
 	protected function afterConstruct() {
 		if(count($this->defaultColumns) == 0) {
-			/*
-			$this->defaultColumns[] = array(
-				'class' => 'CCheckBoxColumn',
-				'name' => 'id',
-				'selectableRows' => 2,
-				'checkBoxHtmlOptions' => array('name' => 'trash_id[]')
-			);
-			*/
 			$this->defaultColumns[] = array(
 				'header' => 'No',
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
@@ -234,6 +226,7 @@ class SmsOutbox extends CActiveRecord
 			$this->defaultColumns[] = 'smsc_destination';
 			$this->defaultColumns[] = 'destination_nomor';
 			$this->defaultColumns[] = 'message';
+			/*
 			$this->defaultColumns[] = array(
 				'name' => 'creation_date',
 				'value' => 'Utility::dateFormat($data->creation_date)',
@@ -288,6 +281,7 @@ class SmsOutbox extends CActiveRecord
 				), true),
 			);
 			$this->defaultColumns[] = 'c_timestamp';
+			*/
 		}
 		parent::afterConstruct();
 	}
@@ -312,68 +306,14 @@ class SmsOutbox extends CActiveRecord
 	/**
 	 * before validate attributes
 	 */
-	/*
 	protected function beforeValidate() {
 		if(parent::beforeValidate()) {
-			// Create action
+			if($this->isNewRecord)
+				$this->user_id = Yii::app()->user->id;
+			
+			$this->c_timestamp = time();
 		}
 		return true;
 	}
-	*/
-
-	/**
-	 * after validate attributes
-	 */
-	/*
-	protected function afterValidate()
-	{
-		parent::afterValidate();
-			// Create action
-		return true;
-	}
-	*/
-	
-	/**
-	 * before save attributes
-	 */
-	/*
-	protected function beforeSave() {
-		if(parent::beforeSave()) {
-		}
-		return true;	
-	}
-	*/
-	
-	/**
-	 * After save attributes
-	 */
-	/*
-	protected function afterSave() {
-		parent::afterSave();
-		// Create action
-	}
-	*/
-
-	/**
-	 * Before delete attributes
-	 */
-	/*
-	protected function beforeDelete() {
-		if(parent::beforeDelete()) {
-			// Create action
-		}
-		return true;
-	}
-	*/
-
-	/**
-	 * After delete attributes
-	 */
-	/*
-	protected function afterDelete() {
-		parent::afterDelete();
-		// Create action
-	}
-	*/
 
 }

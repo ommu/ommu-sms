@@ -19,131 +19,39 @@
 	'enableAjaxValidation'=>true,
 	//'htmlOptions' => array('enctype' => 'multipart/form-data')
 )); ?>
-
-<?php //begin.Messages ?>
-<div id="ajax-message">
-	<?php echo $form->errorSummary($model); ?>
-</div>
-<?php //begin.Messages ?>
-
-<fieldset>
-
-	<div class="clearfix publish">
-		<?php echo $form->labelEx($model,'status'); ?>
-		<div class="desc">
-			<?php echo $form->checkBox($model,'status'); ?>
-			<?php echo $form->labelEx($model,'status'); ?>
-			<?php echo $form->error($model,'status'); ?>
-			<?php /*<div class="small-px silent"></div>*/?>
-		</div>
-	</div>
-
-	<div class="clearfix">
-		<?php echo $form->labelEx($model,'user_id'); ?>
-		<div class="desc">
-			<?php echo $form->textField($model,'user_id',array('size'=>11,'maxlength'=>11)); ?>
-			<?php echo $form->error($model,'user_id'); ?>
-			<?php /*<div class="small-px silent"></div>*/?>
-		</div>
-	</div>
-
-	<div class="clearfix">
-		<?php echo $form->labelEx($model,'group_id'); ?>
-		<div class="desc">
-			<?php echo $form->textField($model,'group_id',array('size'=>11,'maxlength'=>11)); ?>
-			<?php echo $form->error($model,'group_id'); ?>
-			<?php /*<div class="small-px silent"></div>*/?>
-		</div>
-	</div>
-
-	<div class="clearfix">
-		<?php echo $form->labelEx($model,'smsc_source'); ?>
-		<div class="desc">
-			<?php echo $form->textField($model,'smsc_source',array('size'=>15,'maxlength'=>15)); ?>
-			<?php echo $form->error($model,'smsc_source'); ?>
-			<?php /*<div class="small-px silent"></div>*/?>
-		</div>
-	</div>
-
-	<div class="clearfix">
-		<?php echo $form->labelEx($model,'smsc_destination'); ?>
-		<div class="desc">
-			<?php echo $form->textField($model,'smsc_destination',array('size'=>15,'maxlength'=>15)); ?>
-			<?php echo $form->error($model,'smsc_destination'); ?>
-			<?php /*<div class="small-px silent"></div>*/?>
-		</div>
-	</div>
-
-	<div class="clearfix">
-		<?php echo $form->labelEx($model,'destination_nomor'); ?>
-		<div class="desc">
-			<?php echo $form->textField($model,'destination_nomor',array('size'=>15,'maxlength'=>15)); ?>
-			<?php echo $form->error($model,'destination_nomor'); ?>
-			<?php /*<div class="small-px silent"></div>*/?>
-		</div>
-	</div>
-
-	<div class="clearfix">
-		<?php echo $form->labelEx($model,'message'); ?>
-		<div class="desc">
-			<?php echo $form->textArea($model,'message',array('rows'=>6, 'cols'=>50)); ?>
-			<?php echo $form->error($model,'message'); ?>
-			<?php /*<div class="small-px silent"></div>*/?>
-		</div>
-	</div>
-
-	<div class="clearfix">
-		<?php echo $form->labelEx($model,'creation_date'); ?>
-		<div class="desc">
-			<?php echo $form->textField($model,'creation_date'); ?>
-			<?php echo $form->error($model,'creation_date'); ?>
-			<?php /*<div class="small-px silent"></div>*/?>
-		</div>
-	</div>
-
-	<div class="clearfix">
-		<?php echo $form->labelEx($model,'creation_id'); ?>
-		<div class="desc">
-			<?php echo $form->textField($model,'creation_id',array('size'=>11,'maxlength'=>11)); ?>
-			<?php echo $form->error($model,'creation_id'); ?>
-			<?php /*<div class="small-px silent"></div>*/?>
-		</div>
-	</div>
-
-	<div class="clearfix">
-		<?php echo $form->labelEx($model,'updated_date'); ?>
-		<div class="desc">
-			<?php echo $form->textField($model,'updated_date'); ?>
-			<?php echo $form->error($model,'updated_date'); ?>
-			<?php /*<div class="small-px silent"></div>*/?>
-		</div>
-	</div>
-
-	<div class="clearfix">
-		<?php echo $form->labelEx($model,'c_timestamp'); ?>
-		<div class="desc">
-			<?php echo $form->textField($model,'c_timestamp'); ?>
-			<?php echo $form->error($model,'c_timestamp'); ?>
-			<?php /*<div class="small-px silent"></div>*/?>
-		</div>
-	</div>
-
-	<div class="submit clearfix">
-		<label>&nbsp;</label>
-		<div class="desc">
-			<?php echo CHtml::submitButton($model->isNewRecord ? Phrase::trans(1,0) : Phrase::trans(2,0), array('onclick' => 'setEnableSave()')); ?>
-		</div>
-	</div>
-
-</fieldset>
-<?php /*
 <div class="dialog-content">
+	<fieldset>
+
+		<?php //begin.Messages ?>
+		<div id="ajax-message">
+			<?php echo $form->errorSummary($model); ?>
+		</div>
+		<?php //begin.Messages ?>
+
+		<div class="clearfix">
+			<?php echo $form->labelEx($model,'destination_nomor'); ?>
+			<div class="desc">
+				<?php echo $form->textField($model,'destination_nomor',array('maxlength'=>15)); ?>
+				<?php echo $form->error($model,'destination_nomor'); ?>
+				<?php /*<div class="small-px silent"></div>*/?>
+			</div>
+		</div>
+
+		<div class="clearfix">
+			<?php echo $form->labelEx($model,'message'); ?>
+			<div class="desc">
+				<?php echo $form->textArea($model,'message',array('rows'=>6, 'cols'=>50)); ?>
+				<?php echo $form->error($model,'message'); ?>
+				<?php /*<div class="small-px silent"></div>*/?>
+			</div>
+		</div>
+
+	</fieldset>
 </div>
 <div class="dialog-submit">
 	<?php echo CHtml::submitButton($model->isNewRecord ? Phrase::trans(1,0) : Phrase::trans(2,0) ,array('onclick' => 'setEnableSave()')); ?>
 	<?php echo CHtml::button(Phrase::trans(4,0), array('id'=>'closed')); ?>
 </div>
-*/?>
 <?php $this->endWidget(); ?>
 
 

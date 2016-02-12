@@ -15,18 +15,18 @@
 
 class SmsUtility
 {
-	public static function sendSMS($smslog_id, $user_id, $d_nomor, $d_message) {
+	public static function sendSMS($outbox_id, $user_id, $d_nomor, $d_message) {
 		$status = false;
 		
 		$message_type = 1; // text, default
-		$dlr_url = 'http://192.168.43.187/_client_bpadjogja.info/'.Yii::app()->createUrl('sms/o/outbox/dlr', array('type' => '%d', 'smslog_id' =>$smslog_id, 'user_id' =>$user_id));
+		$dlr_url = 'http://192.168.3.13'.Yii::app()->createUrl('sms/outbox/dlr', array('type' => '%d', 'outbox_id' =>$outbox_id, 'user_id' =>$user_id, 'smsc_s'=>'%Q', 'smsc_d'=>'%q'));
 		$d_message = urlencode(iconv('utf-8', 'ucs-2', $d_message));
 		
-		$URL = 'http://192.168.43.245:13013/cgi-bin/sendsms?user=admin&password=adminadmin&to={$d_nomor}&text={$d_message}';
-		$URL .= '&charset=UCS-2';
+		$URL = 'http://192.168.3.54:13013/cgi-bin/sendsms?user=admin&password=adminadmin&to='.$d_nomor.'&text='.$d_message;
+		$URL .= '&charset=utf8';
 		$URL .= '&coding=2';
 		$URL .= '&dlr-mask=31';
-		$URL .= '&dlr-url='.urlencode($dlr_url);
+		$URL .= '&dlr-url='.$dlr_url;
 		$URL .= '&mclass='.$message_type;
 		$URL = str_replace("&&", "&", $URL);
 		
@@ -42,20 +42,22 @@ class SmsUtility
 		return $status;
 	}
 	
-	public static function setSmsDeliveryStatus($smslog_id, $user_id, $c_status) {
+	public static function setSmsDeliveryStatus($outbox_id, $user_id, $c_status, $smsc_s, $smsc_d) {
 		$status = false;		
 		
 		Yii::import('application.modules.sms.models.SmsOutbox');
 		$model = SmsOutbox::model()->find(array(
-			'condition' => "smslog_id=:smslog AND user_id=:user",
+			'condition' => "outbox_id=:outbox AND user_id=:user",
 			'params' => array(
-				':smslog'=>$smslog_id,
+				':outbox'=>$outbox_id,
 				':user'=>$user_id,
 			),
 		));
 		
 		if($model != null) {
-			$model->status =$c_status;
+			$model->status = $c_status;
+			$model->smsc_source = $smsc_s;
+			$model->smsc_destination = $smsc_d;
 			if($model->save(false))				
 				$status = true;
 		}
