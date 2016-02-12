@@ -82,8 +82,8 @@ class SmsGroupPhonebook extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'group_TO' => array(self::BELONGS_TO, 'Users', 'group_id'),
-			'phonebook_TO' => array(self::BELONGS_TO, 'Users', 'phonebook_id'),
+			'group_TO' => array(self::BELONGS_TO, 'SmsGroups', 'group_id'),
+			'phonebook_TO' => array(self::BELONGS_TO, 'SmsPhonebook', 'phonebook_id'),
 			'creation_TO' => array(self::BELONGS_TO, 'Users', 'creation_id'),
 		);
 	}
@@ -139,7 +139,6 @@ class SmsGroupPhonebook extends CActiveRecord
 			'group_TO' => array(
 				'alias'=>'group_TO',
 				'select'=>'group_name, group_desc'
-			),
 			),
 			'phonebook_TO' => array(
 				'alias'=>'phonebook_TO',
