@@ -18,35 +18,25 @@
 	);
 ?>
 
-<?php //begin.Messages ?>
-<?php
-if(Yii::app()->user->hasFlash('success'))
-	echo Utility::flashSuccess(Yii::app()->user->getFlash('success'));
-?>
-<?php //end.Messages ?>
-
+<div class="dialog-content">
 <?php $this->widget('application.components.system.FDetailView', array(
 	'data'=>$model,
 	'attributes'=>array(
 		array(
 			'name'=>'group_id',
 			'value'=>$model->group_id,
-			//'value'=>$model->group_id != '' ? $model->group_id : '-',
 		),
 		array(
 			'name'=>'status',
 			'value'=>$model->status == '1' ? Chtml::image(Yii::app()->theme->baseUrl.'/images/icons/publish.png') : Chtml::image(Yii::app()->theme->baseUrl.'/images/icons/unpublish.png'),
-			//'value'=>$model->status,
 		),
 		array(
 			'name'=>'group_name',
 			'value'=>$model->group_name,
-			//'value'=>$model->group_name != '' ? $model->group_name : '-',
 		),
 		array(
 			'name'=>'group_desc',
 			'value'=>'value'=>$model->group_desc != '' ? $model->group_desc : '-',
-			//'value'=>$model->group_desc != '' ? CHtml::link($model->group_desc, Yii::app()->request->baseUrl.'/public/visit/'.$model->group_desc, array('target' => '_blank')) : '-',
 			'type'=>'raw',
 		),
 		array(
@@ -55,8 +45,7 @@ if(Yii::app()->user->hasFlash('success'))
 		),
 		array(
 			'name'=>'creation_id',
-			'value'=>$model->creation_id,
-			//'value'=>$model->creation_id != '' ? $model->creation_id : '-',
+			'value'=>$model->creation_id != 0 ? $model->creation_TO->displayname : '-',
 		),
 		array(
 			'name'=>'modified_date',
@@ -64,13 +53,10 @@ if(Yii::app()->user->hasFlash('success'))
 		),
 		array(
 			'name'=>'modified_id',
-			'value'=>$model->modified_id,
-			//'value'=>$model->modified_id != '' ? $model->modified_id : '-',
+			'value'=>$model->modified_id != 0 ? $model->modified_TO->displayname : '-',
 		),
 	),
 )); ?>
-
-<div class="dialog-content">
 </div>
 <div class="dialog-submit">
 	<?php echo CHtml::button(Phrase::trans(4,0), array('id'=>'closed')); ?>

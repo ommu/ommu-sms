@@ -30,3 +30,9 @@ content_menu	:
 	- urlTitle: Import Phonebook
 		urlRules: {sms, o/phonebook, manage, siteType: 0,1, userLevel: 1}
 		urlPath: {url: import, attr: -, icon: -}
+		
+# controller o/group
+
+	- urlTitle: Add Group
+		urlRules: {sms, o/group, manage, siteType: 0,1, userLevel: 1}
+		urlPath: {url: add, attr: -, icon: -}
