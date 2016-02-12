@@ -232,20 +232,6 @@ class SmsOutbox extends CActiveRecord
 				'header' => 'No',
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
 			);
-			$this->defaultColumns[] = array(
-				'name' => 'status',
-				'value' => '$data->status == 0 ? "Pending" : ($data->status == 1 ? "Sent" : ($data->status == 2 ? "Failed" : "Delivered"))',
-				'htmlOptions' => array(
-					'class' => 'center',
-				),
-				'filter'=>array(
-					0=>'Pending',
-					1=>'Sent',
-					2=>'Failed',
-					3=>'Delivered',
-				),
-				'type' => 'raw',
-			);
 			/*
 			$this->defaultColumns[] = array(
 				'name' => 'group_id',
@@ -260,7 +246,7 @@ class SmsOutbox extends CActiveRecord
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'creation_date',
-				'value' => 'Utility::dateFormat($data->creation_date)',
+				'value' => 'Utility::dateFormat($data->creation_date, true)',
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
@@ -283,6 +269,20 @@ class SmsOutbox extends CActiveRecord
 						'showButtonPanel' => true,
 					),
 				), true),
+			);
+			$this->defaultColumns[] = array(
+				'name' => 'status',
+				'value' => '$data->status == 0 ? "Pending" : ($data->status == 1 ? "Sent" : ($data->status == 2 ? "Failed" : "Delivered"))',
+				'htmlOptions' => array(
+					'class' => 'center',
+				),
+				'filter'=>array(
+					0=>'Pending',
+					1=>'Sent',
+					2=>'Failed',
+					3=>'Delivered',
+				),
+				'type' => 'raw',
 			);
 		}
 		parent::afterConstruct();

@@ -67,11 +67,11 @@ class SmsPhonebook extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('phonebook_nomor, phonebook_name', 'required'),
+			array('status, phonebook_nomor', 'required'),
 			array('status', 'numerical', 'integerOnly'=>true),
 			array('user_id, creation_id, modified_id', 'length', 'max'=>11),
 			array('phonebook_nomor', 'length', 'max'=>15),
-			array('user_id', 'safe'),
+			array('user_id, phonebook_name', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('phonebook_id, status, user_id, phonebook_nomor, phonebook_name, creation_date, creation_id, modified_date, modified_id,
@@ -108,6 +108,9 @@ class SmsPhonebook extends CActiveRecord
 			'creation_id' => 'Creation',
 			'modified_date' => 'Modified Date',
 			'modified_id' => 'Modified',
+			'user_search' => 'User',
+			'creation_search' => 'Creation',
+			'modified_search' => 'Modified',
 		);
 	}
 
@@ -237,7 +240,7 @@ class SmsPhonebook extends CActiveRecord
 			$this->defaultColumns[] = 'phonebook_name';
 			$this->defaultColumns[] = array(
 				'name' => 'creation_search',
-				'value' => '$data->creation_relation->displayname',
+				'value' => '$data->creation_TO->displayname',
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'creation_date',
@@ -268,13 +271,13 @@ class SmsPhonebook extends CActiveRecord
 			if(!isset($_GET['type'])) {
 				$this->defaultColumns[] = array(
 					'name' => 'status',
-					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("status",array("id"=>$data->phonebook_id)), $data->status, 1)',
+					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("status",array("id"=>$data->phonebook_id)), $data->status, "Enable,Block")',
 					'htmlOptions' => array(
 						'class' => 'center',
 					),
 					'filter'=>array(
-						1=>Phrase::trans(588,0),
-						0=>Phrase::trans(589,0),
+						1=>'Block',
+						0=>'Enable',
 					),
 					'type' => 'raw',
 				);

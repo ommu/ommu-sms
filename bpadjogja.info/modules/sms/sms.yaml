@@ -13,6 +13,20 @@ db_sql_filename	:
 
 content_menu	:
 # controller o/outbox
-	- urlTitle: Compose SMS
+	- urlTitle: Send SMS
 		urlRules: {sms, o/outbox, manage, siteType: 0,1, userLevel: 1}
 		urlPath: {url: add, attr: -, icon: -}
+		
+	- urlTitle: Blasting SMS
+		urlRules: {sms, o/outbox, manage, siteType: 0,1, userLevel: 1}
+		urlPath: {url: blast, attr: -, icon: -}
+		
+# controller o/phonebook
+
+	- urlTitle: Add Phonebook
+		urlRules: {sms, o/phonebook, manage, siteType: 0,1, userLevel: 1}
+		urlPath: {url: add, attr: -, icon: -}
+
+	- urlTitle: Import Phonebook
+		urlRules: {sms, o/phonebook, manage, siteType: 0,1, userLevel: 1}
+		urlPath: {url: import, attr: -, icon: -}
