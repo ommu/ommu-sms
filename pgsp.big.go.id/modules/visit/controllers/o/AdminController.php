@@ -136,7 +136,9 @@ class AdminController extends Controller
 			'model'=>$model,
 			'columns' => $columns,
 		));
-	}	/**
+	}	
+	
+	/**
 	 * Creates a new model.
 	 * If creation is successful, the browser will be redirected to the 'view' page.
 	 */
@@ -145,7 +147,7 @@ class AdminController extends Controller
 		ini_set('max_execution_time', 0);
 		ob_start();
 		
-		$path = 'public/visit/';
+		$path = 'public/visit';
 		$error = [];
 		
 		if(isset($_FILES['visitExcel'])) {
