@@ -10,6 +10,7 @@
  * TOC :
  *	Index
  *	Manage
+ *	Import
  *	Add
  *	Edit
  *	View
@@ -86,7 +87,7 @@ class PhonebookController extends Controller
 				//'expression'=>'isset(Yii::app()->user->level) && (Yii::app()->user->level != 1)',
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('manage','add','edit','view','runaction','delete','status'),
+				'actions'=>array('manage','import','add','edit','view','runaction','delete','status'),
 				'users'=>array('@'),
 				'expression'=>'isset(Yii::app()->user->level) && (Yii::app()->user->level == 1)',
 			),
@@ -137,6 +138,61 @@ class PhonebookController extends Controller
 			'columns' => $columns,
 		));
 	}	
+	
+	/**
+	 * Creates a new model.
+	 * If creation is successful, the browser will be redirected to the 'view' page.
+	 */
+	public function actionImport() 
+	{
+		ini_set('max_execution_time', 0);
+		ob_start();
+		
+		$path = 'public/sms';
+		$error = [];
+		
+		if(isset($_FILES['phonebookExcel'])) {
+			$fileName = CUploadedFile::getInstanceByName('phonebookExcel');
+			if(in_array(strtolower($fileName->extensionName), array('xls','xlsx'))) {
+				$file = time().'_'.Utility::getUrlTitle(date('d-m-Y H:i:s')).'_'.Utility::getUrlTitle(Yii::app()->user->displayname).'.'.strtolower($fileName->extensionName);
+				if($fileName->saveAs($path.'/'.$file)) {
+					Yii::import('ext.excel_reader.OExcelReader');
+					$xls = new OExcelReader($path.'/'.$file);
+					
+					for ($row = 2; $row <= $xls->sheets[0]['numRows']; $row++) {
+						$no						= trim($xls->sheets[0]['cells'][$row][1]);
+						$user_id				= trim($xls->sheets[0]['cells'][$row][2]);
+						$phonebook_name			= ucfirst(strtolower(trim($xls->sheets[0]['cells'][$row][3])));
+						$phonebook_nomor		= trim($xls->sheets[0]['cells'][$row][4]);
+						
+						$phonebook_nomor = SmsPhonebook::setPhoneNumber($phonebook_nomor);
+						SmsPhonebook::insertPhonebook($user_id, $phonebook_nomor, $phonebook_name);
+					}
+					
+					Yii::app()->user->setFlash('success', 'Import Excell Success.');
+					$this->redirect(array('manage'));
+					
+				} else {
+					Yii::app()->user->setFlash('error', 'Gagal menyimpan file.');
+				}
+			} else {
+				Yii::app()->user->setFlash('error', 'Hanya file .xls dan .xlsx yang dibolehkan.');
+			}
+		}
+
+		ob_end_flush();
+		
+		$this->dialogDetail = true;
+		$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
+		$this->dialogWidth = 600;
+
+		$this->pageTitle = 'Upload Visit';
+		$this->pageDescription = '';
+		$this->pageMeta = '';
+		$this->render('admin_import',array(
+			'model'=>$model,
+		));
+	}
 	
 	/**
 	 * Creates a new model.

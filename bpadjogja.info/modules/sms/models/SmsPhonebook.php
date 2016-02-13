@@ -304,6 +304,41 @@ class SmsPhonebook extends CActiveRecord
 	}
 
 	/**
+	 * User get information
+	 */
+	public static function setPhoneNumber($phonebook_nomor)
+	{
+		$phonenumber = $phonebook_nomor;
+		if(substr($phonebook_nomor, 0, 1) != '+') {
+			if(substr($phonebook_nomor, 0, 1) == 0)
+				$phonenumber = '+62'.substr($phonebook_nomor, 1);
+			else {
+				if(substr($phonebook_nomor, 0, 2) == 62)
+					$phonenumber = '+'.$phonebook_nomor;
+				else
+					$phonenumber = '+62'.$phonebook_nomor;
+			}
+		}
+		
+		return $phonenumber;
+	}
+
+	/**
+	 * User get information
+	 */
+	public static function insertPhonebook($user_id, $phonebook_nomor, $phonebook_name)
+	{
+		$model=new SmsPhonebook;
+		
+		$model->user_id = $user_id;
+		$model->phonebook_nomor = $phonebook_nomor;
+		$model->phonebook_name = $phonebook_name;
+		$model->save();
+		
+		return true;
+	}
+
+	/**
 	 * before validate attributes
 	 */
 	protected function beforeValidate() {
