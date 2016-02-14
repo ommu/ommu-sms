@@ -125,7 +125,10 @@ class SmsGroupPhonebook extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('t.id',strtolower($this->id),true);
-		$criteria->compare('t.group_id',$this->group_id);
+		if(isset($_GET['group']))
+			$criteria->compare('t.group_id',$_GET['group']);
+		else
+			$criteria->compare('t.group_id',$this->group_id);
 		$criteria->compare('t.phonebook_id',strtolower($this->phonebook_id),true);
 		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00', '0000-00-00')))
 			$criteria->compare('date(t.creation_date)',date('Y-m-d', strtotime($this->creation_date)));

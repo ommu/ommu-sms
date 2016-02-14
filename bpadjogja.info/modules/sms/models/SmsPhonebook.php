@@ -328,14 +328,17 @@ class SmsPhonebook extends CActiveRecord
 	 */
 	public static function insertPhonebook($user_id, $phonebook_nomor, $phonebook_name)
 	{
+		$return = true;
+		
 		$model=new SmsPhonebook;
 		
 		$model->user_id = $user_id;
 		$model->phonebook_nomor = $phonebook_nomor;
 		$model->phonebook_name = $phonebook_name;
-		$model->save();
+		if($model->save())
+			$return = $model->phonebook_id;
 		
-		return true;
+		return $return;
 	}
 
 	/**

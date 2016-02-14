@@ -160,7 +160,7 @@ class GroupController extends Controller
 					if($model->save()) {
 						echo CJSON::encode(array(
 							'type' => 5,
-							'get' => Yii::app()->controller->createUrl('manage'),
+							'get' => Yii::app()->controller->createUrl('edit', array('id'=>$model->group_id)),
 							'id' => 'partial-sms-groups',
 							'msg' => '<div class="errorSummary success"><strong>SmsGroups success created.</strong></div>',
 						));
@@ -200,6 +200,7 @@ class GroupController extends Controller
 		if(isset($_POST['SmsGroups'])) {
 			$model->attributes=$_POST['SmsGroups'];
 			
+			/*
 			$jsonError = CActiveForm::validate($model);
 			if(strlen($jsonError) > 2) {
 				echo $jsonError;
@@ -219,19 +220,25 @@ class GroupController extends Controller
 				}
 			}
 			Yii::app()->end();
+			*/
+			if($model->save()) {				
+				Yii::app()->user->setFlash('success', 'Import Excell Success + (Error in '.count($model->errorRowImport).' row)');
+				$this->redirect(array('manage'));
+			}		
 			
-		} else {
+		}
+		//} else {
 			$this->dialogDetail = true;
 			$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
 			$this->dialogWidth = 600;
-
+			
 			$this->pageTitle = 'Update Sms Groups';
 			$this->pageDescription = '';
 			$this->pageMeta = '';
 			$this->render('admin_edit',array(
 				'model'=>$model,
 			));			
-		}
+		//}
 	}
 	
 	/**

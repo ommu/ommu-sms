@@ -33,6 +33,9 @@
 class SmsGroups extends CActiveRecord
 {
 	public $defaultColumns = array();
+	public $import_excel;
+	public $groupbookExcel;
+	public $errorRowImport = [];
 	
 	// Variable Search
 	public $creation_search;
@@ -69,7 +72,8 @@ class SmsGroups extends CActiveRecord
 			array('status', 'numerical', 'integerOnly'=>true),
 			array('group_name', 'length', 'max'=>32),
 			array('creation_id, modified_id', 'length', 'max'=>11),
-			array('modified_date', 'safe'),
+			array('
+				import_excel, groupbookExcel', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('group_id, status, group_name, group_desc, creation_date, creation_id, modified_date, modified_id,
@@ -85,6 +89,7 @@ class SmsGroups extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'view_group' => array(self::BELONGS_TO, 'ViewSmsGroups', 'group_id'),
 			'creation_TO' => array(self::BELONGS_TO, 'Users', 'creation_id'),
 			'modified_TO' => array(self::BELONGS_TO, 'Users', 'modified_id'),
 		);
@@ -106,6 +111,8 @@ class SmsGroups extends CActiveRecord
 			'modified_id' => 'Modified',
 			'creation_search' => 'Creation',
 			'modified_search' => 'Modified',
+			'import_excel' => 'Import Group Phonebook',
+			'groupbookExcel' => 'Group Phonebook Excel',
 		);
 	}
 
@@ -146,6 +153,9 @@ class SmsGroups extends CActiveRecord
 		
 		// Custom Search
 		$criteria->with = array(
+			'view_group' => array(
+				'alias'=>'view_group',
+			),
 			'creation_TO' => array(
 				'alias'=>'creation_TO',
 				'select'=>'displayname'
@@ -211,6 +221,14 @@ class SmsGroups extends CActiveRecord
 			);
 			$this->defaultColumns[] = 'group_name';
 			$this->defaultColumns[] = 'group_desc';
+			$this->defaultColumns[] = array(
+				'header' => 'Contact',
+				'value' => 'CHtml::link($data->view_group->contacts." contact", Yii::app()->controller->createUrl("o/groupbook/manage",array("group"=>$data->group_id)))',
+				'htmlOptions' => array(
+					'class' => 'center',
+				),
+				'type' => 'raw',
+			);
 			$this->defaultColumns[] = array(
 				'name' => 'creation_search',
 				'value' => '$data->creation_TO->displayname',
@@ -280,11 +298,87 @@ class SmsGroups extends CActiveRecord
 	 * before validate attributes
 	 */
 	protected function beforeValidate() {
-		if(parent::beforeValidate()) {
+		if(parent::beforeValidate()) {			
 			if($this->isNewRecord)
 				$this->creation_id = Yii::app()->user->id;
-			else
+			
+			else {
+				if($this->import_excel == 1) {
+					$file = CUploadedFile::getInstance($this, 'groupbookExcel');
+					if($file->name != '') {
+						$extension = pathinfo($file->name, PATHINFO_EXTENSION);
+						if(!in_array(strtolower($extension), array('xls','xlsx')))
+							$this->addError('groupbookExcel', 'The file "'.$file->name.'" cannot be uploaded. Only files with these extensions are allowed: xls, xlsx.');
+					} else
+						$this->addError('groupbookExcel', 'File import cannot be blank.');
+				}
+				
 				$this->modified_id = Yii::app()->user->id;
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * before save attributes
+	 */
+	protected function beforeSave() {
+		if(parent::beforeSave()) {
+			$path = 'public/sms';
+			
+			if(!$this->isNewRecord) {
+				$this->groupbookExcel = CUploadedFile::getInstance($this, 'groupbookExcel');
+				if($this->groupbookExcel instanceOf CUploadedFile) {
+					$fileName = time().'_'.Utility::getUrlTitle(date('d-m-Y H:i:s')).'_'.Utility::getUrlTitle(Yii::app()->user->displayname).'.'.strtolower($this->groupbookExcel->extensionName);
+					if($this->groupbookExcel->saveAs($path.'/'.$fileName)) {
+						Yii::import('ext.excel_reader.OExcelReader');
+						$xls = new OExcelReader($path.'/'.$fileName);
+					
+						for ($row = 2; $row <= $xls->sheets[0]['numRows']; $row++) {
+							$no						= trim($xls->sheets[0]['cells'][$row][1]);
+							$phonebook_id			= trim($xls->sheets[0]['cells'][$row][2]);
+							$user_id				= trim($xls->sheets[0]['cells'][$row][3]);
+							$phonebook_name			= ucfirst(strtolower(trim($xls->sheets[0]['cells'][$row][4])));
+							$phonebook_nomor		= trim($xls->sheets[0]['cells'][$row][5]);
+							
+							$phonebook_nomor = SmsPhonebook::setPhoneNumber($phonebook_nomor);
+							if($phonebook_id == '') {
+								$phonebook = SmsPhonebook::model()->find(array(
+									'select'    => 'phonebook_id',
+									'condition' => 'phonebook_nomor= :p_nomor',
+									'params'    => array(':p_nomor' => $phonebook_nomor),
+								));
+								if($phonebook != null)
+									$phonebook_id = $phonebook->phonebook_id;								
+								else
+									$phonebook_id = SmsPhonebook::insertPhonebook($user_id, $phonebook_nomor, $phonebook_name);
+							}
+							
+							$groupbook = SmsGroupPhonebook::model()->find(array(
+								'select'    => 'id',
+								'condition' => 'group_id= :group AND phonebook_id= :phonebook',
+								'params'    => array(
+									':group' => $this->group_id,
+									':phonebook' => $phonebook_id,
+								),
+							));
+							
+							if($groupbook == null) {							
+								$model=new SmsGroupPhonebook;
+								$model->group_id = $this->group_id;
+								$model->phonebook_id = $phonebook_id;
+								if(!$model->save())
+									array_push($this->errorRowImport, $row);
+								
+							} else
+								array_push($this->errorRowImport, $row);
+						}
+						
+					} else {						
+						$this->addError('groupbookExcel', 'Data excel gagal terupload.');
+					}
+				}				
+			}
 		}
 		return true;
 	}

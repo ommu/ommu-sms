@@ -12,13 +12,38 @@
  * @contect (+62)856-299-4114
  *
  */
+	
+	$cs = Yii::app()->getClientScript();
+$js=<<<EOP
+	$('#SmsGroups_import_excel').live('change', function() {
+		var id = $(this).prop('checked');		
+		if(id == true) {
+			$('div#import').slideDown();
+		} else {
+			$('div#import').slideUp();
+		}
+	});
+EOP;
+	$cs->registerScript('setting', $js, CClientScript::POS_END);
 ?>
 
-<?php $form=$this->beginWidget('application.components.system.OActiveForm', array(
-	'id'=>'sms-groups-form',
-	'enableAjaxValidation'=>true,
-	//'htmlOptions' => array('enctype' => 'multipart/form-data')
-)); ?>
+<?php 
+if($model->isNewRecord) {
+	$form=$this->beginWidget('application.components.system.OActiveForm', array(
+		'id'=>'sms-groups-form',
+		'enableAjaxValidation'=>true,
+		//'htmlOptions' => array('enctype' => 'multipart/form-data'),
+	));	
+} else {
+	$form=$this->beginWidget('application.components.system.OActiveForm', array(
+		'id'=>'sms-groups-form',
+		'enableAjaxValidation'=>true,
+		'htmlOptions' => array(
+			'on_post' => 'on_post',
+			'enctype' => 'multipart/form-data',
+		),
+	));	
+} ?>
 <div class="dialog-content">
 
 	<fieldset>
@@ -46,6 +71,27 @@
 				<?php /*<div class="small-px silent"></div>*/?>
 			</div>
 		</div>
+		
+		<?php if(!$model->isNewRecord) {?>
+			<div class="clearfix publish">
+				<?php echo $form->labelEx($model,'import_excel'); ?>
+				<div class="desc">
+					<?php echo $form->checkBox($model,'import_excel'); ?>
+					<?php echo $form->labelEx($model,'import_excel'); ?>
+					<?php echo $form->error($model,'import_excel'); ?>
+				</div>
+			</div>
+
+			<div id="import" class="clearfix <?php echo $model->import_excel == 0 ? 'hide' : ''?>">
+				<?php echo $form->labelEx($model,'groupbookExcel'); ?>
+				<div class="desc">
+					<?php echo $form->fileField($model,'groupbookExcel'); ?>
+					<div class="pt-10">Download: <a off_address="" target="_blank" href="<?php echo Yii::app()->request->baseUrl;?>/externals/sms/sms_groupbook_import.xls" title="Template Import Groupbook">Template Import Groupbook</a></div>
+					<?php echo $form->error($model,'groupbookExcel'); ?>
+					<?php /*<div class="small-px silent"></div>*/?>
+				</div>
+			</div>
+		<?php }?>
 
 		<div class="clearfix publish">
 			<?php echo $form->labelEx($model,'status'); ?>
