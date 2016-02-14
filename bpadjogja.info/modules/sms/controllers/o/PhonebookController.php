@@ -10,6 +10,7 @@
  * TOC :
  *	Index
  *	Manage
+ *	Suggest
  *	Import
  *	Add
  *	Edit
@@ -87,7 +88,7 @@ class PhonebookController extends Controller
 				//'expression'=>'isset(Yii::app()->user->level) && (Yii::app()->user->level != 1)',
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('manage','import','add','edit','view','runaction','delete','status'),
+				'actions'=>array('manage','suggest','import','add','edit','view','runaction','delete','status'),
 				'users'=>array('@'),
 				'expression'=>'isset(Yii::app()->user->level) && (Yii::app()->user->level == 1)',
 			),
@@ -137,7 +138,58 @@ class PhonebookController extends Controller
 			'model'=>$model,
 			'columns' => $columns,
 		));
-	}	
+	}
+	
+	/**
+	 * Updates a particular model.
+	 * If update is successful, the browser will be redirected to the 'view' page.
+	 * @param integer $id the ID of the model to be updated
+	 */
+	public function actionSuggest($limit=15) 
+	{
+		if(isset($_GET['term'])) {
+			$criteria = new CDbCriteria;
+			$criteria->select	= "phonebook_id, phonebook_nomor, phonebook_name";
+			
+			if(isset($_GET['group'])) {
+				$criteria->with = array(
+					'geroupbook_ONE' => array(
+						'alias'=>'b',
+					),
+				);
+				$criteria->condition = 't.status=:status AND (t.phonebook_nomor LIKE :number OR t.phonebook_name LIKE :name) AND b.group_id=:group AND b.group_id IS NULL';
+				$criteria->params = array(
+					':status' => 1,
+					':number' => '%' . strtolower(SmsPhonebook::setPhoneNumber($_GET['term'])) . '%',
+					':name' => '%' . strtolower($_GET['term']) . '%',
+					':group' => $_GET['group'],
+				);
+				
+			} else {
+				$criteria->condition = 'status=:status AND phonebook_nomor LIKE :number OR phonebook_name LIKE :name';
+				$criteria->params = array(
+					':status' => 1,
+					':number' => '%' . strtolower(SmsPhonebook::setPhoneNumber($_GET['term'])) . '%',
+					':name' => '%' . strtolower($_GET['term']) . '%',
+				);
+			}
+			$criteria->limit = $limit;
+			$criteria->order = "phonebook_id ASC";
+			$model = SmsPhonebook::model()->findAll($criteria);
+
+			if($model) {
+				foreach($model as $items) {
+					$contact = $items->phonebook_name != '' ? $items->phonebook_name." (".$items->phonebook_nomor.")" : $items->phonebook_nomor;
+					$result[] = array('id' => $items->phonebook_id, 'value' => $contact);
+				}
+			} else {
+				if(!isset($_GET['group']))
+					$result[] = array('id' => 0, 'value' => ucwords($_GET['term']));
+			}
+		}
+		echo CJSON::encode($result);
+		Yii::app()->end();
+	}
 	
 	/**
 	 * Creates a new model.

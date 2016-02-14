@@ -193,6 +193,12 @@ class GroupController extends Controller
 	public function actionEdit($id) 
 	{
 		$model=$this->loadModel($id);
+		$phonebook = SmsGroupPhonebook::model()->findAll(array(
+			'condition' => 'group_id = :group',
+			'params' => array(
+				':group' => $model->group_id,
+			),
+		));
 
 		// Uncomment the following line if AJAX validation is needed
 		$this->performAjaxValidation($model);
@@ -221,22 +227,26 @@ class GroupController extends Controller
 			}
 			Yii::app()->end();
 			*/
-			if($model->save()) {				
-				Yii::app()->user->setFlash('success', 'Import Excell Success + (Error in '.count($model->errorRowImport).' row)');
+			if($model->save()) {
+				if($model->import_excel == 1)					
+					Yii::app()->user->setFlash('success', 'Import Excell Success + (Error in '.count($model->errorRowImport).' row)');
+				else
+					Yii::app()->user->setFlash('success', 'SmsGroups success updated.');
 				$this->redirect(array('manage'));
 			}		
 			
 		}
 		//} else {
-			$this->dialogDetail = true;
+			/* $this->dialogDetail = true;
 			$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
-			$this->dialogWidth = 600;
+			$this->dialogWidth = 600; */
 			
 			$this->pageTitle = 'Update Sms Groups';
 			$this->pageDescription = '';
 			$this->pageMeta = '';
 			$this->render('admin_edit',array(
 				'model'=>$model,
+				'phonebook'=>$phonebook,
 			));			
 		//}
 	}

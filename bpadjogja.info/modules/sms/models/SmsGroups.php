@@ -33,6 +33,7 @@
 class SmsGroups extends CActiveRecord
 {
 	public $defaultColumns = array();
+	public $contact_input;
 	public $import_excel;
 	public $groupbookExcel;
 	public $errorRowImport = [];
@@ -69,11 +70,13 @@ class SmsGroups extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('group_name, group_desc', 'required'),
-			array('status', 'numerical', 'integerOnly'=>true),
-			array('group_name', 'length', 'max'=>32),
+			array('status,
+				import_excel', 'numerical', 'integerOnly'=>true),
+			array('group_name,
+				contact_input', 'length', 'max'=>32),
 			array('creation_id, modified_id', 'length', 'max'=>11),
 			array('
-				import_excel, groupbookExcel', 'safe'),
+				contact_input, import_excel, groupbookExcel', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('group_id, status, group_name, group_desc, creation_date, creation_id, modified_date, modified_id,
@@ -111,6 +114,7 @@ class SmsGroups extends CActiveRecord
 			'modified_id' => 'Modified',
 			'creation_search' => 'Creation',
 			'modified_search' => 'Modified',
+			'contact_input' => 'Contact in Group',
 			'import_excel' => 'Import Group Phonebook',
 			'groupbookExcel' => 'Group Phonebook Excel',
 		);

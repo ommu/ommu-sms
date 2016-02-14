@@ -90,6 +90,7 @@ class SmsPhonebook extends CActiveRecord
 			'user_TO' => array(self::BELONGS_TO, 'Users', 'user_id'),
 			'creation_TO' => array(self::BELONGS_TO, 'Users', 'creation_id'),
 			'modified_TO' => array(self::BELONGS_TO, 'Users', 'modified_id'),
+			'geroupbook_ONE' => array(self::HAS_ONE, 'SmsGroupPhonebook', 'phonebook_id'),
 		);
 	}
 

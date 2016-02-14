@@ -27,25 +27,11 @@ EOP;
 	$cs->registerScript('setting', $js, CClientScript::POS_END);
 ?>
 
-<?php 
-if($model->isNewRecord) {
-	$form=$this->beginWidget('application.components.system.OActiveForm', array(
-		'id'=>'sms-groups-form',
-		'enableAjaxValidation'=>true,
-		//'htmlOptions' => array('enctype' => 'multipart/form-data'),
-	));	
-} else {
-	$form=$this->beginWidget('application.components.system.OActiveForm', array(
-		'id'=>'sms-groups-form',
-		'enableAjaxValidation'=>true,
-		'htmlOptions' => array(
-			'on_post' => 'on_post',
-			'enctype' => 'multipart/form-data',
-		),
-	));	
-} ?>
-<div class="dialog-content">
-
+<?php $form=$this->beginWidget('application.components.system.OActiveForm', array(
+	'id'=>'articles-form',
+	'enableAjaxValidation'=>$validation,
+	'htmlOptions' => array('enctype' => 'multipart/form-data')
+)); ?>
 	<fieldset>
 
 		<?php //begin.Messages ?>
@@ -57,7 +43,7 @@ if($model->isNewRecord) {
 		<div class="clearfix">
 			<?php echo $form->labelEx($model,'group_name'); ?>
 			<div class="desc">
-				<?php echo $form->textField($model,'group_name',array('size'=>32,'maxlength'=>32)); ?>
+				<?php echo $form->textField($model,'group_name',array('maxlength'=>32)); ?>
 				<?php echo $form->error($model,'group_name'); ?>
 				<?php /*<div class="small-px silent"></div>*/?>
 			</div>
@@ -72,26 +58,71 @@ if($model->isNewRecord) {
 			</div>
 		</div>
 		
-		<?php if(!$model->isNewRecord) {?>
-			<div class="clearfix publish">
-				<?php echo $form->labelEx($model,'import_excel'); ?>
-				<div class="desc">
-					<?php echo $form->checkBox($model,'import_excel'); ?>
-					<?php echo $form->labelEx($model,'import_excel'); ?>
-					<?php echo $form->error($model,'import_excel'); ?>
-				</div>
-			</div>
+		<div class="clearfix publish">
+			<?php echo $form->labelEx($model,'contact_input'); ?>
+			<div class="desc">
+				<?php 
+				//echo $form->textField($model,'contact_input',array('maxlength'=>32, 'class'=>'span-5'));
+				$url = Yii::app()->controller->createUrl('o/groupbook/add', array('type'=>'sms'));
+				$group = $model->group_id;
+				$contactId = 'SmsGroups_contact_input';
+				$this->widget('zii.widgets.jui.CJuiAutoComplete', array(
+					'model' => $model,
+					'attribute' => 'contact_input',
+					'source' => Yii::app()->controller->createUrl('o/phonebook/suggest', array('group'=>$model->group_id)),
+					'options' => array(
+						//'delay '=> 50,
+						'minLength' => 1,
+						'showAnim' => 'fold',
+						'select' => "js:function(event, ui) {
+							$.ajax({
+								type: 'post',
+								url: '$url',
+								data: { group_id: '$group', phonebook_id: ui.item.id},
+								dataType: 'json',
+								success: function(response) {
+									$('form #$contactId').val('');
+									$('form #phonebook-suggest').append(response.data);
+								}
+							});
 
-			<div id="import" class="clearfix <?php echo $model->import_excel == 0 ? 'hide' : ''?>">
-				<?php echo $form->labelEx($model,'groupbookExcel'); ?>
-				<div class="desc">
-					<?php echo $form->fileField($model,'groupbookExcel'); ?>
-					<div class="pt-10">Download: <a off_address="" target="_blank" href="<?php echo Yii::app()->request->baseUrl;?>/externals/sms/sms_groupbook_import.xls" title="Template Import Groupbook">Template Import Groupbook</a></div>
-					<?php echo $form->error($model,'groupbookExcel'); ?>
-					<?php /*<div class="small-px silent"></div>*/?>
+						}"
+					),
+					'htmlOptions' => array(
+						'class'	=> 'span-5',
+					),
+				));
+				echo $form->error($model,'contact_input'); ?>
+				<div id="phonebook-suggest" class="suggest clearfix">
+					<?php 
+					if($phonebook != null) {
+						foreach($phonebook as $key => $val) {
+						$contact = $val->phonebook_TO->phonebook_name != '' ? $val->phonebook_TO->phonebook_name : $val->phonebook_TO->phonebook_nomor; ?>
+						<div><?php echo $contact;?><a href="<?php echo Yii::app()->controller->createUrl('o/groupbook/delete',array('id'=>$val->id,'type'=>'sms'));?>" title="<?php echo Phrase::trans(173,0);?>"><?php echo Phrase::trans(173,0);?></a></div>
+					<?php }
+					}?>
 				</div>
 			</div>
-		<?php }?>
+		</div>
+		
+		<div class="clearfix publish">
+			<?php echo $form->labelEx($model,'import_excel'); ?>
+			<div class="desc">
+				<?php echo $form->checkBox($model,'import_excel'); ?>
+				<?php echo $form->labelEx($model,'import_excel'); ?>
+				<?php echo $form->error($model,'import_excel'); ?>
+			</div>
+		</div>
+
+		<div id="import" class="clearfix <?php echo $model->import_excel == 0 ? 'hide' : ''?>">
+			<?php echo $form->labelEx($model,'groupbookExcel'); ?>
+			<div class="desc">
+				<?php echo $form->fileField($model,'groupbookExcel'); ?>
+				<div class="pt-10">Download: <a off_address="" target="_blank" href="<?php echo Yii::app()->request->baseUrl;?>/externals/sms/sms_groupbook_import.xls" title="Template Import Groupbook">Template Import Groupbook</a></div>
+				<?php echo $form->error($model,'groupbookExcel'); ?>
+				<?php /*<div class="small-px silent"></div>*/?>
+			</div>
+		</div>
 
 		<div class="clearfix publish">
 			<?php echo $form->labelEx($model,'status'); ?>
@@ -103,12 +134,13 @@ if($model->isNewRecord) {
 			</div>
 		</div>
 
-	</fieldset>
-</div>
-<div class="dialog-submit">
-	<?php echo CHtml::submitButton($model->isNewRecord ? Phrase::trans(1,0) : Phrase::trans(2,0) ,array('onclick' => 'setEnableSave()')); ?>
-	<?php echo CHtml::button(Phrase::trans(4,0), array('id'=>'closed')); ?>
-</div>
-<?php $this->endWidget(); ?>
+		<div class="submit clearfix">
+			<label>&nbsp;</label>
+			<div class="desc">
+				<?php echo CHtml::submitButton($model->isNewRecord ? Phrase::trans(1,0) : Phrase::trans(2,0), array('onclick' => 'setEnableSave()')); ?>
+			</div>
+		</div>
 
+	</fieldset>
+<?php $this->endWidget(); ?>
 

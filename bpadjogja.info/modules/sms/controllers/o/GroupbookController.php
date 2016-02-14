@@ -145,58 +145,21 @@ class GroupbookController extends Controller
 		// Uncomment the following line if AJAX validation is needed
 		$this->performAjaxValidation($model);
 
-		if(isset($_POST['SmsGroupPhonebook'])) {
-			$model->attributes=$_POST['SmsGroupPhonebook'];
+		if(isset($_POST['group_id'], $_POST['phonebook_id'])) {
+			$model->group_id = $_POST['group_id'];
+			$model->phonebook_id = $_POST['phonebook_id'];
 
-			/* 
-			$jsonError = CActiveForm::validate($model);
-			if(strlen($jsonError) > 2) {
-				//echo $jsonError;
-				$errors = $model->getErrors();
-				$summary['msg'] = "<div class='errorSummary'><strong>Please fix the following input errors:</strong>";
-				$summary['msg'] .= "<ul>";
-				foreach($errors as $key => $value) {
-					$summary['msg'] .= "<li>{$value[0]}</li>";
-				}
-				$summary['msg'] .= "</ul></div>";
-
-				$message = json_decode($jsonError, true);
-				$merge = array_merge_recursive($summary, $message);
-				$encode = json_encode($merge);
-				echo $encode;
-
-			} else {
-				if(isset($_GET['enablesave']) && $_GET['enablesave'] == 1) {
-					if($model->save()) {
-						echo CJSON::encode(array(
-							'type' => 5,
-							'get' => Yii::app()->controller->createUrl('manage'),
-							'id' => 'partial-sms-group-phonebook',
-							'msg' => '<div class="errorSummary success"><strong>SmsGroupPhonebook success created.</strong></div>',
-						));
-					} else {
-						print_r($model->getErrors());
-					}
-				}
-			}
-			Yii::app()->end();
-			*/
-
-			if(isset($_GET['enablesave']) && $_GET['enablesave'] == 1) {
-				if($model->save()) {
-					Yii::app()->user->setFlash('success', 'SmsGroupPhonebook success created.');
-					//$this->redirect(array('view','id'=>$model->id));
-					$this->redirect(array('manage'));
-				}
+			if($model->save()) {
+				if(isset($_GET['type']) && $_GET['type'] == 'sms')
+					$url = Yii::app()->controller->createUrl('delete',array('id'=>$model->id,'type'=>'sms'));
+				else 
+					$url = Yii::app()->controller->createUrl('delete',array('id'=>$model->id));
+				$contact = $model->phonebook_TO->phonebook_name != '' ? $model->phonebook_TO->phonebook_name : $model->phonebook_TO->phonebook_nomor;
+				echo CJSON::encode(array(
+					'data' => '<div>'.$contact.'<a href="'.$url.'" title="'.Phrase::trans(173,0).'">'.Phrase::trans(173,0).'</a></div>',
+				));
 			}
 		}
-
-		$this->pageTitle = 'Create Sms Group Phonebooks';
-		$this->pageDescription = '';
-		$this->pageMeta = '';
-		$this->render('admin_add',array(
-			'model'=>$model,
-		));
 	}
 
 	/**
@@ -211,7 +174,12 @@ class GroupbookController extends Controller
 		if(Yii::app()->request->isPostRequest) {
 			// we only allow deletion via POST request
 			if(isset($id)) {
-				if($model->delete()) {
+				$model->delete();
+				if(isset($_GET['type']) && $_GET['type'] == 'sms') {
+					echo CJSON::encode(array(
+						'type' => 4,
+					));
+				} else {
 					echo CJSON::encode(array(
 						'type' => 5,
 						'get' => Yii::app()->controller->createUrl('manage'),
@@ -223,7 +191,11 @@ class GroupbookController extends Controller
 
 		} else {
 			$this->dialogDetail = true;
-			$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
+			if(isset($_GET['type']) && $_GET['type'] == 'sms')
+				$url = Yii::app()->controller->createUrl('o/group/edit', array('id'=>$model->group_id));
+			else
+				$url = Yii::app()->controller->createUrl('manage');
+			$this->dialogGroundUrl = $url;
 			$this->dialogWidth = 350;
 
 			$this->pageTitle = 'SmsGroupPhonebook Delete.';
