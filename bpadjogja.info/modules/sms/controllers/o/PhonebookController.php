@@ -238,7 +238,7 @@ class PhonebookController extends Controller
 		$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
 		$this->dialogWidth = 600;
 
-		$this->pageTitle = 'Upload Visit';
+		$this->pageTitle = 'Import Phonebook';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
 		$this->render('admin_import',array(

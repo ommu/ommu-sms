@@ -158,9 +158,13 @@ class OutboxController extends Controller
 				if(isset($_GET['enablesave']) && $_GET['enablesave'] == 1) {
 					if($model->save()) {
 						SmsUtility::sendSMS($model->outbox_id, Yii::app()->user->id, $model->destination_nomor, $model->message);
+						if(isset($_GET['type']) && $_GET['type'] == 'inbox')
+							$url = Yii::app()->controller->createUrl('o/inbox/manage');
+						else
+							$url = Yii::app()->controller->createUrl('manage');
 						echo CJSON::encode(array(
 							'type' => 5,
-							'get' => Yii::app()->controller->createUrl('manage'),
+							'get' => $url,
 							'id' => 'partial-sms-outbox',
 							'msg' => '<div class="errorSummary success"><strong>SmsOutbox success created.</strong></div>',
 						));
@@ -173,7 +177,11 @@ class OutboxController extends Controller
 			
 		} else {
 			$this->dialogDetail = true;
-			$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
+			if(isset($_GET['type']) && $_GET['type'] == 'inbox')
+				$url = Yii::app()->controller->createUrl('o/inbox/manage');
+			else
+				$url = Yii::app()->controller->createUrl('manage');
+			$this->dialogGroundUrl = $url;
 			$this->dialogWidth = 600;
 
 			$this->pageTitle = 'Create Sms Outboxes';
