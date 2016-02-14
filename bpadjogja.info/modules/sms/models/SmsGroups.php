@@ -295,6 +295,30 @@ class SmsGroups extends CActiveRecord
 	}
 
 	/**
+	 * Get category
+	 * 0 = unpublish
+	 * 1 = publish
+	 */
+	public static function getGroup($status=null) 
+	{		
+		$criteria=new CDbCriteria;
+		if($status != null)
+			$criteria->compare('t.status',$status);
+		
+		$model = self::model()->findAll($criteria);
+
+		$items = array();
+		if($model != null) {
+			foreach($model as $key => $val) {
+				$items[$val->group_id] = $val->group_name;
+			}
+			return $items;
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * before validate attributes
 	 */
 	protected function beforeValidate() {

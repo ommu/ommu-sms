@@ -214,8 +214,11 @@ class SmsGroupPhonebook extends CActiveRecord
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
 			);
 			$this->defaultColumns[] = array(
-				'name' => 'group_search',
+				//'name' => 'group_search',
+				'name' => 'group_id',
 				'value' => '$data->group_TO->group_name',
+				'filter'=> SmsGroups::getGroup(),
+				'type' => 'raw',
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'phonebook_search',
