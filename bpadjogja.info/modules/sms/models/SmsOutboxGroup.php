@@ -166,6 +166,20 @@ class SmsOutboxGroup extends CActiveRecord
 	}
 
 	/**
+	 * User get information
+	 */
+	public static function insertOutboxGroup()
+	{
+		$return = true;		
+		
+		$model=new SmsOutboxGroup;
+		if($model->save())
+			$return = $model->group_id;
+		
+		return $return;
+	}
+
+	/**
 	 * Set default columns to display
 	 */
 	protected function afterConstruct() {
@@ -213,7 +227,7 @@ class SmsOutboxGroup extends CActiveRecord
 	 */
 	protected function beforeValidate() {
 		if(parent::beforeValidate()) {
-			if(!$this->isNewRecord)
+			if($this->isNewRecord)
 				$this->creation_id = Yii::app()->user->id;
 		}
 		return true;

@@ -2,7 +2,7 @@
 /**
  * OutboxController
  * @var $this OutboxController
- * @var $model SmsOutbox
+ * @var $model ViewSmsOutbox
  * @var $form CActiveForm
  * version: 0.0.1
  * Reference start
@@ -11,16 +11,14 @@
  *	Index
  *	Manage
  *	Add
- *	Edit
  *	View
- *	Delete
  *
  *	LoadModel
  *	performAjaxValidation
  *
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
- * @created date 12 February 2016, 04:07 WIB
+ * @created date 15 February 2016, 11:43 WIB
  * @link http://company.ommu.co
  * @contect (+62)856-299-4114
  *
@@ -84,7 +82,7 @@ class OutboxController extends Controller
 				//'expression'=>'isset(Yii::app()->user->level) && (Yii::app()->user->level != 1)',
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('manage','add','edit','view','delete'),
+				'actions'=>array('manage','add','view','sync'),
 				'users'=>array('@'),
 				'expression'=>'isset(Yii::app()->user->level) && (Yii::app()->user->level == 1)',
 			),
@@ -111,10 +109,10 @@ class OutboxController extends Controller
 	 */
 	public function actionManage() 
 	{
-		$model=new SmsOutbox('search');
+		$model=new ViewSmsOutbox('search');
 		$model->unsetAttributes();  // clear any default values
-		if(isset($_GET['SmsOutbox'])) {
-			$model->attributes=$_GET['SmsOutbox'];
+		if(isset($_GET['ViewSmsOutbox'])) {
+			$model->attributes=$_GET['ViewSmsOutbox'];
 		}
 
 		$columnTemp = array();
@@ -127,7 +125,7 @@ class OutboxController extends Controller
 		}
 		$columns = $model->getGridColumn($columnTemp);
 
-		$this->pageTitle = 'Sms Outboxes Manage';
+		$this->pageTitle = 'View Sms Outboxes Manage';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
 		$this->render('admin_manage',array(
@@ -142,6 +140,9 @@ class OutboxController extends Controller
 	 */
 	public function actionAdd() 
 	{
+		ini_set('max_execution_time', 0);
+		ob_start();
+		
 		$model=new SmsOutbox;
 
 		// Uncomment the following line if AJAX validation is needed
@@ -150,6 +151,7 @@ class OutboxController extends Controller
 		if(isset($_POST['SmsOutbox'])) {
 			$model->attributes=$_POST['SmsOutbox'];
 			
+			/*
 			$jsonError = CActiveForm::validate($model);
 			if(strlen($jsonError) > 2) {
 				echo $jsonError;
@@ -174,8 +176,42 @@ class OutboxController extends Controller
 				}
 			}
 			Yii::app()->end();
+			*/
 			
-		} else {
+			if($model->validate()) {
+				$outboxGroup = SmsOutboxGroup::insertOutboxGroup();
+				if($model->messageType == 1) {
+					$model->group_id = $outboxGroup;
+					if($model->save())
+						SmsUtility::sendSMS($model->outbox_id, Yii::app()->user->id, $model->destination_nomor, $model->message);
+					
+				} else if($model->messageType == 2) {
+					if($model->validate()) {}
+					
+				} else if($model->messageType == 3) {
+					$groupbook = SmsGroupPhonebook::model()->findAll(array(
+						'condition' => 'group_id=:group',
+						'params'    => array(
+							':group' => $model->contact_input,
+						),
+					));
+					if($groupbook != null) {
+						foreach($groupbook as $key => $val) {
+							$outbox_id = SmsOutbox::insertOutbox($val->phonebook_TO->phonebook_nomor, $model->message, $outboxGroup);
+							SmsUtility::sendSMS($outbox_id, Yii::app()->user->id, $val->phonebook_TO->phonebook_nomor, $model->message);
+						}
+					}
+				}
+			
+				if(isset($_GET['type']) && $_GET['type'] == 'inbox')
+					$url = Yii::app()->controller->createUrl('o/inbox/manage');
+				else
+					$url = Yii::app()->controller->createUrl('manage');
+				$this->redirect($url);
+			}
+		
+		}
+		//} else {
 			$this->dialogDetail = true;
 			if(isset($_GET['type']) && $_GET['type'] == 'inbox')
 				$url = Yii::app()->controller->createUrl('o/inbox/manage');
@@ -190,58 +226,9 @@ class OutboxController extends Controller
 			$this->render('admin_add',array(
 				'model'=>$model,
 			));			
-		}
-	}
-
-	/**
-	 * Updates a particular model.
-	 * If update is successful, the browser will be redirected to the 'view' page.
-	 * @param integer $id the ID of the model to be updated
-	 */
-	public function actionEdit($id) 
-	{
-		$this->redirect(array('manage'));
+		//}
 		
-		$model=$this->loadModel($id);
-
-		// Uncomment the following line if AJAX validation is needed
-		$this->performAjaxValidation($model);
-
-		if(isset($_POST['SmsOutbox'])) {
-			$model->attributes=$_POST['SmsOutbox'];
-			
-			$jsonError = CActiveForm::validate($model);
-			if(strlen($jsonError) > 2) {
-				echo $jsonError;
-
-			} else {
-				if(isset($_GET['enablesave']) && $_GET['enablesave'] == 1) {
-					if($model->save()) {
-						echo CJSON::encode(array(
-							'type' => 5,
-							'get' => Yii::app()->controller->createUrl('manage'),
-							'id' => 'partial-sms-outbox',
-							'msg' => '<div class="errorSummary success"><strong>SmsOutbox success updated.</strong></div>',
-						));
-					} else {
-						print_r($model->getErrors());
-					}
-				}
-			}
-			Yii::app()->end();
-			
-		} else {
-			$this->dialogDetail = true;
-			$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
-			$this->dialogWidth = 600;
-
-			$this->pageTitle = 'Update Sms Outboxes';
-			$this->pageDescription = '';
-			$this->pageMeta = '';
-			$this->render('admin_edit',array(
-				'model'=>$model,
-			));			
-		}
+		ob_end_flush();		
 	}
 	
 	/**
@@ -254,48 +241,47 @@ class OutboxController extends Controller
 		
 		$this->dialogDetail = true;
 		$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
-		$this->dialogWidth = 500;
+		$this->dialogWidth = 600;
 
-		$this->pageTitle = 'View Sms Outboxes';
+		$this->pageTitle = 'View View Sms Outboxes';
 		$this->pageDescription = '';
 		$this->pageMeta = $setting->meta_keyword;
 		$this->render('admin_view',array(
 			'model'=>$model,
 		));
-	}	
-
+	}
+	
 	/**
-	 * Deletes a particular model.
-	 * If deletion is successful, the browser will be redirected to the 'admin' page.
-	 * @param integer $id the ID of the model to be deleted
+	 * Lists all models.
 	 */
-	public function actionDelete($id) 
+	public function actionSync() 
 	{
-		$model=$this->loadModel($id);
+		ini_set('max_execution_time', 0);
+		ob_start();
 		
-		if(Yii::app()->request->isPostRequest) {
-			// we only allow deletion via POST request
-			if(isset($id)) {
-				if($model->delete()) {
-					echo CJSON::encode(array(
-						'type' => 5,
-						'get' => Yii::app()->controller->createUrl('manage'),
-						'id' => 'partial-sms-outbox',
-						'msg' => '<div class="errorSummary success"><strong>SmsOutbox success deleted.</strong></div>',
-					));
+		$outboxView = ViewSmsOutbox::model()->findAll();
+		if($outboxView != null) {
+			foreach($outboxView as $key => $val) {
+				$message = $val->message;
+				$outboxGroup = SmsOutboxGroup::insertOutboxGroup();
+				
+				$outbox = SmsOutbox::model()->findAll(array(
+					'condition' => 'group_id=:group AND message=:message',
+					'params'    => array(
+						':group' => 0,
+						':message' => $message,
+					),
+				));
+				if($outbox != null) {
+					foreach($outbox as $key => $row) {
+						SmsOutbox::model()->updateByPk($row->outbox_id, array('group_id'=>$outboxGroup));						
+					}
 				}
 			}
-
-		} else {
-			$this->dialogDetail = true;
-			$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
-			$this->dialogWidth = 350;
-
-			$this->pageTitle = 'SmsOutbox Delete.';
-			$this->pageDescription = '';
-			$this->pageMeta = '';
-			$this->render('admin_delete');
 		}
+		
+		ob_end_flush();
+		
 	}
 
 	/**
@@ -305,7 +291,7 @@ class OutboxController extends Controller
 	 */
 	public function loadModel($id) 
 	{
-		$model = SmsOutbox::model()->findByPk($id);
+		$model = ViewSmsOutbox::model()->findByPk($id);
 		if($model===null)
 			throw new CHttpException(404, Phrase::trans(193,0));
 		return $model;
@@ -317,7 +303,7 @@ class OutboxController extends Controller
 	 */
 	protected function performAjaxValidation($model) 
 	{
-		if(isset($_POST['ajax']) && $_POST['ajax']==='sms-outbox-form') {
+		if(isset($_POST['ajax']) && $_POST['ajax']==='view-sms-outbox-form') {
 			echo CActiveForm::validate($model);
 			Yii::app()->end();
 		}
