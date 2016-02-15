@@ -31,6 +31,12 @@ content_menu	:
 		urlRules: {sms, o/outbox, manage, siteType: 0,1, userLevel: 1}
 		urlPath: {url: blast, attr: -, icon: -}
 		
+# controller o/sentitem
+		
+	- urlTitle: Back to Outbox
+		urlRules: {sms, o/sentitem, manage, siteType: 0,1, userLevel: 1}
+		urlPath: {url: o/outbox/manage, attr: -, icon: -}
+		
 # controller o/phonebook
 
 	- urlTitle: Add Phonebook

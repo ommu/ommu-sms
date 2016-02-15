@@ -242,7 +242,7 @@ class SmsOutbox extends CActiveRecord
 			$this->defaultColumns[] = 'message';
 			$this->defaultColumns[] = array(
 				'name' => 'creation_search',
-				'value' => '$data->creation_TO->displayname',
+				'value' => '$data->noted != "" ? $data->noted : $data->creation_TO->displayname',
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'creation_date',
