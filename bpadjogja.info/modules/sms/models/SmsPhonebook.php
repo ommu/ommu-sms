@@ -347,10 +347,21 @@ class SmsPhonebook extends CActiveRecord
 	 */
 	protected function beforeValidate() {
 		if(parent::beforeValidate()) {
-			if($this->isNewRecord)
-				$this->creation_id = Yii::app()->user->id;
+			if($this->isNewRecord) {				
+				$this->phonebook_nomor = self::setPhoneNumber($this->phonebook_nomor);
+				$phonebook = SmsPhonebook::model()->find(array(
+					'select'    => 'phonebook_id',
+					'condition' => 'phonebook_nomor= :p_nomor',
+					'params'    => array(':p_nomor' => $this->phonebook_nomor),
+				));
+				if($phonebook != null)
+					$this->addError('phonebook_nomor', 'Contact sudah ada pada database.');
+					
+				$this->creation_id = Yii::app()->user->id;				
+			}
 			else
 				$this->modified_id = Yii::app()->user->id;
+			
 		}
 		return true;
 	}

@@ -50,7 +50,7 @@
 		<div class="clearfix">
 			<?php echo $form->labelEx($model,'phonebook_name'); ?>
 			<div class="desc">
-				<?php echo $form->textField($model,'phonebook_name',array('maxlength'=>32)); ?>
+				<?php echo $form->textField($model,'phonebook_name',array('maxlength'=>64)); ?>
 				<?php echo $form->error($model,'phonebook_name'); ?>
 				<?php /*<div class="small-px silent"></div>*/?>
 			</div>

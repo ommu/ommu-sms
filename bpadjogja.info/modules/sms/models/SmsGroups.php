@@ -366,15 +366,18 @@ class SmsGroups extends CActiveRecord
 							$no						= trim($xls->sheets[0]['cells'][$row][1]);
 							$phonebook_id			= trim($xls->sheets[0]['cells'][$row][2]);
 							$user_id				= trim($xls->sheets[0]['cells'][$row][3]);
-							$phonebook_name			= ucfirst(strtolower(trim($xls->sheets[0]['cells'][$row][4])));
+							//$phonebook_name			= ucwords(strtolower(trim($xls->sheets[0]['cells'][$row][4])));
+							$phonebook_name			= trim($xls->sheets[0]['cells'][$row][4]);
 							$phonebook_nomor		= trim($xls->sheets[0]['cells'][$row][5]);
 							
 							$phonebook_nomor = SmsPhonebook::setPhoneNumber($phonebook_nomor);
 							if($phonebook_id == '') {
 								$phonebook = SmsPhonebook::model()->find(array(
 									'select'    => 'phonebook_id',
-									'condition' => 'phonebook_nomor= :p_nomor',
-									'params'    => array(':p_nomor' => $phonebook_nomor),
+									'condition' => 'phonebook_nomor=:p_nomor',
+									'params'    => array(
+										':p_nomor' => $phonebook_nomor,
+									),
 								));
 								if($phonebook != null)
 									$phonebook_id = $phonebook->phonebook_id;								
