@@ -1,19 +1,19 @@
 <?php
 /**
- * Sms Outboxes (sms-outbox)
+ * View Sms Outboxes (view-sms-outbox)
  * @var $this OutboxController
- * @var $model SmsOutbox
+ * @var $model ViewSmsOutbox
  *
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
- * @created date 12 February 2016, 04:07 WIB
+ * @created date 15 February 2016, 11:43 WIB
  * @link http://company.ommu.co
  * @contect (+62)856-299-4114
  *
  */
 
 	$this->breadcrumbs=array(
-		'Sms Outboxes'=>array('manage'),
+		'View Sms Outboxes'=>array('manage'),
 		'Manage',
 	);
 	$this->menu=array(
@@ -49,7 +49,7 @@
 </div>
 <?php //end.Grid Option ?>
 
-<div id="partial-sms-outbox">
+<div id="partial-view-sms-outbox">
 	<?php //begin.Messages ?>
 	<div id="ajax-message">
 	<?php
@@ -88,11 +88,11 @@
 						),
 						'url' => 'Yii::app()->controller->createUrl("delete",array("id"=>$data->primaryKey))')
 				),
-				'template' => '{view}|{delete}',
+				'template' => '{view}',
 			));
 
 			$this->widget('application.components.system.OGridView', array(
-				'id'=>'sms-outbox-grid',
+				'id'=>'view-sms-outbox-grid',
 				'dataProvider'=>$model->search(),
 				'filter'=>$model,
 				'columns' => $columnData,

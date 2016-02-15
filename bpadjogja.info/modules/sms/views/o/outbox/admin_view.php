@@ -1,19 +1,19 @@
 <?php
 /**
- * Sms Outboxes (sms-outbox)
+ * View Sms Outboxes (view-sms-outbox)
  * @var $this OutboxController
- * @var $model SmsOutbox
+ * @var $model ViewSmsOutbox
  *
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
- * @created date 12 February 2016, 04:07 WIB
+ * @created date 15 February 2016, 11:43 WIB
  * @link http://company.ommu.co
  * @contect (+62)856-299-4114
  *
  */
 
 	$this->breadcrumbs=array(
-		'Sms Outboxes'=>array('manage'),
+		'View Sms Outboxes'=>array('manage'),
 		$model->outbox_id,
 	);
 ?>
@@ -31,10 +31,6 @@
 			'value'=>$model->status == 0 ? "Pending" : ($model->status == 1 ? "Sent" : ($model->status == 2 ? "Failed" : "Delivered")),
 		),
 		array(
-			'name'=>'group_id',
-			'value'=>$model->group_id,
-		),
-		array(
 			'name'=>'destination_nomor',
 			'value'=>$model->destination_nomor,
 		),
@@ -44,12 +40,12 @@
 			'type'=>'raw',
 		),
 		array(
-			'name'=>'smsc_source',
-			'value'=>$model->smsc_source,
+			'name'=>'sents',
+			'value'=>$model->sents,
 		),
 		array(
-			'name'=>'smsc_destination',
-			'value'=>$model->smsc_destination,
+			'name'=>'smsc_source',
+			'value'=>$model->smsc_source,
 		),
 		array(
 			'name'=>'creation_date',
@@ -57,7 +53,7 @@
 		),
 		array(
 			'name'=>'creation_id',
-			'value'=>$model->creation_TO->displayname,
+			'value'=>$model->noted != "" ? $model->noted : $model->creation_TO->displayname,
 		),
 	),
 )); ?>

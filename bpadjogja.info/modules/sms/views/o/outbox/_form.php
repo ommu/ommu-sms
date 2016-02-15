@@ -12,27 +12,98 @@
  * @contect (+62)856-299-4114
  *
  */
+
+	$cs = Yii::app()->getClientScript();
+$js=<<<EOP
+	$('select#SmsOutbox_messageType').live('change', function() {
+		var id = $(this).val();
+		$('fieldset div.type').slideUp();
+		if(id == '1') {
+			$('div.type#single').slideDown();
+		} else if(id == '3') {
+			$('div.type#group').slideDown();
+		}
+	});
+EOP;
+	$cs->registerScript('type', $js, CClientScript::POS_END);
 ?>
 
 <?php $form=$this->beginWidget('application.components.system.OActiveForm', array(
 	'id'=>'sms-outbox-form',
 	'enableAjaxValidation'=>true,
-	//'htmlOptions' => array('enctype' => 'multipart/form-data')
+	'htmlOptions' => array(
+		'enctype' => 'multipart/form-data',
+		'on_post' => 'on_post',
+	)
 )); ?>
 <div class="dialog-content">
 	<fieldset>
 
-		<?php //begin.Messages ?>
+		<?php 
+		/*
+		//begin.Messages ?>
 		<div id="ajax-message">
 			<?php echo $form->errorSummary($model); ?>
 		</div>
-		<?php //begin.Messages ?>
+		<?php //begin.Messages
+		*/ ?>
 
 		<div class="clearfix">
+			<?php echo $form->labelEx($model,'messageType'); ?>
+			<div class="desc">
+				<?php 
+				if(isset($_GET['type']))
+					$model->messageType  = $_GET['type'];
+				echo $form->dropDownList($model,'messageType', array(
+					'1' => 'Single',
+					//'2' => 'Multi SMS',
+					'3' => 'Group',
+				)); ?>
+				<?php echo $form->error($model,'messageType'); ?>
+			</div>
+		</div>
+
+		<div id="single" class="type clearfix <?php echo (isset($_GET['type']) && $_GET['type'] == 1) || !isset($_GET['type']) ? '' : 'hide'?>">
+			<label><?php echo $model->getAttributeLabel('contact_input');?> <span class="required">*</span></label>
+			<div class="desc">
+				<?php 
+				//echo $form->textField($model,'contact_input',array('maxlength'=>15));
+				$this->widget('zii.widgets.jui.CJuiAutoComplete', array(
+					'model' => $model,
+					'attribute' => 'contact_input',
+					'source' => Yii::app()->controller->createUrl('o/phonebook/suggest'),
+					'options' => array(
+						//'delay '=> 50,
+						'minLength' => 1,
+						'showAnim' => 'fold',
+						'select' => "js:function(event, ui) {
+							$('form #SmsOutbox_destination_nomor').val(ui.item.id);
+						}"
+					),
+					'htmlOptions' => array(
+						'class'	=> 'span-6',
+					),
+				));			
+				echo $form->error($model,'contact_input');
+				echo $form->hiddenField($model,'destination_nomor');
+				?>
+			</div>
+		</div>
+
+		<div id="multi" class="type clearfix <?php echo (isset($_GET['type']) && $_GET['type'] == 2) ? '' : 'hide'?>">
 			<?php echo $form->labelEx($model,'destination_nomor'); ?>
 			<div class="desc">
 				<?php echo $form->textField($model,'destination_nomor',array('maxlength'=>15)); ?>
 				<?php echo $form->error($model,'destination_nomor'); ?>
+				<?php /*<div class="small-px silent"></div>*/?>
+			</div>
+		</div>
+
+		<div id="group" class="type clearfix <?php echo (isset($_GET['type']) && $_GET['type'] == 3) ? '' : 'hide'?>">
+			<label>Phonebook Group <span class="required">*</span></label>
+			<div class="desc">
+				<?php echo $form->dropDownList($model,'contact_input', SmsGroups::getGroup(1), array('prompt'=>'Pilih Group')); ?>
+				<?php echo $form->error($model,'contact_input'); ?>
 				<?php /*<div class="small-px silent"></div>*/?>
 			</div>
 		</div>

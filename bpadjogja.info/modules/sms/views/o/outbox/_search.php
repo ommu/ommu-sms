@@ -1,13 +1,13 @@
 <?php
 /**
- * Sms Outboxes (sms-outbox)
+ * View Sms Outboxes (view-sms-outbox)
  * @var $this OutboxController
- * @var $model SmsOutbox
+ * @var $model ViewSmsOutbox
  * @var $form CActiveForm
  *
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
- * @created date 12 February 2016, 04:07 WIB
+ * @created date 15 February 2016, 11:43 WIB
  * @link http://company.ommu.co
  * @contect (+62)856-299-4114
  *
@@ -30,23 +30,8 @@
 		</li>
 
 		<li>
-			<?php echo $model->getAttributeLabel('user_id'); ?><br/>
-			<?php echo $form->textField($model,'user_id',array('size'=>11,'maxlength'=>11)); ?>
-		</li>
-
-		<li>
-			<?php echo $model->getAttributeLabel('group_id'); ?><br/>
-			<?php echo $form->textField($model,'group_id',array('size'=>11,'maxlength'=>11)); ?>
-		</li>
-
-		<li>
 			<?php echo $model->getAttributeLabel('smsc_source'); ?><br/>
 			<?php echo $form->textField($model,'smsc_source',array('size'=>15,'maxlength'=>15)); ?>
-		</li>
-
-		<li>
-			<?php echo $model->getAttributeLabel('smsc_destination'); ?><br/>
-			<?php echo $form->textField($model,'smsc_destination',array('size'=>15,'maxlength'=>15)); ?>
 		</li>
 
 		<li>
@@ -57,6 +42,11 @@
 		<li>
 			<?php echo $model->getAttributeLabel('message'); ?><br/>
 			<?php echo $form->textArea($model,'message',array('rows'=>6, 'cols'=>50)); ?>
+		</li>
+
+		<li>
+			<?php echo $model->getAttributeLabel('sents'); ?><br/>
+			<?php echo $form->textField($model,'sents',array('size'=>21,'maxlength'=>21)); ?>
 		</li>
 
 		<li>
@@ -75,8 +65,8 @@
 		</li>
 
 		<li>
-			<?php echo $model->getAttributeLabel('c_timestamp'); ?><br/>
-			<?php echo $form->textField($model,'c_timestamp'); ?>
+			<?php echo $model->getAttributeLabel('noted'); ?><br/>
+			<?php echo $form->textField($model,'noted',array('size'=>60,'maxlength'=>64)); ?>
 		</li>
 
 		<li class="submit">
