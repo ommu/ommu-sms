@@ -10,7 +10,6 @@
  * TOC :
  *	Index
  *	Manage
- *	Add
  *	Edit
  *	View
  *	Delete
@@ -135,63 +134,6 @@ class SentitemController extends Controller
 			'columns' => $columns,
 		));
 	}	
-	
-	/**
-	 * Creates a new model.
-	 * If creation is successful, the browser will be redirected to the 'view' page.
-	 */
-	public function actionAdd() 
-	{
-		$model=new SmsOutbox;
-
-		// Uncomment the following line if AJAX validation is needed
-		$this->performAjaxValidation($model);
-
-		if(isset($_POST['SmsOutbox'])) {
-			$model->attributes=$_POST['SmsOutbox'];
-			
-			$jsonError = CActiveForm::validate($model);
-			if(strlen($jsonError) > 2) {
-				echo $jsonError;
-
-			} else {
-				if(isset($_GET['enablesave']) && $_GET['enablesave'] == 1) {
-					if($model->save()) {
-						SmsUtility::sendSMS($model->outbox_id, Yii::app()->user->id, $model->destination_nomor, $model->message);
-						if(isset($_GET['type']) && $_GET['type'] == 'inbox')
-							$url = Yii::app()->controller->createUrl('o/inbox/manage');
-						else
-							$url = Yii::app()->controller->createUrl('manage');
-						echo CJSON::encode(array(
-							'type' => 5,
-							'get' => $url,
-							'id' => 'partial-sms-outbox',
-							'msg' => '<div class="errorSummary success"><strong>SmsOutbox success created.</strong></div>',
-						));
-					} else {
-						print_r($model->getErrors());
-					}
-				}
-			}
-			Yii::app()->end();
-			
-		} else {
-			$this->dialogDetail = true;
-			if(isset($_GET['type']) && $_GET['type'] == 'inbox')
-				$url = Yii::app()->controller->createUrl('o/inbox/manage');
-			else
-				$url = Yii::app()->controller->createUrl('manage');
-			$this->dialogGroundUrl = $url;
-			$this->dialogWidth = 600;
-
-			$this->pageTitle = 'Create Sms Outboxes';
-			$this->pageDescription = '';
-			$this->pageMeta = '';
-			$this->render('admin_add',array(
-				'model'=>$model,
-			));			
-		}
-	}
 
 	/**
 	 * Updates a particular model.

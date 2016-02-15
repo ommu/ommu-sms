@@ -40,6 +40,9 @@
 class SmsOutbox extends CActiveRecord
 {
 	public $defaultColumns = array();
+	public $messageType;
+	public $contact_input;
+	public $errorSendSms = [];
 	
 	// Variable Search
 	public $user_search;
@@ -72,11 +75,13 @@ class SmsOutbox extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('destination_nomor, message', 'required'),
-			array('status, c_timestamp', 'numerical', 'integerOnly'=>true),
+			array('message', 'required'),
+			array('status, c_timestamp,
+				messageType', 'numerical', 'integerOnly'=>true),
 			array('user_id, group_id, creation_id', 'length', 'max'=>11),
 			array('smsc_source, smsc_destination, destination_nomor', 'length', 'max'=>15),
-			array('updated_date', 'safe'),
+			array('destination_nomor,
+				messageType, contact_input', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('outbox_id, status, user_id, group_id, smsc_source, smsc_destination, destination_nomor, message, creation_date, creation_id, updated_date, c_timestamp,
@@ -116,6 +121,8 @@ class SmsOutbox extends CActiveRecord
 			'creation_id' => 'Creation',
 			'updated_date' => 'Updated Date',
 			'c_timestamp' => 'C Timestamp',
+			'messageType' => 'SMS Type',
+			'contact_input' => 'Destination Nomor',
 			'user_search' => 'User',
 			'creation_search' => 'Creation',
 		);
@@ -306,12 +313,35 @@ class SmsOutbox extends CActiveRecord
 	}
 
 	/**
+	 * User get information
+	 */
+	public static function insertOutbox($destination_nomor, $message, $outboxGroup=0)
+	{
+		$return = true;		
+		
+		$model=new SmsOutbox;
+		$model->group_id = $outboxGroup;
+		$model->destination_nomor = $destination_nomor;
+		$model->message = $message;
+		if($model->save())
+			$return = $model->outbox_id;
+		
+		return $return;
+	}
+
+	/**
 	 * before validate attributes
 	 */
 	protected function beforeValidate() {
 		if(parent::beforeValidate()) {
 			if($this->isNewRecord)
 				$this->user_id = Yii::app()->user->id;
+			
+			if($this->messageType == 1 && $this->contact_input == '')
+				$this->addError('contact_input', 'Destination number cannot be blank.');
+			
+			if($this->messageType == 3 && $this->contact_input == '')
+				$this->addError('contact_input', 'Phonebook group cannot be blank.');
 			
 			$this->c_timestamp = time();
 		}

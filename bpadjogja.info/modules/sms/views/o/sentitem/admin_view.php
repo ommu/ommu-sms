@@ -57,7 +57,7 @@
 		),
 		array(
 			'name'=>'creation_id',
-			'value'=>$model->creation_TO->displayname,
+			'value'=>$model->noted != "" ? $model->noted : $model->creation_TO->displayname,
 		),
 	),
 )); ?>
