@@ -174,17 +174,21 @@ class PhonebookController extends Controller
 				);
 			}
 			$criteria->limit = $limit;
-			$criteria->order = "phonebook_id ASC";
+			$criteria->order = "t.phonebook_id ASC";
 			$model = SmsPhonebook::model()->findAll($criteria);
 
 			if($model) {
 				foreach($model as $items) {
 					$contact = $items->phonebook_name != '' ? $items->phonebook_name." (".$items->phonebook_nomor.")" : $items->phonebook_nomor;
-					$result[] = array('id' => $items->phonebook_id, 'value' => $contact);
+					if(isset($_GET['group'])) {
+						$result[] = array('id' => $items->phonebook_id, 'value' => $contact);						
+					} else {
+						$result[] = array('id' => $items->phonebook_nomor, 'value' => $contact);							
+					}
 				}
 			} else {
 				if(!isset($_GET['group']))
-					$result[] = array('id' => 0, 'value' => ucwords($_GET['term']));
+					$result[] = array('id' => $_GET['term'], 'value' => ucwords($_GET['term']));
 			}
 		}
 		echo CJSON::encode($result);

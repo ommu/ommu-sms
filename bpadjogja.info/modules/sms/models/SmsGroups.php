@@ -405,7 +405,7 @@ class SmsGroups extends CActiveRecord
 								array_push($this->errorRowImport, $row);
 						}
 						
-					} else {						
+					} else {
 						$this->addError('groupbookExcel', 'Data excel gagal terupload.');
 					}
 				}				

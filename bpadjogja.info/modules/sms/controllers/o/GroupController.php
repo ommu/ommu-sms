@@ -227,14 +227,14 @@ class GroupController extends Controller
 			}
 			Yii::app()->end();
 			*/
+			
 			if($model->save()) {
 				if($model->import_excel == 1)					
 					Yii::app()->user->setFlash('success', 'Import Excell Success + (Error in '.count($model->errorRowImport).' row)');
 				else
 					Yii::app()->user->setFlash('success', 'SmsGroups success updated.');
 				$this->redirect(array('manage'));
-			}		
-			
+			}
 		}
 		//} else {
 			/* $this->dialogDetail = true;
