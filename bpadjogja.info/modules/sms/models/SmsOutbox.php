@@ -249,11 +249,14 @@ class SmsOutbox extends CActiveRecord
 				'value' => '$data->group_id == 0 ? "-" : ""',
 			);
 			*/
-			$this->defaultColumns[] = 'destination_nomor';
+			$this->defaultColumns[] = array(
+				'name' => 'destination_nomor',
+				'value' => '$data->noted != "" ? $data->noted : $data->destination_nomor',
+			);
 			$this->defaultColumns[] = 'message';
 			$this->defaultColumns[] = array(
 				'name' => 'creation_search',
-				'value' => '$data->noted != "" ? $data->noted : $data->creation_TO->displayname',
+				'value' => '$data->creation_TO->displayname',
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'creation_date',

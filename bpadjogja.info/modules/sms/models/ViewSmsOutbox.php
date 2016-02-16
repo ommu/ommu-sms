@@ -23,6 +23,7 @@
  * The followings are the available columns in table '_view_sms_outbox':
  * @property integer $outbox_id
  * @property integer $status
+ * @property string $group_id
  * @property string $smsc_source
  * @property string $destination_nomor
  * @property string $message
@@ -74,16 +75,16 @@ class ViewSmsOutbox extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('smsc_source, destination_nomor, message, creation_id, noted', 'required'),
+			array('group_id, smsc_source, destination_nomor, message, creation_id, noted', 'required'),
 			array('outbox_id, status', 'numerical', 'integerOnly'=>true),
+			array('group_id, creation_id', 'length', 'max'=>11),
 			array('smsc_source, destination_nomor', 'length', 'max'=>15),
 			array('sents', 'length', 'max'=>21),
-			array('creation_id', 'length', 'max'=>11),
 			array('noted', 'length', 'max'=>64),
 			array('creation_date, updated_date', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('outbox_id, status, smsc_source, destination_nomor, message, sents, creation_date, creation_id, updated_date, noted,
+			array('outbox_id, status, group_id, smsc_source, destination_nomor, message, sents, creation_date, creation_id, updated_date, noted,
 				creation_search', 'safe', 'on'=>'search'),
 		);
 	}
@@ -108,6 +109,7 @@ class ViewSmsOutbox extends CActiveRecord
 		return array(
 			'outbox_id' => 'Outbox',
 			'status' => 'Status',
+			'group_id' => 'Group',
 			'smsc_source' => 'Smsc Source',
 			'destination_nomor' => 'Destination Nomor',
 			'message' => 'Message',
@@ -140,6 +142,10 @@ class ViewSmsOutbox extends CActiveRecord
 
 		$criteria->compare('t.outbox_id',$this->outbox_id);
 		$criteria->compare('t.status',$this->status);
+		if(isset($_GET['group']))
+			$criteria->compare('t.group_id',$_GET['group']);
+		else
+			$criteria->compare('t.group_id',$this->group_id);
 		$criteria->compare('t.smsc_source',strtolower($this->smsc_source),true);
 		$criteria->compare('t.destination_nomor',strtolower($this->destination_nomor),true);
 		$criteria->compare('t.message',strtolower($this->message),true);
@@ -185,6 +191,7 @@ class ViewSmsOutbox extends CActiveRecord
 		} else {
 			$this->defaultColumns[] = 'outbox_id';
 			$this->defaultColumns[] = 'status';
+			$this->defaultColumns[] = 'group_id';
 			$this->defaultColumns[] = 'smsc_source';
 			$this->defaultColumns[] = 'destination_nomor';
 			$this->defaultColumns[] = 'message';
@@ -207,18 +214,22 @@ class ViewSmsOutbox extends CActiveRecord
 				'header' => 'No',
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
 			);
-			$this->defaultColumns[] = 'destination_nomor';
+			$this->defaultColumns[] = array(
+				'name' => 'destination_nomor',
+				'value' => '$data->noted != "" ? $data->noted : $data->destination_nomor',
+			);
 			$this->defaultColumns[] = 'message';
 			$this->defaultColumns[] = array(
 				'name' => 'sents',
-				'value' => '$data->sents',
+				'value' => 'CHtml::link($data->sents." contact", Yii::app()->controller->createUrl("o/sentitem/manage",array("group"=>$data->group_id)))',				
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
+				'type' => 'raw',
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'creation_search',
-				'value' => '$data->noted != "" ? $data->noted : $data->creation_TO->displayname',
+				'value' => '$data->creation_TO->displayname',
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'creation_date',
@@ -280,72 +291,5 @@ class ViewSmsOutbox extends CActiveRecord
 			return $model;			
 		}
 	}
-
-	/**
-	 * before validate attributes
-	 */
-	/*
-	protected function beforeValidate() {
-		if(parent::beforeValidate()) {
-			// Create action
-		}
-		return true;
-	}
-	*/
-
-	/**
-	 * after validate attributes
-	 */
-	/*
-	protected function afterValidate()
-	{
-		parent::afterValidate();
-			// Create action
-		return true;
-	}
-	*/
-	
-	/**
-	 * before save attributes
-	 */
-	/*
-	protected function beforeSave() {
-		if(parent::beforeSave()) {
-		}
-		return true;	
-	}
-	*/
-	
-	/**
-	 * After save attributes
-	 */
-	/*
-	protected function afterSave() {
-		parent::afterSave();
-		// Create action
-	}
-	*/
-
-	/**
-	 * Before delete attributes
-	 */
-	/*
-	protected function beforeDelete() {
-		if(parent::beforeDelete()) {
-			// Create action
-		}
-		return true;
-	}
-	*/
-
-	/**
-	 * After delete attributes
-	 */
-	/*
-	protected function afterDelete() {
-		parent::afterDelete();
-		// Create action
-	}
-	*/
 
 }
