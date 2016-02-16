@@ -20,6 +20,8 @@ $js=<<<EOP
 		$('fieldset div.type').slideUp();
 		if(id == '1') {
 			$('div.type#single').slideDown();
+		} else if(id == '2') {
+			$('div.type#multi').slideDown();
 		} else if(id == '3') {
 			$('div.type#group').slideDown();
 		}
@@ -91,19 +93,19 @@ EOP;
 		</div>
 
 		<div id="multi" class="type clearfix <?php echo (isset($_GET['type']) && $_GET['type'] == 2) ? '' : 'hide'?>">
-			<?php echo $form->labelEx($model,'destination_nomor'); ?>
+			<?php echo $form->labelEx($model,'multiple_input'); ?>
 			<div class="desc">
-				<?php echo $form->textField($model,'destination_nomor',array('maxlength'=>15)); ?>
-				<?php echo $form->error($model,'destination_nomor'); ?>
+				<?php echo $form->textField($model,'multiple_input',array('maxlength'=>15)); ?>
+				<?php echo $form->error($model,'multiple_input'); ?>
 				<?php /*<div class="small-px silent"></div>*/?>
 			</div>
 		</div>
 
 		<div id="group" class="type clearfix <?php echo (isset($_GET['type']) && $_GET['type'] == 3) ? '' : 'hide'?>">
-			<label>Phonebook Group <span class="required">*</span></label>
+			<label><?php echo $model->getAttributeLabel('group_input');?> <span class="required">*</span></label>
 			<div class="desc">
-				<?php echo $form->dropDownList($model,'contact_input', SmsGroups::getGroup(1), array('prompt'=>'Pilih Group')); ?>
-				<?php echo $form->error($model,'contact_input'); ?>
+				<?php echo $form->dropDownList($model,'group_input', SmsGroups::getGroup(1), array('prompt'=>'Pilih Group')); ?>
+				<?php echo $form->error($model,'group_input'); ?>
 				<?php /*<div class="small-px silent"></div>*/?>
 			</div>
 		</div>

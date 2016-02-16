@@ -15,11 +15,11 @@ content_menu	:
 # controller o/inbox
 	- urlTitle: Send SMS
 		urlRules: {sms, o/inbox, manage, siteType: 0,1, userLevel: 1}
-		urlPath: {url: o/outbox/add, attr: type=inbox, icon: -}
+		urlPath: {url: o/outbox/add, attr: inbox=active, icon: -}
 		
 	- urlTitle: Blasting SMS
 		urlRules: {sms, o/inbox, manage, siteType: 0,1, userLevel: 1}
-		urlPath: {url: o/outbox/blast, attr: type=inbox, icon: -}
+		urlPath: {url: o/outbox/blast, attr: inbox=active, icon: -}
 		
 # controller o/outbox
 

@@ -157,12 +157,13 @@ class PhonebookController extends Controller
 						'alias'=>'b',
 					),
 				);
-				$criteria->condition = 't.status=:status AND (t.phonebook_nomor LIKE :number OR t.phonebook_name LIKE :name) AND b.group_id=:group AND b.group_id IS NULL';
+				//$criteria->condition = 't.status=:status AND (t.phonebook_nomor LIKE :number OR t.phonebook_name LIKE :name) AND b.group_id=:group AND b.group_id IS NULL';
+				$criteria->condition = 'status=:status AND phonebook_nomor LIKE :number OR phonebook_name LIKE :name';
 				$criteria->params = array(
 					':status' => 1,
 					':number' => '%' . strtolower(SmsPhonebook::setPhoneNumber($_GET['term'])) . '%',
 					':name' => '%' . strtolower($_GET['term']) . '%',
-					':group' => $_GET['group'],
+					//':group' => $_GET['group'],
 				);
 				
 			} else {

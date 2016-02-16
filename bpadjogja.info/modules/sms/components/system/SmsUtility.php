@@ -19,10 +19,18 @@ class SmsUtility
 		$status = false;
 		
 		$message_type = 1; // text, default
-		$dlr_url = 'http://192.168.3.13'.Yii::app()->createUrl('sms/outbox/dlr', array('type' => '%d', 'outbox_id' =>$outbox_id, 'user_id' =>$user_id, 'smsc_s'=>'%Q', 'smsc_d'=>'%q'));
+		//$url = 'http://192.168.3.13'; 			//swevel wifi
+		$url = 'http://192.168.43.187'; 		//android wifi
+		//$url = 'http://localhost/bpadportal'; 	//localhost bpadjogja.info
+		
+		$dlr_url = 'http://192.168.43.187'.Yii::app()->createUrl('sms/outbox/dlr', array('type' => '%d', 'outbox_id' =>$outbox_id, 'user_id' =>$user_id, 'smsc_s'=>'%Q', 'smsc_d'=>'%q'));
 		$d_message = urlencode(iconv('utf-8', 'ucs-2', $d_message));
 		
-		$URL = 'http://192.168.3.54:13013/cgi-bin/sendsms?user=admin&password=adminadmin&to='.$d_nomor.'&text='.$d_message;
+		//$urlKannel = 'http://192.168.3.54'; 			//swevel wifi
+		$urlKannel = 'http://192.168.43.245'; 			//android wifi
+		//$urlKannel = 'http://localhost'; 				//localhost bpadjogja.info
+		
+		$URL = 'http://192.168.43.245:13013/cgi-bin/sendsms?user=admin&password=adminadmin&to='.$d_nomor.'&text='.$d_message;
 		$URL .= '&charset=utf8';
 		$URL .= '&coding=2';
 		$URL .= '&dlr-mask=31';

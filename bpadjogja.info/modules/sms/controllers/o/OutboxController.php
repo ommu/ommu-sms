@@ -192,7 +192,7 @@ class OutboxController extends Controller
 					$groupbook = SmsGroupPhonebook::model()->findAll(array(
 						'condition' => 'group_id=:group',
 						'params'    => array(
-							':group' => $model->contact_input,
+							':group' => $model->group_input,
 						),
 					));
 					if($groupbook != null) {
@@ -213,7 +213,7 @@ class OutboxController extends Controller
 		}
 		//} else {
 			$this->dialogDetail = true;
-			if(isset($_GET['type']) && $_GET['type'] == 'inbox')
+			if(isset($_GET['inbox']) && $_GET['inbox'] == 'active')
 				$url = Yii::app()->controller->createUrl('o/inbox/manage');
 			else
 				$url = Yii::app()->controller->createUrl('manage');
