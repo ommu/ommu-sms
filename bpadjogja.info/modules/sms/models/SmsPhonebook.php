@@ -307,17 +307,27 @@ class SmsPhonebook extends CActiveRecord
 	/**
 	 * User get information
 	 */
-	public static function setPhoneNumber($phonebook_nomor)
+	public static function setPhoneNumber($phonebook_nomor, $type=null)
 	{
 		$phonenumber = $phonebook_nomor;
-		if(substr($phonebook_nomor, 0, 1) != '+') {
-			if(substr($phonebook_nomor, 0, 1) == 0)
-				$phonenumber = '+62'.substr($phonebook_nomor, 1);
-			else {
-				if(substr($phonebook_nomor, 0, 2) == 62)
-					$phonenumber = '+'.$phonebook_nomor;
-				else
-					$phonenumber = '+62'.$phonebook_nomor;
+		if($type == null) {
+			if(substr($phonebook_nomor, 0, 1) != '+') {
+				if(substr($phonebook_nomor, 0, 1) == '0')
+					$phonenumber = '+62'.substr($phonebook_nomor, 1);
+				else {
+					if(substr($phonebook_nomor, 0, 2) == '62')
+						$phonenumber = '+'.$phonebook_nomor;
+					else
+						$phonenumber = '+62'.$phonebook_nomor;
+				}
+			}			
+		} else {
+			if(substr($phonebook_nomor, 0, 1) == '+') {
+				if(substr($phonebook_nomor, 0, 3) == '+62')
+					$phonenumber = '0'.substr($phonebook_nomor, 3);
+			} else {
+				if(substr($phonebook_nomor, 0, 3) != '0' && substr($phonebook_nomor, 0, 2) == '62')
+					$phonenumber = '0'.substr($phonebook_nomor, 2);
 			}
 		}
 		

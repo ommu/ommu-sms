@@ -206,7 +206,7 @@ class PhonebookController extends Controller
 		ob_start();
 		
 		$path = 'public/sms';
-		$error = [];
+		$error = array();
 		
 		if(isset($_FILES['phonebookExcel'])) {
 			$fileName = CUploadedFile::getInstanceByName('phonebookExcel');

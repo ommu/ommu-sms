@@ -44,7 +44,7 @@ class SmsOutbox extends CActiveRecord
 	public $contact_input;
 	public $multiple_input;
 	public $group_input;
-	public $errorSendSms = [];
+	public $errorSendSms = array();
 	
 	// Variable Search
 	public $user_search;

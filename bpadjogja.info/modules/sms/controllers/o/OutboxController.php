@@ -182,8 +182,9 @@ class OutboxController extends Controller
 				$outboxGroup = SmsOutboxGroup::insertOutboxGroup();
 				if($model->messageType == 1) {
 					$model->group_id = $outboxGroup;
+					$phonebook = SmsPhonebook::setPhoneNumber($model->destination_nomor, 'nasional');
 					if($model->save())
-						SmsUtility::sendSMS($model->outbox_id, Yii::app()->user->id, $model->destination_nomor, $model->message);
+						SmsUtility::sendSMS($model->outbox_id, Yii::app()->user->id, $phonebook, $model->message);
 					
 				} else if($model->messageType == 2) {
 					if($model->validate()) {}
@@ -198,7 +199,8 @@ class OutboxController extends Controller
 					if($groupbook != null) {
 						foreach($groupbook as $key => $val) {
 							$outbox_id = SmsOutbox::insertOutbox($val->phonebook_TO->phonebook_nomor, $model->message, $outboxGroup);
-							SmsUtility::sendSMS($outbox_id, Yii::app()->user->id, $val->phonebook_TO->phonebook_nomor, $model->message);
+							$phonebook = SmsPhonebook::setPhoneNumber($val->phonebook_TO->phonebook_nomor, 'nasional');
+							SmsUtility::sendSMS($outbox_id, Yii::app()->user->id, $phonebook, $model->message);
 						}
 					}
 				}

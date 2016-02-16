@@ -36,7 +36,7 @@ class SmsGroups extends CActiveRecord
 	public $contact_input;
 	public $import_excel;
 	public $groupbookExcel;
-	public $errorRowImport = [];
+	public $errorRowImport = array();
 	
 	// Variable Search
 	public $creation_search;
