@@ -123,15 +123,15 @@ class OutboxController extends Controller
 			SmsUtility::setSmsDeliveryStatus($outbox_id, $user_id, $c_status, $smsc_s, $smsc_d);
 			
 			$conn  = Yii::app()->db;
-			$query = "SELECT dlr_id FROM ommu_sms_kannel_dlr WHERE outbox_id='$outbox_id'";
+			$query = "SELECT dlr_id FROM ommu_sms_kannel_dlr WHERE smslog_id='$outbox_id'";
 			$command = $conn->createCommand($query);
 			$result  = $command->query();
 			if($result->rowCount > 0) {
-				$sql = "UPDATE ommu_sms_kannel_dlr SET dlr_type='$type', c_timestamp='".time()."' WHERE outbox_id='$outbox_id'";
+				$sql = "UPDATE ommu_sms_kannel_dlr SET dlr_type='$type', c_timestamp='".time()."' WHERE smslog_id='$outbox_id'";
 				$command = $conn->createCommand($sql);
 				$command->query();				
 			} else {
-				$sql = "INSERT INTO ommu_sms_kannel_dlr (dlr_type, outbox_id) VALUES ('$type', '$outbox_id')";
+				$sql = "INSERT INTO ommu_sms_kannel_dlr (dlr_type, smslog_id) VALUES ('$type', '$outbox_id')";
 				$command = $conn->createCommand($sql);
 				$command->query();				
 			}			
