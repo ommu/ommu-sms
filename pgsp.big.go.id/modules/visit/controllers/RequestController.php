@@ -122,8 +122,9 @@ class RequestController extends Controller
 	public function actionSuccess($id) 
 	{
 		$model=$this->loadModel($id);
-
-		$this->pageTitle = 'View Visit Request';
+		
+		$this->pageTitleShow = true;		
+		$this->pageTitle = 'Request Visit Success';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
 		$this->render('front_success',array(
@@ -138,24 +139,43 @@ class RequestController extends Controller
 	public function actionForm() 
 	{
 		$model=new VisitGuest;
+		$author=new OmmuAuthors;
 
 		// Uncomment the following line if AJAX validation is needed
 		$this->performAjaxValidation($model);
 
-		if(isset($_POST['VisitGuest'])) {
+		if(isset($_POST['VisitGuest'], $_POST['OmmuAuthors'])) {
 			$model->attributes=$_POST['VisitGuest'];
+			$author->attributes=$_POST['OmmuAuthors'];
+			$author->scenario='phone';
+			
+			$authorModel = OmmuAuthors::model()->find(array(
+				'select' => 'author_id, email',
+				'condition' => 'publish = 1 AND email = :email',
+				'params' => array(
+					':email' => strtolower($author->email),
+				),
+			));
+			if($authorModel != null) {
+				$model->author_id = $authorModel->author_id;
+			} else {
+				if($author->save())
+					$model->author_id = $author->author_id;
+			}
 			
 			if($model->save()) {
 				Yii::app()->user->setFlash('success', 'VisitGuest success created.');
 				$this->redirect(array('success','id'=>$model->guest_id));
 			}
 		}
-
-		$this->pageTitle = 'Create Visit Request';
+		
+		$this->pageTitleShow = true;
+		$this->pageTitle = 'Formulir Kunjungan';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
 		$this->render('front_form',array(
 			'model'=>$model,
+			'author'=>$author,
 		));
 	}
 

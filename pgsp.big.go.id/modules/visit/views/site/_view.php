@@ -13,45 +13,9 @@
  */
 ?>
 
-<div class="view">
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('visit_id')); ?>:</b>
-	<?php echo CHtml::link(CHtml::encode($data->visit_id), array('view', 'id'=>$data->visit_id)); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('status')); ?>:</b>
-	<?php echo CHtml::encode($data->status); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('guest_id')); ?>:</b>
-	<?php echo CHtml::encode($data->guest_id); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('start_date')); ?>:</b>
-	<?php echo CHtml::encode($data->start_date); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('finish_date')); ?>:</b>
-	<?php echo CHtml::encode($data->finish_date); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('creation_date')); ?>:</b>
-	<?php echo CHtml::encode($data->creation_date); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('creation_id')); ?>:</b>
-	<?php echo CHtml::encode($data->creation_id); ?>
-	<br />
-
-	<?php /*
-	<b><?php echo CHtml::encode($data->getAttributeLabel('modified_date')); ?>:</b>
-	<?php echo CHtml::encode($data->modified_date); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('modified_id')); ?>:</b>
-	<?php echo CHtml::encode($data->modified_id); ?>
-	<br />
-
-	*/ ?>
-
+<div class="sep mb-10">
+	<?php echo $data->guest_TO->organization == 1 ? "organisasi" : "personal"?>:
+	<?php echo $data->guest_TO->organization == 1 ? ($data->guest_TO->author_id != 0 ? $data->guest_TO->organization_name." (".$data->guest_TO->author_TO->name.")" : $data->guest_TO->organization_name) : $data->guest_TO->author_TO->name?><br/>
+	<?php echo $data->guest_TO->visitor.' orang';?><br/>
+	<?php echo $data->start_date.' - '.$data->finish_date?>
 </div>

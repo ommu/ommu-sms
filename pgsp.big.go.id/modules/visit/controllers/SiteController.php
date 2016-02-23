@@ -91,23 +91,88 @@ class SiteController extends Controller
 	 */
 	public function actionIndex() 
 	{
+		Yii::import('application.components.plugin.Calendar');
+		
+		if(isset($_GET)) {
+			$d = date('d', strtotime($_GET['cdate'].'-01'));
+			$m = date('m', strtotime($_GET['cdate'].'-01'));
+			$Y = date('Y', strtotime($_GET['cdate'].'-01'));
+			$today = date('Y-m-d', strtotime($_GET['cdate'].'-01'));
+		} else {
+			$d = date('d');
+			$m = date('m');
+			$Y = date('Y');
+			$today = date('Y-m-d');
+		}
+		
 		$criteria=new CDbCriteria;
-		$criteria->condition = 'status = :status';
-		$criteria->params = array(':status'=>1);
-		$criteria->order = 'creation_date DESC';
+		$criteria->condition = 'status = :status AND ((YEAR(`start_date`)=:year AND MONTH(`start_date`)=:month) OR (YEAR(`finish_date`)=:year AND MONTH(`finish_date`)=:month))';
+		$criteria->params = array(
+			':status'=>1,
+			':year'=>$Y,
+			':month'=>$m,
+		);
+		$criteria->order = 'start_date ASC';
+		$model = Visits::model()->findAll($criteria);
+		
+		$eventArray = [];
+		$days = cal_days_in_month(CAL_GREGORIAN,$m,$Y);
+		$i=1;
+		for($i; $i<=$days; $i++) {
+			$eventData = $Y.'-'.$m.'-'.$i;
+			$eventData = date('Y-m-d', strtotime($eventData));
+		
+			$criteriaEventByDay=new CDbCriteria;
+			$criteriaEventByDay->condition = 'status = :status AND :date BETWEEN `start_date` AND `finish_date`';
+			$criteriaEventByDay->params = array(
+				':status'=>1,
+				':date'=>$eventData,
+			);
+			//$criteriaEventByDay->order = 'creation_date DESC';
+			$eventModel = Visits::model()->findAll($criteriaEventByDay);
+			$data = '';
+			if($eventModel != null) {
+				$eventArray[$eventData] = '';
+				foreach($eventModel as $key => $val) {
+					$data[] .= $val->guest_TO->organization == 1 ? ($val->guest_TO->author_id != 0 ? $val->guest_TO->organization_name." (".$val->guest_TO->author_TO->name.")" : $val->guest_TO->organization_name) : $val->guest_TO->author_TO->name;
+				}
+				$eventArray[$eventData] = $data;
+			}
+		}
+		
+		$cal = new Calendar($d, $m, $Y, $today);
+		
+		/**** OPTIONAL METHODS ****/
+		$cal->setDate($today); //Set starting date
+		$cal->setBasePath(Yii::app()->controller->createUrl('index')); // Base path for navigation URLs
+		$cal->showNav(true); // Show or hide navigation
+		$cal->setView(null); //'day' or 'week' or null
+		$cal->setStartEndHours(8,20); // Set the hour range for day and week view
+		$cal->setTimeClass('ctime'); //Class Name for times column on day and week views
+		$cal->setEventsWrap(array('<p style="display: none;">', '</p>')); // Set the event's content wrapper
+		$cal->setDayWrap(array('<div>','</div>')); //Set the day's number wrapper
+		$cal->setNextIcon('>>'); //Can also be html: <i class='fa fa-chevron-right'></i>
+		$cal->setPrevIcon('<<'); // Same as above
+		$cal->setDayLabels(array('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat')); //Label names for week days
+		$cal->setMonthLabels(array('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December')); //Month names
+		$cal->setDateWrap(array('<div>','</div>')); //Set cell inner content wrapper
+		$cal->setTableClass('table'); //Set the table's class name
+		$cal->setHeadClass('table-header'); //Set top header's class name
+		$cal->setNextClass('btn'); // Set next btn class name
+		$cal->setPrevClass('btn'); // Set Prev btn class name
+		$cal->setEvents($eventArray); // Receives the events array
+		/**** END OPTIONAL METHODS ****/
 
-		$dataProvider = new CActiveDataProvider('Visits', array(
-			'criteria'=>$criteria,
-			'pagination'=>array(
-				'pageSize'=>10,
-			),
-		));
-
-		$this->pageTitle = 'Visits';
+		//echo $cal->generate(); // Return the calendar's html
+		
+		$this->adsSidebar = false;
+		$this->pageTitleShow = true;
+		$this->pageTitle = 'Jadwal Kunjungan';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
-		$this->render('front_index',array(
-			'dataProvider'=>$dataProvider,
+		$this->render('front_index', array(
+			'cal'=>$cal,
+			'model'=>$model,
 		));
 	}
 	
@@ -125,7 +190,7 @@ class SiteController extends Controller
 		$this->render('front_view',array(
 			'model'=>$model,
 		));
-	}	
+	}
 
 	/**
 	 * Returns the data model based on the primary key given in the GET variable.
