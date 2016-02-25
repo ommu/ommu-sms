@@ -11,6 +11,31 @@ db_table_name	:
  
 db_sql_filename	: 
 
+plugin_menu		:
+	- urlTitle: View Books
+		urlRules: {siteType: 0,1, userLevel: 1,2}
+		urlPath: {url: o/admin/manage, attr: -, icon: -}
+		
+	- urlTitle: Request
+		urlRules: {siteType: 0,1, userLevel: 1,2}
+		urlPath: {url: o/request/manage, attr: -, icon: -}
+		
+	- urlTitle: Resensi
+		urlRules: {siteType: 0,1, userLevel: 1,2}
+		urlPath: {url: o/review/manage, attr: -, icon: -}
+		
+	- urlTitle: Publisher
+		urlRules: {siteType: 0,1, userLevel: 1,2}
+		urlPath: {url: o/masterpublisher/manage, attr: -, icon: -}
+		
+	- urlTitle: Author
+		urlRules: {siteType: 0,1, userLevel: 1,2}
+		urlPath: {url: o/masterauthor/manage, attr: -, icon: -}
+		
+	- urlTitle: Subject
+		urlRules: {siteType: 0,1, userLevel: 1,2}
+		urlPath: {url: o/mastersubject/manage, attr: -, icon: -}
+
 content_menu	:
 # controller o/admin
 	- urlTitle: Add Book

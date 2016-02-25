@@ -11,6 +11,27 @@ db_table_name	:
  
 db_sql_filename	: 
 
+plugin_menu		:
+	- urlTitle: Inbox
+		urlRules: {siteType: 0,1, userLevel: 1,2}
+		urlPath: {url: o/inbox/manage, attr: -, icon: -}
+		
+	- urlTitle: Outbox
+		urlRules: {siteType: 0,1, userLevel: 1,2}
+		urlPath: {url: o/outbox/manage, attr: -, icon: -}
+		submenu :
+			- urlTitle: Sent Item
+				urlRules: {siteType: 0,1, userLevel: 1,2}
+				urlPath: {url: o/sentitem/manage, attr: -, icon: -}
+		
+	- urlTitle: Phonebook
+		urlRules: {siteType: 0,1, userLevel: 1,2}
+		urlPath: {url: o/phonebook/manage, attr: -, icon: -}
+		
+	- urlTitle: Group Contact
+		urlRules: {siteType: 0,1, userLevel: 1,2}
+		urlPath: {url: o/group/manage, attr: -, icon: -}
+
 content_menu	:
 # controller o/inbox
 	- urlTitle: Send SMS
