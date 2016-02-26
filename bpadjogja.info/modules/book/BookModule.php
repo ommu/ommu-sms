@@ -24,7 +24,9 @@ class BookModule extends CWebModule
 			// you may place customized code here
 			//list public controller in this module
 			$publicControllers = array(
-				'site',
+				'masterauthor',
+				'masterpublisher',
+				'mastersubject',
 				'request',
 				'review',
 			);
