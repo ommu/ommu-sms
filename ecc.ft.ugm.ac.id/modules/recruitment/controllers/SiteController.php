@@ -6,7 +6,6 @@
  * Reference start
  *
  * TOC :
- *	Error
  *	Index
  *	Login
  *	Logout
@@ -75,7 +74,7 @@ class SiteController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','error','login','logout','sendemail'),
+				'actions'=>array('index','login','logout','sendemail'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -88,24 +87,6 @@ class SiteController extends Controller
 				'users'=>array('*'),
 			),
 		);
-	}
-
-	/**
-	 * This is the action to handle external exceptions.
-	 */
-	public function actionError()
-	{
-		$this->pageGuest = true;
-		$this->adsSidebar = false;
-		if($error=Yii::app()->errorHandler->error)
-		{
-			if(Yii::app()->request->isAjaxRequest)
-				echo $error['message'];
-			else
-				$this->render('front_error', $error);
-		} else {
-			$this->render('front_error', $error);
-		}
 	}
 
 	/**
@@ -123,25 +104,18 @@ class SiteController extends Controller
 		));
 		//$this->redirect(Yii::app()->createUrl('project/site/index'));
 
-		if(($setting->online == 0 && date('Y-m-d', strtotime($setting->construction_date)) > date('Y-m-d')) && (Yii::app()->user->isGuest || (!Yii::app()->user->isGuest && in_array(!Yii::app()->user->level, array(1,2))))) {
-			$this->redirect(Yii::app()->createUrl('maintenance/index'));
-
+		if($setting->online == 0) {
+			//
 		} else {
-			/* if(!Yii::app()->user->isGuest) {
-				$this->redirect(Yii::app()->createUrl('pose/site/index'));
-			} else {
-				$render = 'front_index';
-			} */
-			
-			$this->adsSidebar = false;
-			$this->pageTitle = 'Home';
-			$this->pageDescription = '';
-			$this->pageMeta = '';
-			$this->render('front_index', array(
-				'setting'=>$setting,
-			));
-			
+			//
 		}
+		
+		$this->pageTitle = 'Home';
+		$this->pageDescription = '';
+		$this->pageMeta = '';
+		$this->render('front_index', array(
+			'setting'=>$setting,
+		));
 	}
 
 	/**
@@ -149,15 +123,53 @@ class SiteController extends Controller
 	 */
 	public function actionLogin()
 	{
-		if(!Yii::app()->user->isGuest)
-			$this->redirect(array('site/index'));
+		if(!empty(Yii::app()->user->user_id))
+			$this->redirect(Yii::app()->controller->createUrl('account/index'));
 
-		else {
-			$setting = OmmuSettings::getInfo('site_type');
-			if($setting == 1)
-				$this->redirect(Yii::app()->createUrl('users/account'));
-			else
-				$this->redirect(Yii::app()->createUrl('users/admin'));
+		else {				
+			$model=new LoginFormRecruitment;
+
+			// if it is ajax validation request
+			if(isset($_POST['ajax']) && $_POST['ajax']==='login-form') {
+				echo CActiveForm::validate($model);
+				Yii::app()->end();
+			}
+
+			// collect user input data
+			if(isset($_POST['LoginFormRecruitment']))
+			{
+				$model->attributes=$_POST['LoginFormRecruitment'];
+
+				$jsonError = CActiveForm::validate($model);
+				if(strlen($jsonError) > 2) {
+					echo $jsonError;
+
+				} else {
+					if(isset($_GET['enablesave']) && $_GET['enablesave'] == 1) {
+						// validate user input and redirect to the previous page if valid
+						if($model->validate() && $model->login()) {
+							RecruitmentUsers::model()->updateByPk(Yii::app()->user->user_id, array(
+								'lastlogin_date'=>date('Y-m-d H:i:s'), 
+								'lastlogin_ip'=>$_SERVER['REMOTE_ADDR'],
+							));
+							echo CJSON::encode(array(
+								'redirect' => Yii::app()->controller->createUrl('account/index'),
+							));
+							//$this->redirect(Yii::app()->user->returnUrl);
+						} else {
+							print_r($model->getErrors());
+						}
+					}
+				}
+				Yii::app()->end();				
+			}
+			
+			$this->pageTitle = 'Login';
+			$this->pageDescription = '';
+			$this->pageMeta = '';
+			$this->render('front_login',array(
+				'model'=>$model,
+			));			
 		}
 	}
 
