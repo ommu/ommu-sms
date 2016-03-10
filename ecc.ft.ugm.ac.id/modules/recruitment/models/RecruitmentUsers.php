@@ -25,7 +25,6 @@
  * @property integer $enabled
  * @property string $salt
  * @property string $email
- * @property string $username
  * @property string $password
  * @property string $displayname
  * @property string $photos
@@ -47,6 +46,10 @@ class RecruitmentUsers extends CActiveRecord
 	public $defaultColumns = array();
 	public $newPassword;
 	public $confirmPassword;
+	public $oldPhoto;
+	
+	// Variable Search
+	public $modified_search;
 
 	/**
 	 * Returns the static model of the specified AR class.
@@ -75,19 +78,22 @@ class RecruitmentUsers extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('enabled, username, displayname', 'required'),
-			array('email', 'required', 'on'=>'adminform'),
+			array('enabled, displayname', 'required'),
+			array('email', 'required', 'on'=>'adminform, formEdit'),
+			array('
+				newPassword, confirmPassword', 'required', 'on'=>'adminform'),
 			array('enabled, modified_id', 'numerical', 'integerOnly'=>true),
-			array('salt, email, username, password', 'length', 'max'=>32),
-			array('displayname', 'length', 'max'=>64),
 			array('creation_ip, update_ip, lastlogin_ip', 'length', 'max'=>20),
+			array('salt, email, password', 'length', 'max'=>32),
+			array('displayname', 'length', 'max'=>64),
 			array('email,
-				newPassword, confirmPassword', 'safe'),
+				newPassword, confirmPassword, oldPhoto', 'safe'),
 			array('
 				newPassword', 'compare', 'compareAttribute' => 'confirmPassword', 'message' => 'Kedua password tidak sama2.'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('user_id, enabled, salt, email, username, password, displayname, photos, creation_date, creation_ip, update_date, update_ip, lastlogin_date, lastlogin_ip, modified_date, modified_id', 'safe', 'on'=>'search'),
+			array('user_id, enabled, salt, email, password, displayname, photos, creation_date, creation_ip, update_date, update_ip, lastlogin_date, lastlogin_ip, modified_date, modified_id, 
+				modified_search', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -99,6 +105,7 @@ class RecruitmentUsers extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'modified' => array(self::BELONGS_TO, 'Users', 'modified_id'),
 			'eventUser' => array(self::HAS_MANY, 'RecruitmentEventUser', 'user_id'),
 			'sessionUser' => array(self::HAS_MANY, 'RecruitmentSessionUser', 'user_id'),
 		);
@@ -114,7 +121,6 @@ class RecruitmentUsers extends CActiveRecord
 			'enabled' => 'Enabled',
 			'salt' => 'Salt',
 			'email' => 'Email',
-			'username' => 'Username',
 			'password' => 'Password',
 			'displayname' => 'Displayname',
 			'photos' => 'Photos',
@@ -126,6 +132,10 @@ class RecruitmentUsers extends CActiveRecord
 			'lastlogin_ip' => 'Lastlogin Ip',
 			'modified_date' => 'Modified Date',
 			'modified_id' => 'Modified',
+			'newPassword' => 'Password',
+			'confirmPassword' => 'Confirm Password',
+			'oldPhoto' => 'Old Photo',
+			'modified_search' => 'Modified',
 		);
 	}
 
@@ -154,7 +164,6 @@ class RecruitmentUsers extends CActiveRecord
 		$criteria->compare('t.enabled',$this->enabled);
 		$criteria->compare('t.salt',strtolower($this->salt),true);
 		$criteria->compare('t.email',strtolower($this->email),true);
-		$criteria->compare('t.username',strtolower($this->username),true);
 		$criteria->compare('t.password',strtolower($this->password),true);
 		$criteria->compare('t.displayname',strtolower($this->displayname),true);
 		$criteria->compare('t.photos',strtolower($this->photos),true);
@@ -173,6 +182,15 @@ class RecruitmentUsers extends CActiveRecord
 			$criteria->compare('t.modified_id',$_GET['modified']);
 		else
 			$criteria->compare('t.modified_id',$this->modified_id);
+		
+		// Custom Search
+		$criteria->with = array(
+			'modified' => array(
+				'alias'=>'modified',
+				'select'=>'displayname'
+			),
+		);
+		$criteria->compare('modified.displayname',strtolower($this->modified_search), true);
 
 		if(!isset($_GET['RecruitmentUsers_sort']))
 			$criteria->order = 't.user_id DESC';
@@ -207,7 +225,6 @@ class RecruitmentUsers extends CActiveRecord
 			$this->defaultColumns[] = 'enabled';
 			$this->defaultColumns[] = 'salt';
 			$this->defaultColumns[] = 'email';
-			$this->defaultColumns[] = 'username';
 			$this->defaultColumns[] = 'password';
 			$this->defaultColumns[] = 'displayname';
 			$this->defaultColumns[] = 'photos';
@@ -241,26 +258,13 @@ class RecruitmentUsers extends CActiveRecord
 				'header' => 'No',
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
 			);
-			if(!isset($_GET['type'])) {
-				$this->defaultColumns[] = array(
-					'name' => 'enabled',
-					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("enabled",array("id"=>$data->user_id)), $data->enabled, 1)',
-					'htmlOptions' => array(
-						'class' => 'center',
-					),
-					'filter'=>array(
-						1=>Phrase::trans(588,0),
-						0=>Phrase::trans(589,0),
-					),
-					'type' => 'raw',
-				);
-			}
-			$this->defaultColumns[] = 'salt';
-			$this->defaultColumns[] = 'email';
-			$this->defaultColumns[] = 'username';
-			$this->defaultColumns[] = 'password';
 			$this->defaultColumns[] = 'displayname';
-			$this->defaultColumns[] = 'photos';
+			$this->defaultColumns[] = 'email';
+			$this->defaultColumns[] = array(
+				'name' => 'photos',
+				'value' => '$data->photos != "" ? CHtml::link($data->photos, Yii::app()->request->baseUrl.\'/public/recruitment/\'.$data->photos, array(\'target\' => \'_blank\')) : "-"',
+				'type' => 'raw',
+			);
 			$this->defaultColumns[] = array(
 				'name' => 'creation_date',
 				'value' => 'Utility::dateFormat($data->creation_date)',
@@ -287,37 +291,9 @@ class RecruitmentUsers extends CActiveRecord
 					),
 				), true),
 			);
-			$this->defaultColumns[] = 'creation_ip';
-			$this->defaultColumns[] = array(
-				'name' => 'update_date',
-				'value' => 'Utility::dateFormat($data->update_date)',
-				'htmlOptions' => array(
-					'class' => 'center',
-				),
-				'filter' => Yii::app()->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
-					'model'=>$this,
-					'attribute'=>'update_date',
-					'language' => 'ja',
-					'i18nScriptFile' => 'jquery.ui.datepicker-en.js',
-					//'mode'=>'datetime',
-					'htmlOptions' => array(
-						'id' => 'update_date_filter',
-					),
-					'options'=>array(
-						'showOn' => 'focus',
-						'dateFormat' => 'dd-mm-yy',
-						'showOtherMonths' => true,
-						'selectOtherMonths' => true,
-						'changeMonth' => true,
-						'changeYear' => true,
-						'showButtonPanel' => true,
-					),
-				), true),
-			);
-			$this->defaultColumns[] = 'update_ip';
 			$this->defaultColumns[] = array(
 				'name' => 'lastlogin_date',
-				'value' => 'Utility::dateFormat($data->lastlogin_date)',
+				'value' => '!in_array($data->lastlogin_date, array("0000-00-00 00:00:00","1970-01-01 00:00:00")) ? Utility::dateFormat($data->lastlogin_date) : "-"',
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
@@ -341,34 +317,20 @@ class RecruitmentUsers extends CActiveRecord
 					),
 				), true),
 			);
-			$this->defaultColumns[] = 'lastlogin_ip';
-			$this->defaultColumns[] = array(
-				'name' => 'modified_date',
-				'value' => 'Utility::dateFormat($data->modified_date)',
-				'htmlOptions' => array(
-					'class' => 'center',
-				),
-				'filter' => Yii::app()->controller->widget('zii.widgets.jui.CJuiDatePicker', array(
-					'model'=>$this,
-					'attribute'=>'modified_date',
-					'language' => 'ja',
-					'i18nScriptFile' => 'jquery.ui.datepicker-en.js',
-					//'mode'=>'datetime',
+			if(!isset($_GET['type'])) {
+				$this->defaultColumns[] = array(
+					'name' => 'enabled',
+					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("enabled",array("id"=>$data->user_id)), $data->enabled, 1)',
 					'htmlOptions' => array(
-						'id' => 'modified_date_filter',
+						'class' => 'center',
 					),
-					'options'=>array(
-						'showOn' => 'focus',
-						'dateFormat' => 'dd-mm-yy',
-						'showOtherMonths' => true,
-						'selectOtherMonths' => true,
-						'changeMonth' => true,
-						'changeYear' => true,
-						'showButtonPanel' => true,
+					'filter'=>array(
+						1=>Phrase::trans(588,0),
+						0=>Phrase::trans(589,0),
 					),
-				), true),
-			);
-			$this->defaultColumns[] = 'modified_id';
+					'type' => 'raw',
+				);
+			}
 		}
 		parent::afterConstruct();
 	}
@@ -436,15 +398,14 @@ class RecruitmentUsers extends CActiveRecord
 		return md5($salt.$password);
 	}
 	
-	public static function insertUser($email, $username, $password, $displayname) 
+	public static function insertUser($email, $password, $displayname) 
 	{
 		$return = true;
 		
 		$model=new RecruitmentUsers;		
 		$model->email = $email;
-		$model->username = $username;
-		$model->displayname = $displayname;
 		$model->newPassword = $password;
+		$model->displayname = $displayname;
 		if($model->save())
 			$return = $model->user_id;
 		
@@ -461,7 +422,7 @@ class RecruitmentUsers extends CActiveRecord
 			
 			if($this->isNewRecord) {
 				$this->salt = self::getUniqueCode();
-				if($currentAction == 'o/session/importuser') {
+				if($currentAction == 'o/batch/import') {
 					if($this->newPassword == '')
 						$this->confirmPassword = $this->newPassword = self::getGeneratePassword();
 					else
@@ -480,6 +441,18 @@ class RecruitmentUsers extends CActiveRecord
 					$this->update_ip = $_SERVER['REMOTE_ADDR'];
 				}
 			}
+				
+			if($currentAction != 'o/batch/import') {
+				$this->oldPhoto = $this->photos;			
+				$photo = CUploadedFile::getInstance($this, 'photos');		
+				if($photo->name != '') {
+					$extension = pathinfo($photo->name, PATHINFO_EXTENSION);
+					if(!in_array(strtolower($extension), array('bmp','gif','jpg','png')))
+						$this->addError('photos', 'The file "'.$photo->name.'" cannot be uploaded. Only files with these extensions are allowed: bmp, gif, jpg, png.');
+				} else
+					if($currentAction != 'o/users/edit')
+						$this->addError('photos', 'User Photo cannot be blank.');
+			}
 		}
 		return true;
 	}
@@ -490,10 +463,41 @@ class RecruitmentUsers extends CActiveRecord
 	protected function beforeSave() {
 		if(parent::beforeSave()) {
 			$this->email = strtolower($this->email);
-			$this->username = strtolower($this->username);
 			$this->password = self::hashPassword($this->salt, $this->newPassword);
+			
+			//upload new photo
+			$recruitment_path = "public/recruitment/photos";
+			$this->photos = CUploadedFile::getInstance($this, 'photos');
+			if($this->photos instanceOf CUploadedFile) {
+				$fileName = time().'_'.Utility::getUrlTitle($this->displayname).'.'.strtolower($this->photos->extensionName);
+				if($this->photos->saveAs($recruitment_path.'/'.$fileName)) {
+					//create thumb image
+					Yii::import('ext.phpthumb.PhpThumbFactory');
+					$pageImg = PhpThumbFactory::create($recruitment_path.'/'.$fileName, array('jpegQuality' => 90, 'correctPermissions' => true));
+					$pageImg->resize(700);
+					$pageImg->save($recruitment_path.'/'.$fileName);
+					
+					if(!$this->isNewRecord && $this->oldPhoto != '' && file_exists($recruitment_path.'/'.$this->oldPhoto))
+						rename($recruitment_path.'/'.$this->oldPhoto, 'public/recruitment/verwijderen/'.$this->user_id.'_'.$this->oldPhoto);
+					$this->photos = $fileName;
+				}
+			}
+			
+			if(!$this->isNewRecord && $this->photos == '')
+				$this->photos = $this->oldPhoto;
 		}
 		return true;	
+	}
+
+	/**
+	 * After delete attributes
+	 */
+	protected function afterDelete() {
+		parent::afterDelete();
+		//delete recruitment image
+		$recruitment_path = "public/recruitment/photos";
+		if($this->photos != '' && file_exists($recruitment_path.'/'.$this->photos))
+			rename($recruitment_path.'/'.$this->photos, 'public/recruitment/verwijderen/'.$this->user_id.'_'.$this->photos);
 	}
 
 }

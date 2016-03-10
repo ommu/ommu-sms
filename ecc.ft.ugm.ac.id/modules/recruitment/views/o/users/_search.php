@@ -40,11 +40,6 @@
 		</li>
 
 		<li>
-			<?php echo $model->getAttributeLabel('username'); ?><br/>
-			<?php echo $form->textField($model,'username',array('size'=>32,'maxlength'=>32)); ?>
-		</li>
-
-		<li>
 			<?php echo $model->getAttributeLabel('displayname'); ?><br/>
 			<?php echo $form->textField($model,'displayname',array('size'=>60,'maxlength'=>64)); ?>
 		</li>

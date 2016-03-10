@@ -21,10 +21,14 @@
  * This is the model class for table "ommu_recruitment_event_user".
  *
  * The followings are the available columns in table 'ommu_recruitment_event_user':
- * @property string $id
+ * @property string $event_user_id
  * @property integer $publish
  * @property string $recruitment_id
  * @property string $user_id
+ * @property string $salt
+ * @property string $test_number
+ * @property string $password
+ * @property string $major
  * @property string $creation_date
  * @property string $creation_id
  *
@@ -35,6 +39,8 @@
 class RecruitmentEventUser extends CActiveRecord
 {
 	public $defaultColumns = array();
+	public $newPassword;
+	public $confirmPassword;
 	
 	// Variable Search
 	public $recruitment_search;
@@ -68,12 +74,20 @@ class RecruitmentEventUser extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('publish, recruitment_id, user_id', 'required'),
+			array('publish, recruitment_id, user_id, test_number, major', 'required'),
 			array('publish', 'numerical', 'integerOnly'=>true),
+			array('
+				newPassword, confirmPassword', 'required', 'on'=>'formAdd'),
 			array('recruitment_id, user_id, creation_id', 'length', 'max'=>11),
+			array('salt, test_number, password, major', 'length', 'max'=>32),
+			//array('test_number', 'match', 'pattern' => '/^[a-zA-Z0-9_.-]{0,25}$/', 'message' => Yii::t('other', 'Nama user hanya boleh berisi karakter, angka dan karakter (., -, _)')),
+			array('test_number, major,
+				newPassword, confirmPassword', 'safe'),
+			array('
+				newPassword', 'compare', 'compareAttribute' => 'confirmPassword', 'message' => 'Kedua password tidak sama2.'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, publish, recruitment_id, user_id, creation_date, creation_id,
+			array('event_user_id, publish, recruitment_id, user_id, salt, test_number, password, major, creation_date, creation_id,
 				recruitment_search, user_search, creation_search', 'safe', 'on'=>'search'),
 		);
 	}
@@ -98,12 +112,18 @@ class RecruitmentEventUser extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'id' => 'ID',
+			'event_user_id' => 'Event User Id',
 			'publish' => 'Publish',
 			'recruitment_id' => 'Recruitment',
 			'user_id' => 'User',
+			'salt' => 'Salt',
+			'test_number' => 'Test Number',
+			'password' => 'Password',
+			'major' => 'Major',
 			'creation_date' => 'Creation Date',
 			'creation_id' => 'Creation',
+			'newPassword' => 'Password',
+			'confirmPassword' => 'Confirm Password',
 			'recruitment_search' => 'Recruitment',
 			'user_search' => 'User',
 			'creation_search' => 'Creation',
@@ -128,7 +148,7 @@ class RecruitmentEventUser extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('t.id',strtolower($this->id),true);
+		$criteria->compare('t.event_user_id',strtolower($this->event_user_id),true);
 		if(isset($_GET['type']) && $_GET['type'] == 'publish')
 			$criteria->compare('t.publish',1);
 		elseif(isset($_GET['type']) && $_GET['type'] == 'unpublish')
@@ -147,6 +167,10 @@ class RecruitmentEventUser extends CActiveRecord
 			$criteria->compare('t.user_id',$_GET['user']);
 		else
 			$criteria->compare('t.user_id',$this->user_id);
+		$criteria->compare('t.salt',strtolower($this->salt),true);
+		$criteria->compare('t.test_number',strtolower($this->test_number),true);
+		$criteria->compare('t.password',strtolower($this->password),true);
+		$criteria->compare('t.major',strtolower($this->major),true);
 		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00', '0000-00-00')))
 			$criteria->compare('date(t.creation_date)',date('Y-m-d', strtotime($this->creation_date)));
 		if(isset($_GET['creation']))
@@ -174,7 +198,7 @@ class RecruitmentEventUser extends CActiveRecord
 		$criteria->compare('creation.displayname',strtolower($this->creation_search), true);
 
 		if(!isset($_GET['RecruitmentEventUser_sort']))
-			$criteria->order = 't.id DESC';
+			$criteria->order = 't.event_user_id DESC';
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -202,10 +226,14 @@ class RecruitmentEventUser extends CActiveRecord
 				$this->defaultColumns[] = $val;
 			}
 		} else {
-			//$this->defaultColumns[] = 'id';
+			//$this->defaultColumns[] = 'event_user_id';
 			$this->defaultColumns[] = 'publish';
 			$this->defaultColumns[] = 'recruitment_id';
 			$this->defaultColumns[] = 'user_id';
+			$this->defaultColumns[] = 'salt';
+			$this->defaultColumns[] = 'test_number';
+			$this->defaultColumns[] = 'password';
+			$this->defaultColumns[] = 'major';
 			$this->defaultColumns[] = 'creation_date';
 			$this->defaultColumns[] = 'creation_id';
 		}
@@ -221,7 +249,7 @@ class RecruitmentEventUser extends CActiveRecord
 			/*
 			$this->defaultColumns[] = array(
 				'class' => 'CCheckBoxColumn',
-				'name' => 'id',
+				'name' => 'event_user_id',
 				'selectableRows' => 2,
 				'checkBoxHtmlOptions' => array('name' => 'trash_id[]')
 			);
@@ -238,6 +266,8 @@ class RecruitmentEventUser extends CActiveRecord
 				'name' => 'user_search',
 				'value' => '$data->user->displayname',
 			);
+			$this->defaultColumns[] = 'test_number';
+			$this->defaultColumns[] = 'major';
 			$this->defaultColumns[] = array(
 				'name' => 'creation_search',
 				'value' => '$data->creation->displayname',
@@ -304,13 +334,98 @@ class RecruitmentEventUser extends CActiveRecord
 	}
 
 	/**
+	 * User salt codes
+	 */
+	public static function getUniqueCode() {
+		$chars = "abcdefghijkmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		srand((double)microtime()*1000000);
+		$i = 0;
+		$salt = '' ;
+
+		while ($i <= 15) {
+			$num = rand() % 33;
+			$tmp = substr($chars, $num, 2);
+			$salt = $salt . $tmp; 
+			$i++;
+		}
+
+		return $salt;
+	}
+
+	/**
+	 * User generate password
+	 */
+	public static function getGeneratePassword() {
+		$chars = "abcdefghijkmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		srand((double)microtime()*1000000);
+		$i = 0;
+		$password = '' ;
+
+		while ($i <= 4) {
+			$num = rand() % 33;
+			$tmp = substr($chars, $num, 2);
+			$password = $password . $tmp; 
+			$i++;
+		}
+
+		return $password;
+	}
+
+	/**
+	 * User Salt
+	 */
+	public static function hashPassword($salt, $password)
+	{
+		return md5($salt.$password);
+	}
+	
+	public static function insertUser($recruitment_id, $user_id, $test_number, $password, $major) 
+	{
+		$return = true;
+		
+		$model=new RecruitmentEventUser;
+		$model->recruitment_id = $recruitment_id;
+		$model->user_id = $user_id;
+		$model->test_number = $test_number;
+		$model->newPassword = $password;
+		$model->major = $major;
+		
+		if($model->save())
+			$return = $model->event_user_id;
+		return $return;
+	}
+
+	/**
 	 * before validate attributes
 	 */
 	protected function beforeValidate() {
 		if(parent::beforeValidate()) {
-			$this->creation_id = Yii::app()->user->id;
+			$controller = strtolower(Yii::app()->controller->id);
+			$currentAction = strtolower(Yii::app()->controller->id.'/'.Yii::app()->controller->action->id);
+			
+			if($this->isNewRecord) {
+				$this->salt = self::getUniqueCode();
+				if($currentAction == 'o/batch/import') {
+					if($this->newPassword == '')
+						$this->confirmPassword = $this->newPassword = self::getGeneratePassword();
+					else
+						$this->confirmPassword = $this->newPassword;
+				}
+				$this->creation_id = Yii::app()->user->id;				
+			}
 		}
 		return true;
+	}
+	
+	/**
+	 * before save attributes
+	 */
+	protected function beforeSave() {
+		if(parent::beforeSave()) {
+			$this->test_number = strtolower($this->test_number);
+			$this->password = self::hashPassword($this->salt, $this->newPassword);
+		}
+		return true;	
 	}
 
 }

@@ -37,13 +37,8 @@ class RecruitmentUserIdentity extends CUserIdentity
 		} else {
 			//$this->_id = 0;
 			$this->setState('user_id', $record->user_id);
-			$this->email = $record->email != '' ? $record->email : 0;
-			$this->setState('username', $record->username);
-			$this->setState('password', $record->password);
-			$this->setState('displayname', $record->displayname);
-			$this->setState('photos', $record->photos != '' ? $record->photos : 0);
 			$this->setState('creation_date', $record->creation_date);
-			$this->setState('lastlogin_date', $record->lastlogin_date);
+			$this->setState('lastlogin_date', date('Y-m-d H:i:s'));
 			$this->errorCode = self::ERROR_NONE;
 		}
 		return !$this->errorCode;

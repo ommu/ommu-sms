@@ -26,6 +26,7 @@
  * @property string $event_name
  * @property string $event_desc
  * @property integer $event_type
+ * @property integer $event_logo
  * @property string $start_date
  * @property string $finish_date
  * @property string $creation_date
@@ -41,6 +42,7 @@ class Recruitments extends CActiveRecord
 {
 	public $defaultColumns = array();
 	public $permanent;
+	public $oldEventLogo;
 	
 	// Variable Search
 	public $creation_search;
@@ -78,11 +80,11 @@ class Recruitments extends CActiveRecord
 				permanent', 'numerical', 'integerOnly'=>true),
 			array('event_name', 'length', 'max'=>32),
 			array('creation_id, modified_id', 'length', 'max'=>11),
-			array('start_date, finish_date, 
-				permanent', 'safe'),
+			array('event_logo, start_date, finish_date, 
+				permanent, oldEventLogo', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('recruitment_id, publish, event_name, event_desc, event_type, start_date, finish_date, creation_date, creation_id, modified_date, modified_id,
+			array('recruitment_id, publish, event_name, event_desc, event_type, event_logo, start_date, finish_date, creation_date, creation_id, modified_date, modified_id,
 				creation_search, modified_search', 'safe', 'on'=>'search'),
 		);
 	}
@@ -114,6 +116,7 @@ class Recruitments extends CActiveRecord
 			'event_name' => 'Event Name',
 			'event_desc' => 'Event Desc',
 			'event_type' => 'Event Type',
+			'event_logo' => 'Event Logo',
 			'start_date' => 'Start Date',
 			'finish_date' => 'Finish Date',
 			'creation_date' => 'Creation Date',
@@ -121,6 +124,7 @@ class Recruitments extends CActiveRecord
 			'modified_date' => 'Modified Date',
 			'modified_id' => 'Modified',
 			'permanent' => 'Permanent',
+			'oldEventLogo' => 'Old Event Logo',
 			'creation_search' => 'Creation',
 			'modified_search' => 'Modified',
 		);
@@ -158,6 +162,7 @@ class Recruitments extends CActiveRecord
 		$criteria->compare('t.event_name',strtolower($this->event_name),true);
 		$criteria->compare('t.event_desc',strtolower($this->event_desc),true);
 		$criteria->compare('t.event_type',$this->event_type);
+		$criteria->compare('t.event_logo',$this->event_logo);
 		if($this->start_date != null && !in_array($this->start_date, array('0000-00-00 00:00:00', '0000-00-00')))
 			$criteria->compare('date(t.start_date)',date('Y-m-d', strtotime($this->start_date)));
 		if($this->finish_date != null && !in_array($this->finish_date, array('0000-00-00 00:00:00', '0000-00-00')))
@@ -187,7 +192,7 @@ class Recruitments extends CActiveRecord
 			),
 			'view' => array(
 				'alias'=>'view',
-				'select'=>'users'
+				//'select'=>'users'
 			),
 		);
 		$criteria->compare('creation.displayname',strtolower($this->creation_search), true);
@@ -227,6 +232,7 @@ class Recruitments extends CActiveRecord
 			$this->defaultColumns[] = 'event_name';
 			$this->defaultColumns[] = 'event_desc';
 			$this->defaultColumns[] = 'event_type';
+			$this->defaultColumns[] = 'event_logo';
 			$this->defaultColumns[] = 'start_date';
 			$this->defaultColumns[] = 'finish_date';
 			$this->defaultColumns[] = 'creation_date';
@@ -258,6 +264,11 @@ class Recruitments extends CActiveRecord
 			$this->defaultColumns[] = 'event_name';
 			$this->defaultColumns[] = 'event_desc';
 			$this->defaultColumns[] = array(
+				'name' => 'event_logo',
+				'value' => '$data->event_logo != "" ? CHtml::link($data->event_logo, Yii::app()->request->baseUrl.\'/public/recruitment/\'.$data->event_logo, array(\'target\' => \'_blank\')) : "-"',
+				'type' => 'raw',
+			);
+			$this->defaultColumns[] = array(
 				'name' => 'event_type',
 				'value' => '$data->event_type == 0 ? "Direct" : "Bundle"',
 				'htmlOptions' => array(
@@ -266,6 +277,22 @@ class Recruitments extends CActiveRecord
 				'filter'=>array(
 					1=>'Bundle',
 					0=>'Direct',
+				),
+				'type' => 'raw',
+			);
+			$this->defaultColumns[] = array(
+				'header' => 'Sessions',
+				'value' => 'CHtml::link($data->view->sessions." Session", Yii::app()->controller->createUrl("o/session/manage",array("recruitment"=>$data->recruitment_id)))',
+				'htmlOptions' => array(
+					'class' => 'center',
+				),
+				'type' => 'raw',
+			);
+			$this->defaultColumns[] = array(
+				'header' => 'Batchs',
+				'value' => 'CHtml::link($data->view->batchs." Batch", Yii::app()->controller->createUrl("o/batch/manage",array("recruitment"=>$data->recruitment_id)))',
+				'htmlOptions' => array(
+					'class' => 'center',
 				),
 				'type' => 'raw',
 			);
@@ -334,7 +361,6 @@ class Recruitments extends CActiveRecord
 				'name' => 'creation_search',
 				'value' => '$data->creation->displayname',
 			);
-			*/
 			$this->defaultColumns[] = array(
 				'name' => 'creation_date',
 				'value' => 'Utility::dateFormat($data->creation_date)',
@@ -361,6 +387,7 @@ class Recruitments extends CActiveRecord
 					),
 				), true),
 			);
+			*/
 			if(!isset($_GET['type'])) {
 				$this->defaultColumns[] = array(
 					'name' => 'publish',
@@ -438,6 +465,14 @@ class Recruitments extends CActiveRecord
 			
 			if($this->permanent != 1 && ($this->start_date != '' && $this->finish_date != '') && (date('Y-m-d', strtotime($this->start_date)) >= date('Y-m-d', strtotime($this->finish_date))))
 				$this->addError('finish_date', 'Finish Data tidak boleh lebih kecil dari Start Date');
+				
+			$this->oldEventLogo = $this->event_logo;			
+			$logo = CUploadedFile::getInstance($this, 'event_logo');		
+			if($logo->name != '') {
+				$extension = pathinfo($logo->name, PATHINFO_EXTENSION);
+				if(!in_array(strtolower($extension), array('bmp','gif','jpg','png')))
+					$this->addError('event_logo', 'The file "'.$logo->name.'" cannot be uploaded. Only files with these extensions are allowed: bmp, gif, jpg, png.');
+			}
 		}
 		return true;
 	}
@@ -449,8 +484,40 @@ class Recruitments extends CActiveRecord
 		if(parent::beforeSave()) {
 			$this->start_date = date('Y-m-d', strtotime($this->start_date));
 			$this->finish_date = date('Y-m-d', strtotime($this->finish_date));
+			
+			//upload new logo
+			$recruitment_path = "public/recruitment";
+			$this->event_logo = CUploadedFile::getInstance($this, 'event_logo');
+			if($this->event_logo instanceOf CUploadedFile) {
+				$fileName = time().'_'.Utility::getUrlTitle($this->event_name).'.'.strtolower($this->event_logo->extensionName);
+				if($this->event_logo->saveAs($recruitment_path.'/'.$fileName)) {
+					//create thumb image
+					Yii::import('ext.phpthumb.PhpThumbFactory');
+					$pageImg = PhpThumbFactory::create($recruitment_path.'/'.$fileName, array('jpegQuality' => 90, 'correctPermissions' => true));
+					$pageImg->resize(400);
+					$pageImg->save($recruitment_path.'/'.$fileName);
+					
+					if(!$this->isNewRecord && $this->oldEventLogo != '' && file_exists($recruitment_path.'/'.$this->oldEventLogo))
+						rename($recruitment_path.'/'.$this->oldEventLogo, 'public/recruitment/verwijderen/'.$this->recruitment_id.'_'.$this->oldEventLogo);
+					$this->event_logo = $fileName;
+				}
+			}
+			
+			if(!$this->isNewRecord && $this->event_logo == '')
+				$this->event_logo = $this->oldEventLogo;
 		}
 		return true;
+	}
+
+	/**
+	 * After delete attributes
+	 */
+	protected function afterDelete() {
+		parent::afterDelete();
+		//delete recruitment logo
+		$recruitment_path = "public/recruitment";
+		if($this->event_logo != '' && file_exists($recruitment_path.'/'.$this->event_logo))
+			rename($recruitment_path.'/'.$this->event_logo, 'public/recruitment/verwijderen/'.$this->recruitment_id.'_'.$this->event_logo);
 	}
 
 }

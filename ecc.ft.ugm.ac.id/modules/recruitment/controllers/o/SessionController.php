@@ -142,76 +142,6 @@ class SessionController extends Controller
 	 * Creates a new model.
 	 * If creation is successful, the browser will be redirected to the 'view' page.
 	 */
-	public function actionImportuser() 
-	{
-		ini_set('max_execution_time', 0);
-		ob_start();
-		
-		$path = 'public/recruitment';
-		$error = array();
-		
-		if(isset($_GET['id'])) {
-			$sessionId = $_GET['id'];
-			$url = Yii::app()->controller->createUrl('edit',array('id'=>$_GET['id']));			
-		} else {
-			$sessionId = $_POST['sessionsId'];
-			$url = Yii::app()->controller->createUrl('manage');			
-		}
-		$model = RecruitmentSessions::getInfo($sessionId);
-		
-		if(isset($_FILES['usersExcel'])) {
-			$fileName = CUploadedFile::getInstanceByName('usersExcel');
-			if(in_array(strtolower($fileName->extensionName), array('xls','xlsx')) && $sessionId != '') {				
-				$file = time().'_'.Utility::getUrlTitle($model->recruitment->event_name.' '.$model->session_name).'.'.strtolower($fileName->extensionName);
-				if($fileName->saveAs($path.'/'.$file)) {
-					Yii::import('ext.excel_reader.OExcelReader');
-					$xls = new OExcelReader($path.'/'.$file);
-					
-					for ($row = 2; $row <= $xls->sheets[0]['numRows']; $row++) {
-						if($model->recruitment->event_type == 1) {
-							$no				= trim($xls->sheets[0]['cells'][$row][1]);
-							$displayname	= trim($xls->sheets[0]['cells'][$row][2]);
-							$email			= strtolower(trim($xls->sheets[0]['cells'][$row][3]));
-							$username		= strtolower(trim($xls->sheets[0]['cells'][$row][4]));
-							$password		= trim($xls->sheets[0]['cells'][$row][5]);
-							$session_seat	= strtoupper(trim($xls->sheets[0]['cells'][$row][6]));
-							
-							$userId = RecruitmentUsers::insertUser($email, $username, $password, $displayname);
-							RecruitmentSessionUser::insertUser($userId, $sessionId, $session_seat);
-						}
-					}
-					
-					Yii::app()->user->setFlash('success', 'Import Recruitment Sessions User Success.');
-					$this->redirect(array('manage'));
-					
-				} else
-					Yii::app()->user->setFlash('errorFile', 'Gagal menyimpan file.');
-			} else {
-				Yii::app()->user->setFlash('errorFile', 'Hanya file .xls dan .xlsx yang dibolehkan.');
-				if($sessionId == '')
-					Yii::app()->user->setFlash('errorSession', 'Recruitment Sessions cannot be blank.');
-			}
-		}
-
-		ob_end_flush();
-		
-		$this->dialogDetail = true;
-		$this->dialogGroundUrl = $url;
-		$this->dialogWidth = 600;
-
-		$this->pageTitle = 'Import Recruitment Sessions User';
-		$this->pageDescription = '';
-		$this->pageMeta = '';
-		$this->render('admin_import',array(
-			'model'=>$model,
-			'sessionsFieldRender'=>isset($_GET['id']) ? true : false,
-		));
-	}
-	
-	/**
-	 * Creates a new model.
-	 * If creation is successful, the browser will be redirected to the 'view' page.
-	 */
 	public function actionAdd() 
 	{
 		$model=new RecruitmentSessions;
@@ -221,6 +151,7 @@ class SessionController extends Controller
 
 		if(isset($_POST['RecruitmentSessions'])) {
 			$model->attributes=$_POST['RecruitmentSessions'];
+			$model->scenario = 'sessionForm';
 			
 			$jsonError = CActiveForm::validate($model);
 			if(strlen($jsonError) > 2) {
@@ -231,7 +162,7 @@ class SessionController extends Controller
 					if($model->save()) {
 						echo CJSON::encode(array(
 							'type' => 5,
-							'get' => Yii::app()->controller->createUrl('edit', array('id'=>$model->session_id)),
+							'get' => Yii::app()->controller->createUrl('manage'),
 							'id' => 'partial-recruitment-sessions',
 							'msg' => '<div class="errorSummary success"><strong>RecruitmentSessions success created.</strong></div>',
 						));
@@ -240,7 +171,7 @@ class SessionController extends Controller
 					}
 				}
 			}
-			Yii::app()->end();			
+			Yii::app()->end();
 		}
 		
 		$this->dialogDetail = true;
@@ -269,12 +200,32 @@ class SessionController extends Controller
 
 		if(isset($_POST['RecruitmentSessions'])) {
 			$model->attributes=$_POST['RecruitmentSessions'];
+			$model->scenario = 'sessionForm';
 			
-			if($model->save()) {
-				Yii::app()->user->setFlash('success', 'RecruitmentSessions success updated.');
-				$this->redirect(array('manage'));
+			$jsonError = CActiveForm::validate($model);
+			if(strlen($jsonError) > 2) {
+				echo $jsonError;
+
+			} else {
+				if(isset($_GET['enablesave']) && $_GET['enablesave'] == 1) {
+					if($model->save()) {
+						echo CJSON::encode(array(
+							'type' => 5,
+							'get' => Yii::app()->controller->createUrl('manage'),
+							'id' => 'partial-recruitment-sessions',
+							'msg' => '<div class="errorSummary success"><strong>RecruitmentSessions success created.</strong></div>',
+						));
+					} else {
+						print_r($model->getErrors());
+					}
+				}
 			}
+			Yii::app()->end();
 		}
+		
+		$this->dialogDetail = true;
+		$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
+		$this->dialogWidth = 600;
 
 		$this->pageTitle = 'Update Recruitment Sessions';
 		$this->pageDescription = '';

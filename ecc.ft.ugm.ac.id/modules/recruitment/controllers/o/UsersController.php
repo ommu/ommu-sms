@@ -153,6 +153,7 @@ class UsersController extends Controller
 			$model->attributes=$_POST['RecruitmentUsers'];
 			$model->scenario = 'adminform';
 			
+			/*
 			$jsonError = CActiveForm::validate($model);
 			if(strlen($jsonError) > 2) {
 				echo $jsonError;
@@ -172,6 +173,12 @@ class UsersController extends Controller
 				}
 			}
 			Yii::app()->end();
+			*/
+				
+			if($model->save()) {
+				Yii::app()->user->setFlash('success', 'RecruitmentUsers success created.');
+				$this->redirect(array('manage'));
+			}
 		}
 		
 		$this->dialogDetail = true;
@@ -200,8 +207,9 @@ class UsersController extends Controller
 
 		if(isset($_POST['RecruitmentUsers'])) {
 			$model->attributes=$_POST['RecruitmentUsers'];
-			$model->scenario = 'adminform';
+			$model->scenario = 'formEdit';
 			
+			/*
 			$jsonError = CActiveForm::validate($model);
 			if(strlen($jsonError) > 2) {
 				echo $jsonError;
@@ -221,6 +229,12 @@ class UsersController extends Controller
 				}
 			}
 			Yii::app()->end();
+			*/
+				
+			if($model->save()) {
+				Yii::app()->user->setFlash('success', 'RecruitmentUsers success updated.');
+				$this->redirect(array('manage'));
+			}
 		}
 		
 		$this->dialogDetail = true;

@@ -20,8 +20,8 @@
 )); ?>
 	<ul>
 		<li>
-			<?php echo $model->getAttributeLabel('id'); ?><br/>
-			<?php echo $form->textField($model,'id',array('size'=>11,'maxlength'=>11)); ?>
+			<?php echo $model->getAttributeLabel('event_user_id'); ?><br/>
+			<?php echo $form->textField($model,'event_user_id',array('size'=>11,'maxlength'=>11)); ?>
 		</li>
 
 		<li>

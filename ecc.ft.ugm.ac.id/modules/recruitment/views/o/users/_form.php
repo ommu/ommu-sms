@@ -17,42 +17,18 @@
 <?php $form=$this->beginWidget('application.components.system.OActiveForm', array(
 	'id'=>'recruitment-users-form',
 	'enableAjaxValidation'=>true,
-	//'htmlOptions' => array('enctype' => 'multipart/form-data')
+	'htmlOptions' => array(
+		'enctype' => 'multipart/form-data',
+		'on_post' => 'true',
+	),
 )); ?>
 <div class="dialog-content">
 	<fieldset>
 		<?php //begin.Messages ?>
 		<div id="ajax-message">
-			<?php echo $form->errorSummary($model); ?>
+			<?php //echo $form->errorSummary($model); ?>
 		</div>
 		<?php //begin.Messages ?>
-
-		<div class="clearfix">
-			<?php echo $form->labelEx($model,'email'); ?>
-			<div class="desc">
-				<?php echo $form->textField($model,'email',array('maxlength'=>32)); ?>
-				<?php echo $form->error($model,'email'); ?>
-				<?php /*<div class="small-px silent"></div>*/?>
-			</div>
-		</div>
-
-		<div class="clearfix">
-			<?php echo $form->labelEx($model,'username'); ?>
-			<div class="desc">
-				<?php echo $form->textField($model,'username',array('maxlength'=>32)); ?>
-				<?php echo $form->error($model,'username'); ?>
-				<?php /*<div class="small-px silent"></div>*/?>
-			</div>
-		</div>
-
-		<div class="clearfix">
-			<?php echo $form->labelEx($model,'password'); ?>
-			<div class="desc">
-				<?php echo $form->passwordField($model,'password',array('maxlength'=>32)); ?>
-				<?php echo $form->error($model,'password'); ?>
-				<?php /*<div class="small-px silent"></div>*/?>
-			</div>
-		</div>
 
 		<div class="clearfix">
 			<?php echo $form->labelEx($model,'displayname'); ?>
@@ -64,9 +40,18 @@
 		</div>
 
 		<div class="clearfix">
+			<?php echo $form->labelEx($model,'email'); ?>
+			<div class="desc">
+				<?php echo $form->textField($model,'email',array('maxlength'=>32)); ?>
+				<?php echo $form->error($model,'email'); ?>
+				<?php /*<div class="small-px silent"></div>*/?>
+			</div>
+		</div>
+
+		<div class="clearfix">
 			<?php echo $form->labelEx($model,'photos'); ?>
 			<div class="desc">
-				<?php echo $form->textArea($model,'photos',array('rows'=>6, 'cols'=>50)); ?>
+				<?php echo $form->fileField($model,'photos'); ?>
 				<?php echo $form->error($model,'photos'); ?>
 				<?php /*<div class="small-px silent"></div>*/?>
 			</div>
@@ -78,6 +63,24 @@
 				<?php echo $form->checkBox($model,'enabled'); ?>
 				<?php echo $form->labelEx($model,'enabled'); ?>
 				<?php echo $form->error($model,'enabled'); ?>
+				<?php /*<div class="small-px silent"></div>*/?>
+			</div>
+		</div>
+
+		<div class="clearfix">
+			<?php echo $form->labelEx($model,'newPassword'); ?>
+			<div class="desc">
+				<?php echo $form->passwordField($model,'newPassword',array('maxlength'=>32)); ?>
+				<?php echo $form->error($model,'newPassword'); ?>
+				<?php /*<div class="small-px silent"></div>*/?>
+			</div>
+		</div>
+
+		<div class="clearfix">
+			<?php echo $form->labelEx($model,'confirmPassword'); ?>
+			<div class="desc">
+				<?php echo $form->passwordField($model,'confirmPassword',array('maxlength'=>32)); ?>
+				<?php echo $form->error($model,'confirmPassword'); ?>
 				<?php /*<div class="small-px silent"></div>*/?>
 			</div>
 		</div>

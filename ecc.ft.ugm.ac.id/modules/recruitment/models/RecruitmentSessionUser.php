@@ -24,6 +24,7 @@
  * @property string $id
  * @property integer $publish
  * @property string $user_id
+ * @property string $event_user_id
  * @property string $session_id
  * @property string $session_seat
  * @property string $creation_date
@@ -69,13 +70,13 @@ class RecruitmentSessionUser extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('publish, user_id, session_id, session_seat', 'required'),
+			array('publish, user_id, event_user_id, session_id, session_seat', 'required'),
 			array('publish, creation_id', 'numerical', 'integerOnly'=>true),
-			array('user_id, session_id', 'length', 'max'=>11),
+			array('user_id, event_user_id, session_id', 'length', 'max'=>11),
 			array('session_seat', 'length', 'max'=>32),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, publish, user_id, session_id, session_seat, creation_date, creation_id,
+			array('id, publish, user_id, event_user_id, session_id, session_seat, creation_date, creation_id,
 				user_search, session_search, creation_search', 'safe', 'on'=>'search'),
 		);
 	}
@@ -89,6 +90,7 @@ class RecruitmentSessionUser extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'user' => array(self::BELONGS_TO, 'RecruitmentUsers', 'user_id'),
+			'eventUser' => array(self::BELONGS_TO, 'RecruitmentEventUser', 'event_user_id'),
 			'session' => array(self::BELONGS_TO, 'RecruitmentSessions', 'session_id'),
 			'creation' => array(self::BELONGS_TO, 'Users', 'creation_id'),
 		);
@@ -103,6 +105,7 @@ class RecruitmentSessionUser extends CActiveRecord
 			'id' => 'ID',
 			'publish' => 'Publish',
 			'user_id' => 'User',
+			'event_user_id' => 'Event User',
 			'session_id' => 'Session',
 			'session_seat' => 'Session Seat',
 			'creation_date' => 'Creation Date',
@@ -146,6 +149,10 @@ class RecruitmentSessionUser extends CActiveRecord
 			$criteria->compare('t.user_id',$_GET['user']);
 		else
 			$criteria->compare('t.user_id',$this->user_id);
+		if(isset($_GET['eventuser']))
+			$criteria->compare('t.event_user_id',$_GET['eventuser']);
+		else
+			$criteria->compare('t.event_user_id',$this->event_user_id);
 		if(isset($_GET['session']))
 			$criteria->compare('t.session_id',$_GET['session']);
 		else
@@ -209,6 +216,7 @@ class RecruitmentSessionUser extends CActiveRecord
 			//$this->defaultColumns[] = 'id';
 			$this->defaultColumns[] = 'publish';
 			$this->defaultColumns[] = 'user_id';
+			$this->defaultColumns[] = 'event_user_id';
 			$this->defaultColumns[] = 'session_id';
 			$this->defaultColumns[] = 'session_seat';
 			$this->defaultColumns[] = 'creation_date';
@@ -309,18 +317,64 @@ class RecruitmentSessionUser extends CActiveRecord
 		}
 	}
 	
-	public static function insertUser($user_id, $session_id, $session_seat) 
+	public static function insertUser($user_id, $event_user_id, $session_id, $session_seat) 
 	{
 		$return = true;
 		
 		$model=new RecruitmentSessionUser;		
 		$model->user_id = $user_id;
+		$model->event_user_id = $event_user_id;
 		$model->session_id = $session_id;
 		$model->session_seat = $session_seat;
 		if($model->save())
 			$return = $model->id;
 		
 		return $return;
+	}
+	
+	/**
+	 * Create pdf, save to disk and return the name with path
+	 */
+	public function getPdf($model, $developerMode=true) 
+	{
+		ini_set('max_execution_time', 0);
+		ob_start();
+		
+		Yii::import('ext.html2pdf.HTML2PDF');
+		Yii::import('ext.html2pdf._mypdf.MyPDF');	// classe mypdf
+		Yii::import('ext.html2pdf.parsingHTML');	// classe de parsing HTML
+		Yii::import('ext.html2pdf.styleHTML');		// classe de gestion des styles
+		
+		$template = 'pdf_pln_cdugm19';
+		include(YiiBase::getPathOfAlias('webroot.externals.recruitment.template').'/'.$template.'.php');		
+		$content  = ob_get_clean();
+		$fileName = '';
+		
+		try {
+			// initialisation de HTML2PDF
+			$html2pdf = new HTML2PDF('P','A4','en', false, 'ISO-8859-15', array(0, 0, 0, 0));
+
+			// affichage de la page en entier
+			$html2pdf->pdf->SetDisplayMode('fullpage');
+
+			// conversion
+			$html2pdf->writeHTML($content);
+
+			// envoie du PDF
+			
+			$fileName = YiiBase::getPathOfAlias('webroot.public.recruitment.user_pdf').'/'.time().'_'.Utility::getUrlTitle($model->eventUser->test_number.' '.$model->user->displayname).'.pdf';
+			if($developerMode == true)
+				$html2pdf->Output($fileName, 'F');
+			else
+				$html2pdf->Output($fileName);
+			@chmod($fileName, 0777);
+			
+		} catch(HTML2PDF_exception $e) {
+			echo $e;
+		}
+		
+		ob_end_flush();
+		return $fileName;
 	}
 
 	/**

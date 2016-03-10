@@ -15,10 +15,13 @@ plugin_menu		:
 	- urlTitle: Event
 		urlRules: {siteType: 0, userLevel: 1,2}
 		urlPath: {url: o/admin/manage, attr: -, icon: -}
-		submenu :		
+		submenu :
 			- urlTitle: Session
 				urlRules: {siteType: 0, userLevel: 1,2}
 				urlPath: {url: o/session/manage, attr: -, icon: -}
+			- urlTitle: Batch
+				urlRules: {siteType: 0, userLevel: 1,2}
+				urlPath: {url: o/batch/manage, attr: -, icon: -}
 				
 	- urlTitle: Users
 		urlRules: {siteType: 0, userLevel: 1,2}
@@ -40,17 +43,27 @@ content_menu	:
 		urlRules: {recruitment, o/session, manage, siteType: 0, userLevel: 1,2}
 		urlPath: {url: add, attr: -, icon: -}
 
-	- urlTitle: Import Users
-		urlRules: {recruitment, o/session, manage, siteType: 0, userLevel: 1,2}
-		urlPath: {url: importuser, attr: -, icon: -}
-
 	- urlTitle: Back to Manage
 		urlRules: {recruitment, o/session, edit,view, siteType: 0, userLevel: 1,2}
 		urlPath: {url: manage, attr: -, icon: -}
+		
+# controller o/batch
+
+	- urlTitle: Add Batch
+		urlRules: {recruitment, o/batch, manage, siteType: 0, userLevel: 1,2}
+		urlPath: {url: add, attr: -, icon: -}
 
 	- urlTitle: Import Users
-		urlRules: {recruitment, o/session, edit, siteType: 0, userLevel: 1,2}
-		urlPath: {url: importuser, attr: id=$_GET*id, icon: -}
+		urlRules: {recruitment, o/batch, manage, siteType: 0, userLevel: 1,2}
+		urlPath: {url: import, attr: -, icon: -}
+
+	- urlTitle: Back to Manage
+		urlRules: {recruitment, o/batch, edit,view, siteType: 0, userLevel: 1,2}
+		urlPath: {url: manage, attr: -, icon: -}
+
+	- urlTitle: Import Users
+		urlRules: {recruitment, o/batch, edit, siteType: 0, userLevel: 1,2}
+		urlPath: {url: import, attr: id=$_GET*id, icon: -}
 		
 # controller o/eventuser
 

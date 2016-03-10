@@ -150,6 +150,7 @@ class EventuserController extends Controller
 
 		if(isset($_POST['RecruitmentEventUser'])) {
 			$model->attributes=$_POST['RecruitmentEventUser'];
+			$model->scenario = 'formAdd';
 			
 			$jsonError = CActiveForm::validate($model);
 			if(strlen($jsonError) > 2) {
@@ -198,6 +199,7 @@ class EventuserController extends Controller
 
 		if(isset($_POST['RecruitmentEventUser'])) {
 			$model->attributes=$_POST['RecruitmentEventUser'];
+			
 			$jsonError = CActiveForm::validate($model);
 			if(strlen($jsonError) > 2) {
 				echo $jsonError;

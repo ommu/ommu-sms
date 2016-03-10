@@ -30,14 +30,17 @@ EOP;
 <?php $form=$this->beginWidget('application.components.system.OActiveForm', array(
 	'id'=>'recruitments-form',
 	'enableAjaxValidation'=>true,
-	//'htmlOptions' => array('enctype' => 'multipart/form-data')
+	'htmlOptions' => array(
+		'enctype' => 'multipart/form-data',
+		'on_post' => 'true',
+	),
 )); ?>
 <div class="dialog-content">
 	<fieldset>
 
 		<?php //begin.Messages ?>
 		<div id="ajax-message">
-			<?php echo $form->errorSummary($model); ?>
+			<?php //echo $form->errorSummary($model); ?>
 		</div>
 		<?php //begin.Messages ?>
 
@@ -68,6 +71,15 @@ EOP;
 			<div class="desc">
 				<?php echo $form->textArea($model,'event_desc',array('rows'=>6, 'cols'=>50)); ?>
 				<?php echo $form->error($model,'event_desc'); ?>
+				<?php /*<div class="small-px silent"></div>*/?>
+			</div>
+		</div>
+
+		<div class="clearfix">
+			<?php echo $form->labelEx($model,'event_logo'); ?>
+			<div class="desc">
+				<?php echo $form->fileField($model,'event_logo'); ?>
+				<?php echo $form->error($model,'event_logo'); ?>
 				<?php /*<div class="small-px silent"></div>*/?>
 			</div>
 		</div>

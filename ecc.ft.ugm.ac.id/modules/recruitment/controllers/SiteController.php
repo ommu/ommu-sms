@@ -126,7 +126,7 @@ class SiteController extends Controller
 		if(!empty(Yii::app()->user->user_id))
 			$this->redirect(Yii::app()->controller->createUrl('account/index'));
 
-		else {				
+		else {
 			$model=new LoginFormRecruitment;
 
 			// if it is ajax validation request

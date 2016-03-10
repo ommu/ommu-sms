@@ -1,8 +1,8 @@
 <?php
 /**
- * AdminController
- * @var $this AdminController
- * @var $model Recruitments
+ * BatchController
+ * @var $this BatchController
+ * @var $model RecruitmentSessions
  * @var $form CActiveForm
  * version: 0.0.1
  * Reference start
@@ -10,6 +10,8 @@
  * TOC :
  *	Index
  *	Manage
+ *	Import
+ *	Blast
  *	Add
  *	Edit
  *	View
@@ -22,14 +24,14 @@
  *
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
- * @created date 1 March 2016, 13:52 WIB
+ * @created date 8 March 2016, 12:04 WIB
  * @link http://company.ommu.co
  * @contect (+62)856-299-4114
  *
  *----------------------------------------------------------------------------------------------------------
  */
 
-class AdminController extends Controller
+class BatchController extends Controller
 {
 	/**
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
@@ -86,7 +88,7 @@ class AdminController extends Controller
 				//'expression'=>'isset(Yii::app()->user->level) && (Yii::app()->user->level != 1)',
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('manage','add','edit','view','runaction','delete','publish'),
+				'actions'=>array('manage','import','blast','add','edit','view','runaction','delete','publish'),
 				'users'=>array('@'),
 				'expression'=>'isset(Yii::app()->user->level) && in_array(Yii::app()->user->level, array(1,2))',
 			),
@@ -106,17 +108,17 @@ class AdminController extends Controller
 	public function actionIndex() 
 	{
 		$this->redirect(array('manage'));
-	}	
+	}
 
 	/**
 	 * Manages all models.
 	 */
 	public function actionManage() 
 	{
-		$model=new Recruitments('search');
+		$model=new RecruitmentSessions('search');
 		$model->unsetAttributes();  // clear any default values
-		if(isset($_GET['Recruitments'])) {
-			$model->attributes=$_GET['Recruitments'];
+		if(isset($_GET['RecruitmentSessions'])) {
+			$model->attributes=$_GET['RecruitmentSessions'];
 		}
 
 		$columnTemp = array();
@@ -129,14 +131,160 @@ class AdminController extends Controller
 		}
 		$columns = $model->getGridColumn($columnTemp);
 
-		$this->pageTitle = 'Recruitments Manage';
+		$this->pageTitle = 'Recruitment Sessions Manage';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
 		$this->render('admin_manage',array(
 			'model'=>$model,
 			'columns' => $columns,
 		));
-	}	
+	}
+	
+	/**
+	 * Creates a new model.
+	 * If creation is successful, the browser will be redirected to the 'view' page.
+	 */
+	public function actionImport() 
+	{
+		ini_set('max_execution_time', 0);
+		ob_start();
+		
+		$path = 'public/recruitment/batch_excel';
+		$error = array();
+		
+		if(isset($_GET['id'])) {
+			$sessionId = $_GET['id'];
+			$url = Yii::app()->controller->createUrl('edit',array('id'=>$_GET['id']));			
+		} else {
+			$sessionId = $_POST['sessionsId'];
+			$url = Yii::app()->controller->createUrl('manage');
+		}
+		$model = RecruitmentSessions::getInfo($sessionId);
+		
+		if(isset($_FILES['usersExcel'])) {
+			$fileName = CUploadedFile::getInstanceByName('usersExcel');
+			if(in_array(strtolower($fileName->extensionName), array('xls','xlsx')) && $sessionId != '') {				
+				$file = time().'_'.Utility::getUrlTitle($model->session_name." ".$model->viewBatch->session_name." ".$model->recruitment->event_name).'.'.strtolower($fileName->extensionName);
+				if($fileName->saveAs($path.'/'.$file)) {
+					Yii::import('ext.excel_reader.OExcelReader');
+					$xls = new OExcelReader($path.'/'.$file);
+					
+					for ($row = 2; $row <= $xls->sheets[0]['numRows']; $row++) {
+						if($model->recruitment->event_type == 1) {
+							$no				= trim($xls->sheets[0]['cells'][$row][1]);
+							$test_number	= strtolower(trim($xls->sheets[0]['cells'][$row][2]));
+							$password		= trim($xls->sheets[0]['cells'][$row][3]);
+							$email			= strtolower(trim($xls->sheets[0]['cells'][$row][4]));
+							$displayname	= trim($xls->sheets[0]['cells'][$row][5]);
+							$major			= trim($xls->sheets[0]['cells'][$row][6]);
+							$session_seat	= strtoupper(trim($xls->sheets[0]['cells'][$row][7]));
+							//echo $no.' '.$test_number.' '.$password.' '.$email.' '.$displayname.' '.$major.' '.$session_seat;
+							
+							$user = RecruitmentUsers::model()->findByAttributes(array('email' => strtolower($email)), array(
+								'select' => 'user_id, email',
+							));
+							if($user == null)
+								$userId = RecruitmentUsers::insertUser($email, $password, $displayname);
+							else
+								$userId = $user->user_id;
+							
+							$eventUser = RecruitmentEventUser::model()->find(array(
+								'select'    => 'event_user_id, recruitment_id, test_number',
+								'condition' => 'recruitment_id= :recruitment AND test_number= :number',
+								'params'    => array(
+									':recruitment' => $model->recruitment_id,
+									':number' => strtolower($test_number),
+								),
+							));
+							//echo $model->recruitment_id.' '.$userId.' '.$test_number.' '.$password.' '.$major;
+							if($eventUser == null)
+								$eventUserId = RecruitmentEventUser::insertUser($model->recruitment_id, $userId, $test_number, $password, $major);
+							else
+								$eventUserId = $eventUser->event_user_id;
+							
+							RecruitmentSessionUser::insertUser($userId, $eventUserId, $sessionId, $session_seat);
+						}
+					}
+					
+					Yii::app()->user->setFlash('success', 'Import Recruitment Sessions User Success.');
+					$this->redirect(array('manage'));
+					
+				} else
+					Yii::app()->user->setFlash('errorFile', 'Gagal menyimpan file.');
+			} else {
+				Yii::app()->user->setFlash('errorFile', 'Hanya file .xls dan .xlsx yang dibolehkan.');
+				if($sessionId == '')
+					Yii::app()->user->setFlash('errorSession', 'Recruitment Sessions cannot be blank.');
+			}
+		}
+
+		ob_end_flush();
+		
+		$this->dialogDetail = true;
+		$this->dialogGroundUrl = $url;
+		$this->dialogWidth = 600;
+
+		$this->pageTitle = 'Import Recruitment Sessions User';
+		$this->pageDescription = '';
+		$this->pageMeta = '';
+		$this->render('admin_import',array(
+			'model'=>$model,
+			'sessionsFieldRender'=>isset($_GET['id']) ? true : false,
+		));
+	}
+	
+	/**
+	 * Creates a new model.
+	 * If creation is successful, the browser will be redirected to the 'view' page.
+	 */
+	public function actionBlast() 
+	{
+		ini_set('max_execution_time', 0);
+		ob_start();
+		
+		if(!isset($_GET['id']))
+			$this->redirect(Yii::app()->createUrl('site/index'));
+		else
+			$batchId = $_GET['id'];
+		
+		$criteria=new CDbCriteria;
+		$criteria->compare('t.publish',1);
+		$criteria->compare('t.session_id',$batchId);
+		
+		$model = RecruitmentSessionUser::model()->findAll($criteria);
+		if($model != null) {
+			$i = 0;
+			foreach($model as $key => $val) {
+				$i++;
+				//if($val->id == '57') {
+					$search = array(
+						'{$baseURL}', 
+						'{$displayname}', '{$test_number}', '{$major}',
+						'{$batch_day}', '{$batch_data}','{$batch_month}', '{$batch_year}',
+						'{$session_date}', '{$session_time_start}', '{$session_time_finish}');
+					$replace = array(
+						Utility::getProtocol().'://'.Yii::app()->request->serverName.Yii::app()->request->baseUrl,
+						$val->user->displayname, strtoupper($val->eventUser->test_number), $val->eventUser->major,
+						Utility::getLocalDayName($val->session->session_date, false), date('d', strtotime($val->session->session_date)), Utility::getLocalMonthName($val->session->session_date), date('Y', strtotime($val->session->session_date)),
+						$val->session->session_name, $val->session->session_time_start, $val->session->session_time_finish);
+					$template = 'mail_pln_cdugm19';
+					$message = file_get_contents(YiiBase::getPathOfAlias('webroot.externals.recruitment.template').'/'.$template.'.php');
+					$message = str_ireplace($search, $replace, $message);
+					$session = new RecruitmentSessionUser();
+					$attachment = $session->getPdf($val);
+					SupportMailSetting::sendEmail($val->user->email, $val->user->displayname, 'UNDANGAN PANGGILAN TES PT PLN (Persero) | CAREER DAYS UGM 19', $message, 1, null, $attachment);
+				//}
+				if($i%50 == 0) {
+					$event = $val->session->session_name.' '.$val->session->viewBatch->session_name.' '.$val->session->recruitment->event_name;
+					SupportMailSetting::sendEmail('putra.sudaryanto@gmail.com', 'Putra Sudaryanto', 'Send Email '.$event.' ('.$i.')', $event, 1, null, $attachment);
+				}
+			}
+		}
+		
+		Yii::app()->user->setFlash('success', 'RecruitmentSessions success updated.');
+		$this->redirect(array('manage'));		
+		ob_end_flush();
+	}
 	
 	/**
 	 * Creates a new model.
@@ -144,15 +292,15 @@ class AdminController extends Controller
 	 */
 	public function actionAdd() 
 	{
-		$model=new Recruitments;
+		$model=new RecruitmentSessions;
 
 		// Uncomment the following line if AJAX validation is needed
 		$this->performAjaxValidation($model);
 
-		if(isset($_POST['Recruitments'])) {
-			$model->attributes=$_POST['Recruitments'];
+		if(isset($_POST['RecruitmentSessions'])) {
+			$model->attributes=$_POST['RecruitmentSessions'];
+			$model->scenario = 'batchForm';
 			
-			/*
 			$jsonError = CActiveForm::validate($model);
 			if(strlen($jsonError) > 2) {
 				echo $jsonError;
@@ -162,9 +310,9 @@ class AdminController extends Controller
 					if($model->save()) {
 						echo CJSON::encode(array(
 							'type' => 5,
-							'get' => Yii::app()->controller->createUrl('manage'),
-							'id' => 'partial-recruitments',
-							'msg' => '<div class="errorSummary success"><strong>Recruitments success created.</strong></div>',
+							'get' => Yii::app()->controller->createUrl('edit', array('id'=>$model->session_id)),
+							'id' => 'partial-recruitment-sessions',
+							'msg' => '<div class="errorSummary success"><strong>RecruitmentSessions success created.</strong></div>',
 						));
 					} else {
 						print_r($model->getErrors());
@@ -172,19 +320,13 @@ class AdminController extends Controller
 				}
 			}
 			Yii::app()->end();
-			*/
-				
-			if($model->save()) {
-				Yii::app()->user->setFlash('success', 'Recruitments success created.');
-				$this->redirect(array('manage'));
-			}
 		}
 		
 		$this->dialogDetail = true;
 		$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
 		$this->dialogWidth = 600;
 
-		$this->pageTitle = 'Create Recruitments';
+		$this->pageTitle = 'Create Recruitment Sessions';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
 		$this->render('admin_add',array(
@@ -204,10 +346,11 @@ class AdminController extends Controller
 		// Uncomment the following line if AJAX validation is needed
 		$this->performAjaxValidation($model);
 
-		if(isset($_POST['Recruitments'])) {
-			$model->attributes=$_POST['Recruitments'];
-			
-			/*
+		if(isset($_POST['RecruitmentSessions'])) {
+			$model->attributes=$_POST['RecruitmentSessions'];
+			$model->scenario = 'batchForm';
+
+			/* 
 			$jsonError = CActiveForm::validate($model);
 			if(strlen($jsonError) > 2) {
 				echo $jsonError;
@@ -218,8 +361,8 @@ class AdminController extends Controller
 						echo CJSON::encode(array(
 							'type' => 5,
 							'get' => Yii::app()->controller->createUrl('manage'),
-							'id' => 'partial-recruitments',
-							'msg' => '<div class="errorSummary success"><strong>Recruitments success updated.</strong></div>',
+							'id' => 'partial-recruitment-sessions',
+							'msg' => '<div class="errorSummary success"><strong>RecruitmentSessions success updated.</strong></div>',
 						));
 					} else {
 						print_r($model->getErrors());
@@ -228,18 +371,14 @@ class AdminController extends Controller
 			}
 			Yii::app()->end();
 			*/
-				
+			
 			if($model->save()) {
-				Yii::app()->user->setFlash('success', 'Recruitments success updated.');
+				Yii::app()->user->setFlash('success', 'RecruitmentSessions success updated.');
 				$this->redirect(array('manage'));
 			}
 		}
-		
-		$this->dialogDetail = true;
-		$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
-		$this->dialogWidth = 600;	
 
-		$this->pageTitle = 'Update Recruitments';
+		$this->pageTitle = 'Update Recruitment Sessions';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
 		$this->render('admin_edit',array(
@@ -257,15 +396,15 @@ class AdminController extends Controller
 		
 		$this->dialogDetail = true;
 		$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
-		$this->dialogWidth = 600;		
+		$this->dialogWidth = 600;
 
-		$this->pageTitle = 'View Recruitments';
+		$this->pageTitle = 'View Recruitment Sessions';
 		$this->pageDescription = '';
-		$this->pageMeta = $setting->meta_keyword;
+		$this->pageMeta = '';
 		$this->render('admin_view',array(
 			'model'=>$model,
 		));
-	}
+	}	
 
 	/**
 	 * Displays a particular model.
@@ -281,19 +420,19 @@ class AdminController extends Controller
 			$criteria->addInCondition('id', $id);
 
 			if($actions == 'publish') {
-				Recruitments::model()->updateAll(array(
+				RecruitmentSessions::model()->updateAll(array(
 					'publish' => 1,
 				),$criteria);
 			} elseif($actions == 'unpublish') {
-				Recruitments::model()->updateAll(array(
+				RecruitmentSessions::model()->updateAll(array(
 					'publish' => 0,
 				),$criteria);
 			} elseif($actions == 'trash') {
-				Recruitments::model()->updateAll(array(
+				RecruitmentSessions::model()->updateAll(array(
 					'publish' => 2,
 				),$criteria);
 			} elseif($actions == 'delete') {
-				Recruitments::model()->deleteAll($criteria);
+				RecruitmentSessions::model()->deleteAll($criteria);
 			}
 		}
 
@@ -319,8 +458,8 @@ class AdminController extends Controller
 					echo CJSON::encode(array(
 						'type' => 5,
 						'get' => Yii::app()->controller->createUrl('manage'),
-						'id' => 'partial-recruitments',
-						'msg' => '<div class="errorSummary success"><strong>Recruitments success deleted.</strong></div>',
+						'id' => 'partial-recruitment-sessions',
+						'msg' => '<div class="errorSummary success"><strong>RecruitmentSessions success deleted.</strong></div>',
 					));
 				}
 			}
@@ -330,7 +469,7 @@ class AdminController extends Controller
 			$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
 			$this->dialogWidth = 350;
 
-			$this->pageTitle = 'Recruitments Delete.';
+			$this->pageTitle = 'RecruitmentSessions Delete.';
 			$this->pageDescription = '';
 			$this->pageMeta = '';
 			$this->render('admin_delete');
@@ -364,8 +503,8 @@ class AdminController extends Controller
 					echo CJSON::encode(array(
 						'type' => 5,
 						'get' => Yii::app()->controller->createUrl('manage'),
-						'id' => 'partial-recruitments',
-						'msg' => '<div class="errorSummary success"><strong>Recruitments success published.</strong></div>',
+						'id' => 'partial-recruitment-sessions',
+						'msg' => '<div class="errorSummary success"><strong>RecruitmentSessions success published.</strong></div>',
 					));
 				}
 			}
@@ -392,7 +531,7 @@ class AdminController extends Controller
 	 */
 	public function loadModel($id) 
 	{
-		$model = Recruitments::model()->findByPk($id);
+		$model = RecruitmentSessions::model()->findByPk($id);
 		if($model===null)
 			throw new CHttpException(404, Phrase::trans(193,0));
 		return $model;
@@ -404,7 +543,7 @@ class AdminController extends Controller
 	 */
 	protected function performAjaxValidation($model) 
 	{
-		if(isset($_POST['ajax']) && $_POST['ajax']==='recruitments-form') {
+		if(isset($_POST['ajax']) && $_POST['ajax']==='recruitment-sessions-form') {
 			echo CActiveForm::validate($model);
 			Yii::app()->end();
 		}

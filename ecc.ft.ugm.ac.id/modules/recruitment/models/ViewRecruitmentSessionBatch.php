@@ -1,9 +1,9 @@
 <?php
 /**
- * ViewRecruitments
+ * ViewRecruitmentSessionBatch
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
- * @created date 8 March 2016, 14:50 WIB
+ * @created date 8 March 2016, 16:06 WIB
  * @link http://company.ommu.co
  * @contact (+62)856-299-4114
  *
@@ -18,15 +18,15 @@
  *
  * --------------------------------------------------------------------------------------
  *
- * This is the model class for table "_view_recruitments".
+ * This is the model class for table "_view_recruitment_session_batch".
  *
- * The followings are the available columns in table '_view_recruitments':
- * @property string $recruitment_id
- * @property string $sessions
- * @property string $batchs
+ * The followings are the available columns in table '_view_recruitment_session_batch':
+ * @property string $batch_id
+ * @property string $session_id
+ * @property string $session_name
  * @property string $users
  */
-class ViewRecruitments extends CActiveRecord
+class ViewRecruitmentSessionBatch extends CActiveRecord
 {
 	public $defaultColumns = array();
 
@@ -34,7 +34,7 @@ class ViewRecruitments extends CActiveRecord
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
 	 * @param string $className active record class name.
-	 * @return ViewRecruitments the static model class
+	 * @return ViewRecruitmentSessionBatch the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
@@ -46,7 +46,7 @@ class ViewRecruitments extends CActiveRecord
 	 */
 	public function tableName()
 	{
-		return '_view_recruitments';
+		return '_view_recruitment_session_batch';
 	}
 
 	/**
@@ -54,7 +54,7 @@ class ViewRecruitments extends CActiveRecord
 	 */
 	public function primaryKey()
 	{
-		return 'recruitment_id';
+		return 'batch_id';
 	}
 
 	/**
@@ -65,11 +65,12 @@ class ViewRecruitments extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('recruitment_id', 'length', 'max'=>11),
-			array('sessions, batchs, users', 'length', 'max'=>21),
+			array('batch_id, session_id', 'length', 'max'=>11),
+			array('session_name', 'length', 'max'=>32),
+			array('users', 'length', 'max'=>21),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('recruitment_id, sessions, batchs, users', 'safe', 'on'=>'search'),
+			array('batch_id, session_id, session_name, users', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -90,9 +91,9 @@ class ViewRecruitments extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'recruitment_id' => 'Recruitment',
-			'sessions' => 'Sessions',
-			'batchs' => 'Batchs',
+			'batch_id' => 'Batch',
+			'session_id' => 'Session',
+			'session_name' => 'Session Name',
 			'users' => 'Users',
 		);
 	}
@@ -115,13 +116,13 @@ class ViewRecruitments extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('t.recruitment_id',strtolower($this->recruitment_id),true);
-		$criteria->compare('t.sessions',strtolower($this->sessions),true);
-		$criteria->compare('t.batchs',strtolower($this->batchs),true);
+		$criteria->compare('t.batch_id',strtolower($this->batch_id),true);
+		$criteria->compare('t.session_id',strtolower($this->session_id),true);
+		$criteria->compare('t.session_name',strtolower($this->session_name),true);
 		$criteria->compare('t.users',strtolower($this->users),true);
 
-		if(!isset($_GET['ViewRecruitments_sort']))
-			$criteria->order = 't.recruitment_id DESC';
+		if(!isset($_GET['ViewRecruitmentSessionBatch_sort']))
+			$criteria->order = 't.batch_id DESC';
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
@@ -130,7 +131,6 @@ class ViewRecruitments extends CActiveRecord
 			),
 		));
 	}
-
 
 	/**
 	 * Get column for CGrid View
@@ -149,9 +149,9 @@ class ViewRecruitments extends CActiveRecord
 				$this->defaultColumns[] = $val;
 			}
 		} else {
-			$this->defaultColumns[] = 'recruitment_id';
-			$this->defaultColumns[] = 'sessions';
-			$this->defaultColumns[] = 'batchs';
+			$this->defaultColumns[] = 'batch_id';
+			$this->defaultColumns[] = 'session_id';
+			$this->defaultColumns[] = 'session_name';
 			$this->defaultColumns[] = 'users';
 		}
 
@@ -175,9 +175,9 @@ class ViewRecruitments extends CActiveRecord
 				'header' => 'No',
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
 			);
-			$this->defaultColumns[] = 'recruitment_id';
-			$this->defaultColumns[] = 'sessions';
-			$this->defaultColumns[] = 'batchs';
+			$this->defaultColumns[] = 'batch_id';
+			$this->defaultColumns[] = 'session_id';
+			$this->defaultColumns[] = 'session_name';
 			$this->defaultColumns[] = 'users';
 		}
 		parent::afterConstruct();

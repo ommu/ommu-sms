@@ -33,7 +33,10 @@
 			<div class="clearfix">
 				<label>Recruitment Sessions <span class="required">*</span></label>
 				<div class="desc">
-					<?php echo CHtml::dropDownList('sessionsId', $select, RecruitmentSessions::getSession(), array('empty' => 'pilih event session')); ?>
+					<?php if(RecruitmentSessions::getSession('batch') != null)
+						echo CHtml::dropDownList('sessionsId', $select, RecruitmentSessions::getSession('batch'), array('empty' => 'Pilih batch session'));
+					else						
+						echo CHtml::dropDownList('sessionsId', $select, array('empty' => 'Pilih batch session')); ?>
 					<?php if(Yii::app()->user->hasFlash('errorSession')) {
 						echo '<div class="errorMessage">'.Yii::app()->user->getFlash('errorSession').'</div>';
 					}?>
