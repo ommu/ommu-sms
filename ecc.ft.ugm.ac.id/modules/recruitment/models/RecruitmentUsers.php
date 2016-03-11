@@ -466,7 +466,7 @@ class RecruitmentUsers extends CActiveRecord
 			$this->password = self::hashPassword($this->salt, $this->newPassword);
 			
 			//upload new photo
-			$recruitment_path = "public/recruitment/photos";
+			$recruitment_path = "public/recruitment/user_photos";
 			$this->photos = CUploadedFile::getInstance($this, 'photos');
 			if($this->photos instanceOf CUploadedFile) {
 				$fileName = time().'_'.Utility::getUrlTitle($this->displayname).'.'.strtolower($this->photos->extensionName);
@@ -495,7 +495,7 @@ class RecruitmentUsers extends CActiveRecord
 	protected function afterDelete() {
 		parent::afterDelete();
 		//delete recruitment image
-		$recruitment_path = "public/recruitment/photos";
+		$recruitment_path = "public/recruitment/user_photos";
 		if($this->photos != '' && file_exists($recruitment_path.'/'.$this->photos))
 			rename($recruitment_path.'/'.$this->photos, 'public/recruitment/verwijderen/'.$this->user_id.'_'.$this->photos);
 	}

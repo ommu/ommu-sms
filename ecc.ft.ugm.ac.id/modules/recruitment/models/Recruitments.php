@@ -99,6 +99,9 @@ class Recruitments extends CActiveRecord
 		return array(
 			'creation' => array(self::BELONGS_TO, 'Users', 'creation_id'),
 			'modified' => array(self::BELONGS_TO, 'Users', 'modified_id'),
+			'session' => array(self::HAS_MANY, 'RecruitmentSessions', 'recruitment_id'),
+			'sessionPublish' => array(self::HAS_MANY, 'RecruitmentSessions', 'recruitment_id', 'condition'=>'publish=1 AND parent_id=0'),
+			'sessionNotPublish' => array(self::HAS_MANY, 'RecruitmentSessions', 'recruitment_id', 'condition'=>'publish=0 AND parent_id=0'),
 			'eventUser' => array(self::HAS_MANY, 'RecruitmentEventUser', 'recruitment_id'),
 			'sessionUser' => array(self::HAS_MANY, 'RecruitmentSessionUser', 'recruitment_id'),
 			'view' => array(self::BELONGS_TO, 'ViewRecruitments', 'recruitment_id'),

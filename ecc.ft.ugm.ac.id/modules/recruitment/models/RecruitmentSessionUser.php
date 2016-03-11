@@ -27,6 +27,7 @@
  * @property string $event_user_id
  * @property string $session_id
  * @property string $session_seat
+ * @property string $sendemail_status
  * @property string $creation_date
  * @property integer $creation_id
  *
@@ -39,6 +40,7 @@ class RecruitmentSessionUser extends CActiveRecord
 	public $defaultColumns = array();
 	
 	// Variable Search
+	public $email_search;
 	public $user_search;
 	public $session_search;
 	public $creation_search;
@@ -71,13 +73,13 @@ class RecruitmentSessionUser extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('publish, user_id, event_user_id, session_id, session_seat', 'required'),
-			array('publish, creation_id', 'numerical', 'integerOnly'=>true),
+			array('id, publish, creation_id, sendemail_status', 'numerical', 'integerOnly'=>true),
 			array('user_id, event_user_id, session_id', 'length', 'max'=>11),
 			array('session_seat', 'length', 'max'=>32),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, publish, user_id, event_user_id, session_id, session_seat, creation_date, creation_id,
-				user_search, session_search, creation_search', 'safe', 'on'=>'search'),
+			array('id, publish, user_id, event_user_id, session_id, session_seat, sendemail_status, creation_date, creation_id,
+				email_search, user_search, session_search, creation_search', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -108,8 +110,10 @@ class RecruitmentSessionUser extends CActiveRecord
 			'event_user_id' => 'Event User',
 			'session_id' => 'Session',
 			'session_seat' => 'Session Seat',
+			'sendemail_status' => 'Send Email',
 			'creation_date' => 'Creation Date',
 			'creation_id' => 'Creation',
+			'email_search' => 'Email',
 			'user_search' => 'User',
 			'session_search' => 'Session',
 			'creation_search' => 'Creation',
@@ -153,11 +157,31 @@ class RecruitmentSessionUser extends CActiveRecord
 			$criteria->compare('t.event_user_id',$_GET['eventuser']);
 		else
 			$criteria->compare('t.event_user_id',$this->event_user_id);
-		if(isset($_GET['session']))
-			$criteria->compare('t.session_id',$_GET['session']);
-		else
+		if(isset($_GET['session'])) {
+			$session = RecruitmentSessions::model()->findByPk($_GET['session'],array(
+				'select' => 'session_id, parent_id'
+			));
+			if($session->parent_id == 0) {
+				$batch = RecruitmentSessions::model()->findAll(array(
+					'condition' => 'publish = :publish AND parent_id = :parent',
+					'params' => array(
+						':publish' => 1,
+						':parent' => $_GET['session'],
+					),
+				));
+				$items = array();
+				if($batch != null) {
+					foreach($batch as $key => $val)
+						$items[] = $val->session_id;
+				}
+				$criteria->addInCondition('t.session_id',$items);
+				
+			} else 
+				$criteria->compare('t.session_id',$_GET['session']);			
+		} else
 			$criteria->compare('t.session_id',$this->session_id);
 		$criteria->compare('t.session_seat',strtolower($this->session_seat),true);
+		$criteria->compare('t.sendemail_status',strtolower($this->sendemail_status),true);
 		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00', '0000-00-00')))
 			$criteria->compare('date(t.creation_date)',date('Y-m-d', strtotime($this->creation_date)));
 		if(isset($_GET['creation']))
@@ -169,7 +193,7 @@ class RecruitmentSessionUser extends CActiveRecord
 		$criteria->with = array(
 			'user' => array(
 				'alias'=>'user',
-				'select'=>'displayname'
+				'select'=>'email, displayname'
 			),
 			'session' => array(
 				'alias'=>'session',
@@ -180,6 +204,7 @@ class RecruitmentSessionUser extends CActiveRecord
 				'select'=>'displayname'
 			),
 		);
+		$criteria->compare('user.email',strtolower($this->email_search), true);
 		$criteria->compare('user.displayname',strtolower($this->user_search), true);
 		$criteria->compare('session.session_name',strtolower($this->session_search), true);
 		$criteria->compare('creation.displayname',strtolower($this->creation_search), true);
@@ -219,6 +244,7 @@ class RecruitmentSessionUser extends CActiveRecord
 			$this->defaultColumns[] = 'event_user_id';
 			$this->defaultColumns[] = 'session_id';
 			$this->defaultColumns[] = 'session_seat';
+			$this->defaultColumns[] = 'sendemail_status';
 			$this->defaultColumns[] = 'creation_date';
 			$this->defaultColumns[] = 'creation_id';
 		}
@@ -248,10 +274,15 @@ class RecruitmentSessionUser extends CActiveRecord
 				'value' => '$data->user->displayname',
 			);
 			$this->defaultColumns[] = array(
+				'name' => 'email_search',
+				'value' => '$data->user->email',
+			);
+			$this->defaultColumns[] = array(
 				'name' => 'session_search',
 				'value' => '$data->session->session_name',
 			);
 			$this->defaultColumns[] = 'session_seat';
+			/*
 			$this->defaultColumns[] = array(
 				'name' => 'creation_search',
 				'value' => '$data->creation->displayname',
@@ -282,6 +313,25 @@ class RecruitmentSessionUser extends CActiveRecord
 					),
 				), true),
 			);
+			*/
+			$this->defaultColumns[] = array(
+				'header' => 'Send Email',
+				'value' => 'CHtml::link("Send Email", Yii::app()->controller->createUrl("o/sessionuser/sendemail",array("id"=>$data->id)))',
+				'htmlOptions' => array(
+					'class' => 'center',
+				),
+				'type' => 'raw',
+			);
+			if(!isset($_GET['type'])) {
+				$this->defaultColumns[] = array(
+					'name' => 'sendemail_status',
+					'value' => '$data->sendemail_status == 1 ? Chtml::image(Yii::app()->theme->baseUrl.\'/images/icons/publish.png\') : Chtml::image(Yii::app()->theme->baseUrl.\'/images/icons/unpublish.png\')',
+					'htmlOptions' => array(
+						'class' => 'center',
+					),
+					'type' => 'raw',
+				);
+			}
 			if(!isset($_GET['type'])) {
 				$this->defaultColumns[] = array(
 					'name' => 'publish',
@@ -335,7 +385,7 @@ class RecruitmentSessionUser extends CActiveRecord
 	/**
 	 * Create pdf, save to disk and return the name with path
 	 */
-	public function getPdf($model, $developerMode=true) 
+	public function getPdf($model, $preview=false, $template=null, $path=null, $documentName=null, $page=null) 
 	{
 		ini_set('max_execution_time', 0);
 		ob_start();
@@ -345,7 +395,61 @@ class RecruitmentSessionUser extends CActiveRecord
 		Yii::import('ext.html2pdf.parsingHTML');	// classe de parsing HTML
 		Yii::import('ext.html2pdf.styleHTML');		// classe de gestion des styles
 		
-		$template = 'pdf_pln_cdugm19';
+		if($template == null)
+			$template = 'pln_cdugm19_pdf';
+		
+		include(YiiBase::getPathOfAlias('webroot.externals.recruitment.template').'/'.$template.'.php');		
+		$content  = ob_get_clean();
+		$fileName = '';
+		
+		try {
+			// initialisation de HTML2PDF
+			if($page == null)
+				$page = 'P';
+			$html2pdf = new HTML2PDF($page,'A4','en', false, 'ISO-8859-15', array(0, 0, 0, 0));
+
+			// affichage de la page en entier
+			$html2pdf->pdf->SetDisplayMode('fullpage');
+
+			// conversion
+			$html2pdf->writeHTML($content);
+			
+			if($path == null)
+				$path = YiiBase::getPathOfAlias('webroot.public.recruitment.user_pdf');
+			if($documentName == null)
+				$documentName = Utility::getUrlTitle($model->eventUser->test_number.' '.$model->user->displayname);
+			
+			$fileName = $path.'/'.time().'_'.$documentName.'.pdf';
+			
+			if($preview == false)
+				$html2pdf->Output($fileName, 'F');
+			else
+				$html2pdf->Output($fileName);
+			@chmod($fileName, 0777);
+			
+		} catch(HTML2PDF_exception $e) {
+			echo $e;
+		}
+		
+		ob_end_flush();
+		return $fileName;
+	}
+        
+        
+	/**
+	 * Create pdf, save to disk and return the name with path
+	 */
+	public function getPdfParticipantCard($models, $developerMode=true) 
+	{
+		ini_set('max_execution_time', 0);
+		ob_start();
+		
+		Yii::import('ext.html2pdf.HTML2PDF');
+		Yii::import('ext.html2pdf._mypdf.MyPDF');	// classe mypdf
+		Yii::import('ext.html2pdf.parsingHTML');	// classe de parsing HTML
+		Yii::import('ext.html2pdf.styleHTML');		// classe de gestion des styles
+		
+		$template = 'pln_cdugm19_participant_card';
 		include(YiiBase::getPathOfAlias('webroot.externals.recruitment.template').'/'.$template.'.php');		
 		$content  = ob_get_clean();
 		$fileName = '';
@@ -362,7 +466,8 @@ class RecruitmentSessionUser extends CActiveRecord
 
 			// envoie du PDF
 			
-			$fileName = YiiBase::getPathOfAlias('webroot.public.recruitment.user_pdf').'/'.time().'_'.Utility::getUrlTitle($model->eventUser->test_number.' '.$model->user->displayname).'.pdf';
+			//$fileName = YiiBase::getPathOfAlias('webroot.public.recruitment.user_pdf').'/'.time().'_'.Utility::getUrlTitle($model->eventUser->test_number.' '.$model->user->displayname).'_participant_card.pdf';
+			$fileName = YiiBase::getPathOfAlias('webroot.public.recruitment.user_pdf').'/'.time().'_'.'_participant_cardxx.pdf';
 			if($developerMode == true)
 				$html2pdf->Output($fileName, 'F');
 			else
@@ -376,6 +481,36 @@ class RecruitmentSessionUser extends CActiveRecord
 		ob_end_flush();
 		return $fileName;
 	}
+	
+	/**
+	 * 
+	 * @param type $sessionid
+	 * @param type $type
+	 * @param type $w
+	 * @param type $h
+	 */
+	public function generateBarcodeParticipant($sessionid, $typeBarcode = 'upca', $widthBarcode=2, $hightBarcode=30) {
+		
+		$criteria=new CDbCriteria;            
+		$criteria->compare('t.publish',1);
+		$criteria->compare('t.session_id', $sessionid);    
+
+		$model = RecruitmentSessionUser::model()->findAll($criteria);
+		
+		Yii::import('ext.php-barcodes.DNS1DBarcode');	
+		foreach($model as $val) {			
+			$text = str_pad($val->session->recruitment_id, 2, '0', STR_PAD_LEFT).''.str_pad($val->session_id, 3, '0', STR_PAD_LEFT).''.str_pad($val->user_id, 6, '0', STR_PAD_LEFT);
+			
+			$barcode = new DNS1DBarcode();
+			$pathFolder = YiiBase::getPathOfAlias('webroot.public.recruitment.user_barcode_'.$typeBarcode).'/';
+			if(!file_exists($pathFolder)){
+							mkdir($pathFolder, 0777);
+							chmod($pathFolder, 0777);
+			}
+			$barcode->save_path=$pathFolder;
+			$barcode->getBarcodePNGPath($text, $typeBarcode, $widthBarcode, $hightBarcode);               
+		}
+	}
 
 	/**
 	 * before validate attributes
@@ -386,5 +521,4 @@ class RecruitmentSessionUser extends CActiveRecord
 		}
 		return true;
 	}
-
 }

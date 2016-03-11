@@ -22,6 +22,7 @@ class RecruitmentModule extends CWebModule
 			//list public controller in this module
 			$publicControllers = array(
 				'account',
+				'sessionuser',	//testing
 				'site',
 			);
 			

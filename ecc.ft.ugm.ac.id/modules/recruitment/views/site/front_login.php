@@ -27,24 +27,19 @@
 
 	<fieldset>
 		<div class="clearfix">
-			<?php echo $form->labelEx($model,'email'); ?>
-			<div class="desc">
+			<?php if(isset($_GET['event'])) {?>
+				<?php echo $form->textField($model,'email', array('maxlength'=>32, 'placeholder'=>'Test Number')); ?>
+			<?php } else {?>
 				<?php echo $form->textField($model,'email', array('maxlength'=>32, 'placeholder'=>$model->getAttributeLabel('email'))); ?>
-				<?php echo $form->error($model,'email'); ?>
-			</div>
+			<?php }?>
+			<?php echo $form->error($model,'email'); ?>
 		</div>
 		<div class="clearfix">
-			<?php echo $form->labelEx($model,'password'); ?>
-			<div class="desc">
-				<?php echo $form->passwordField($model,'password', array('maxlength'=>32, 'placeholder'=>$model->getAttributeLabel('password'))); ?>
-				<?php echo $form->error($model,'password'); ?>
-			</div>
+			<?php echo $form->passwordField($model,'password', array('maxlength'=>32, 'placeholder'=>$model->getAttributeLabel('password'))); ?>
+			<?php echo $form->error($model,'password'); ?>
 		</div>
 		<div class="clearfix">
-			<label></label>
-			<div class="desc">
-				<?php echo CHtml::submitButton('Login', array('onclick' => 'setEnableSave()', 'class'=>'blue-button')); ?>
-			</div>
+			<?php echo CHtml::submitButton('Login', array('onclick' => 'setEnableSave()', 'class'=>'blue-button')); ?>
 		</div>
 	</fieldset>
 <?php $this->endWidget(); ?>

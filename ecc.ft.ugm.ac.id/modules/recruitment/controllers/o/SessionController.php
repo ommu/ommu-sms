@@ -10,6 +10,7 @@
  * TOC :
  *	Index
  *	Manage
+ *	Blast
  *	Add
  *	Edit
  *	View
@@ -86,7 +87,7 @@ class SessionController extends Controller
 				//'expression'=>'isset(Yii::app()->user->level) && (Yii::app()->user->level != 1)',
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('manage','add','edit','view','runaction','delete','publish'),
+				'actions'=>array('manage','blast','add','edit','view','runaction','delete','publish'),
 				'users'=>array('@'),
 				'expression'=>'isset(Yii::app()->user->level) && in_array(Yii::app()->user->level, array(1,2))',
 			),
@@ -135,6 +136,84 @@ class SessionController extends Controller
 		$this->render('admin_manage',array(
 			'model'=>$model,
 			'columns' => $columns,
+		));
+	}
+	
+	/**
+	 * Creates a new model.
+	 * If creation is successful, the browser will be redirected to the 'view' page.
+	 */
+	public function actionBlast() 
+	{
+		ini_set('max_execution_time', 0);
+		ob_start();
+		
+		if(!isset($_GET['id']))
+			$this->redirect(Yii::app()->createUrl('site/index'));
+		else
+			$batchId = $_GET['id'];
+		
+		$batch = $this->loadModel($batchId);
+
+		// Uncomment the following line if AJAX validation is needed
+		$this->performAjaxValidation($batch);
+
+		if(isset($_POST['RecruitmentSessions'])) {
+			$batch->attributes=$_POST['RecruitmentSessions'];
+			$batch->scenario = 'blastForm';
+			
+			if($batch->save()) {
+				/*
+				$criteria=new CDbCriteria;
+				$criteria->compare('t.publish',1);
+				$criteria->compare('t.session_id',$batchId);
+				
+				$model = RecruitmentSessionUser::model()->findAll($criteria);
+				if($model != null) {
+					$i = 0;
+					foreach($model as $key => $val) {
+						$i++;
+						$search = array(
+							'{$baseURL}', 
+							'{$displayname}', '{$test_number}', '{$major}',
+							'{$batch_day}', '{$batch_data}','{$batch_month}', '{$batch_year}',
+							'{$session_date}', '{$session_time_start}', '{$session_time_finish}');
+						$replace = array(
+							Utility::getProtocol().'://'.Yii::app()->request->serverName.Yii::app()->request->baseUrl,
+							$val->user->displayname, strtoupper($val->eventUser->test_number), $val->eventUser->major,
+							Utility::getLocalDayName($val->session->session_date, false), date('d', strtotime($val->session->session_date)), Utility::getLocalMonthName($val->session->session_date), date('Y', strtotime($val->session->session_date)),
+							$val->session->session_name, $val->session->session_time_start, $val->session->session_time_finish);
+						$template = 'pln_cdugm19_mail';
+						$message = file_get_contents(YiiBase::getPathOfAlias('webroot.externals.recruitment.template').'/'.$template.'.php');
+						$message = str_ireplace($search, $replace, $message);
+						$session = new RecruitmentSessionUser();
+						$attachment = $session->getPdf($val);
+						SupportMailSetting::sendEmail($val->user->email, $val->user->displayname, $batch->blasting_subject, $message, 1, null, $attachment);
+						if($i%50 == 0) {
+							$event = $val->session->session_name.' '.$val->session->viewBatch->session_name.' '.$val->session->recruitment->event_name;
+							SupportMailSetting::sendEmail(SupportMailSetting::getInfo(1,'mail_contact'), 'Ommu Support', 'Send Email Blast: '.$event.' ('.$i.')', $event, 1, null, $attachment);
+						}
+					}
+				}
+				*/
+				RecruitmentSessions::model()->updateByPk($batchId, array('blasting_status'=>1));
+		
+				Yii::app()->user->setFlash('success', 'Blasting success.');
+				$this->redirect(array('manage'));
+			}			
+		}
+		
+		ob_end_flush();
+		
+		$this->dialogDetail = true;
+		$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
+		$this->dialogWidth = 600;
+
+		$this->pageTitle = 'Blasting';
+		$this->pageDescription = '';
+		$this->pageMeta = '';
+		$this->render('admin_blast',array(
+			'batch'=>$batch,
 		));
 	}
 	

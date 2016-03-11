@@ -3,7 +3,7 @@
  * ViewRecruitmentSessions
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
- * @created date 8 March 2016, 16:04 WIB
+ * @created date 11 March 2016, 01:44 WIB
  * @link http://company.ommu.co
  * @contact (+62)856-299-4114
  *
@@ -23,6 +23,7 @@
  * The followings are the available columns in table '_view_recruitment_sessions':
  * @property string $session_id
  * @property string $session_name
+ * @property string $event_name
  * @property string $batchs
  * @property string $users
  */
@@ -67,11 +68,11 @@ class ViewRecruitmentSessions extends CActiveRecord
 		return array(
 			array('session_name', 'required'),
 			array('session_id', 'length', 'max'=>11),
-			array('session_name', 'length', 'max'=>32),
+			array('session_name, event_name', 'length', 'max'=>32),
 			array('batchs, users', 'length', 'max'=>21),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('session_id, session_name, batchs, users', 'safe', 'on'=>'search'),
+			array('session_id, session_name, event_name, batchs, users', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -94,6 +95,7 @@ class ViewRecruitmentSessions extends CActiveRecord
 		return array(
 			'session_id' => 'Session',
 			'session_name' => 'Session Name',
+			'event_name' => 'Event Name',
 			'batchs' => 'Batchs',
 			'users' => 'Users',
 		);
@@ -119,6 +121,7 @@ class ViewRecruitmentSessions extends CActiveRecord
 
 		$criteria->compare('t.session_id',strtolower($this->session_id),true);
 		$criteria->compare('t.session_name',strtolower($this->session_name),true);
+		$criteria->compare('t.event_name',strtolower($this->event_name),true);
 		$criteria->compare('t.batchs',strtolower($this->batchs),true);
 		$criteria->compare('t.users',strtolower($this->users),true);
 
@@ -153,6 +156,7 @@ class ViewRecruitmentSessions extends CActiveRecord
 		} else {
 			$this->defaultColumns[] = 'session_id';
 			$this->defaultColumns[] = 'session_name';
+			$this->defaultColumns[] = 'event_name';
 			$this->defaultColumns[] = 'batchs';
 			$this->defaultColumns[] = 'users';
 		}
@@ -179,6 +183,7 @@ class ViewRecruitmentSessions extends CActiveRecord
 			);
 			$this->defaultColumns[] = 'session_id';
 			$this->defaultColumns[] = 'session_name';
+			$this->defaultColumns[] = 'event_name';
 			$this->defaultColumns[] = 'batchs';
 			$this->defaultColumns[] = 'users';
 		}

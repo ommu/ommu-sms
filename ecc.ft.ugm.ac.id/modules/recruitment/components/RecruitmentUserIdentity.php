@@ -25,19 +25,23 @@ class RecruitmentUserIdentity extends CUserIdentity
 	 */
 	public function authenticate()
 	{
-		if(preg_match('/@/',$this->username)) //$this->username can filled by username or email
-			$record = RecruitmentUsers::model()->findByAttributes(array('email' => $this->username));
-		else 
-			$record = RecruitmentUsers::model()->findByAttributes(array('username' => $this->username));
+		if(isset($_GET['event']))
+			$record = RecruitmentEventUser::model()->findByAttributes(array('test_number' => strtolower($this->username)));
+		else
+			$record = RecruitmentUsers::model()->findByAttributes(array('email' => strtolower($this->username)));
 			
 		if($record === null) {
 			$this->errorCode = self::ERROR_USERNAME_INVALID;
 		} else if($record->password !== RecruitmentUsers::hashPassword($record->salt,$this->password)) {
 			$this->errorCode = self::ERROR_PASSWORD_INVALID;
 		} else {
-			//$this->_id = 0;
 			$this->setState('user_id', $record->user_id);
-			$this->setState('creation_date', $record->creation_date);
+			if(isset($_GET['event']))
+				$this->setState('recruitment_id', $record->recruitment_id);
+			if(isset($_GET['event']))
+				$this->setState('creation_date', $record->user->creation_date);
+			else
+				$this->setState('creation_date', $record->creation_date);
 			$this->setState('lastlogin_date', date('Y-m-d H:i:s'));
 			$this->errorCode = self::ERROR_NONE;
 		}

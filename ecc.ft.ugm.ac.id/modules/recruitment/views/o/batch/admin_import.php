@@ -25,7 +25,7 @@
 	'htmlOptions' => array(
 		'enctype' => 'multipart/form-data',
 		'on_post' => '',
-	)
+	),
 )); ?>
 <div class="dialog-content">
 	<fieldset>

@@ -69,7 +69,10 @@ class LoginFormRecruitment extends CFormModel
 					Yii::app()->user->login($this->_identity);
 					break;
 				case RecruitmentUserIdentity::ERROR_USERNAME_INVALID:
-					$this->addError('email','Username & Email is incorrect.');
+					if(isset($_GET['event']))
+						$this->addError('email','Test Number is incorrect.');
+					else
+						$this->addError('email','Username & Email is incorrect.');
 					break;
 				default: //RecruitmentUserIdentity::ERROR_PASSWORD_INVALID
 					$this->addError('password','Password is incorrect.');

@@ -71,8 +71,16 @@ content_menu	:
 		urlRules: {recruitment, o/eventuser, manage, siteType: 0, userLevel: 1,2}
 		urlPath: {url: o/admin/manage, attr: -, icon: -}
 		
-# controller o/eventuser
+# controller o/sessionuser
 
 	- urlTitle: Back to Manage
 		urlRules: {recruitment, o/sessionuser, manage, siteType: 0, userLevel: 1,2}
 		urlPath: {url: o/session/manage, attr: -, icon: -}
+
+	- urlTitle: Download Document Test
+		urlRules: {recruitment, o/sessionuser, manage, siteType: 0, userLevel: 1,2}
+		urlPath: {url: o/sessionuser/documenttest, attr: session=$_GET*session, icon: -}
+
+	- urlTitle: Download Entry Card
+		urlRules: {recruitment, o/sessionuser, manage, siteType: 0, userLevel: 1,2}
+		urlPath: {url: o/sessionuser/entrycard, attr: session=$_GET*session, icon: -}

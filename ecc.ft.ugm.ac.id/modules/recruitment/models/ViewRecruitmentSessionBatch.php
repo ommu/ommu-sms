@@ -3,7 +3,7 @@
  * ViewRecruitmentSessionBatch
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
- * @created date 8 March 2016, 16:06 WIB
+ * @created date 11 March 2016, 01:45 WIB
  * @link http://company.ommu.co
  * @contact (+62)856-299-4114
  *
@@ -22,8 +22,10 @@
  *
  * The followings are the available columns in table '_view_recruitment_session_batch':
  * @property string $batch_id
- * @property string $session_id
+ * @property integer $session_id
+ * @property string $batch_name
  * @property string $session_name
+ * @property string $event_name
  * @property string $users
  */
 class ViewRecruitmentSessionBatch extends CActiveRecord
@@ -65,12 +67,14 @@ class ViewRecruitmentSessionBatch extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('batch_id, session_id', 'length', 'max'=>11),
-			array('session_name', 'length', 'max'=>32),
+			array('batch_name', 'required'),
+			array('session_id', 'numerical', 'integerOnly'=>true),
+			array('batch_id', 'length', 'max'=>11),
+			array('batch_name, session_name, event_name', 'length', 'max'=>32),
 			array('users', 'length', 'max'=>21),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('batch_id, session_id, session_name, users', 'safe', 'on'=>'search'),
+			array('batch_id, session_id, batch_name, session_name, event_name, users', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -93,7 +97,9 @@ class ViewRecruitmentSessionBatch extends CActiveRecord
 		return array(
 			'batch_id' => 'Batch',
 			'session_id' => 'Session',
+			'batch_name' => 'Batch Name',
 			'session_name' => 'Session Name',
+			'event_name' => 'Event Name',
 			'users' => 'Users',
 		);
 	}
@@ -117,8 +123,10 @@ class ViewRecruitmentSessionBatch extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('t.batch_id',strtolower($this->batch_id),true);
-		$criteria->compare('t.session_id',strtolower($this->session_id),true);
+		$criteria->compare('t.session_id',$this->session_id);
+		$criteria->compare('t.batch_name',strtolower($this->batch_name),true);
 		$criteria->compare('t.session_name',strtolower($this->session_name),true);
+		$criteria->compare('t.event_name',strtolower($this->event_name),true);
 		$criteria->compare('t.users',strtolower($this->users),true);
 
 		if(!isset($_GET['ViewRecruitmentSessionBatch_sort']))
@@ -131,6 +139,7 @@ class ViewRecruitmentSessionBatch extends CActiveRecord
 			),
 		));
 	}
+
 
 	/**
 	 * Get column for CGrid View
@@ -151,7 +160,9 @@ class ViewRecruitmentSessionBatch extends CActiveRecord
 		} else {
 			$this->defaultColumns[] = 'batch_id';
 			$this->defaultColumns[] = 'session_id';
+			$this->defaultColumns[] = 'batch_name';
 			$this->defaultColumns[] = 'session_name';
+			$this->defaultColumns[] = 'event_name';
 			$this->defaultColumns[] = 'users';
 		}
 
@@ -177,7 +188,9 @@ class ViewRecruitmentSessionBatch extends CActiveRecord
 			);
 			$this->defaultColumns[] = 'batch_id';
 			$this->defaultColumns[] = 'session_id';
+			$this->defaultColumns[] = 'batch_name';
 			$this->defaultColumns[] = 'session_name';
+			$this->defaultColumns[] = 'event_name';
 			$this->defaultColumns[] = 'users';
 		}
 		parent::afterConstruct();

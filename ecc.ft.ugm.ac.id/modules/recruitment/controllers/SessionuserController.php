@@ -98,7 +98,7 @@ class SessionuserController extends Controller
 	 * Manages all models.
 	 */
 	public function actionGenerate($id=null) 
-	{		
+	{
 		ini_set('max_execution_time', 0);
 		ob_start();
 		
@@ -106,7 +106,7 @@ class SessionuserController extends Controller
 			$this->redirect(Yii::app()->createUrl('site/index'));
 			
 		$model=$this->loadModel($id);
-		echo $model->getPdf($model, false);
+		echo $model->getPdf($model, true);
 	}
 
 	/**
@@ -129,7 +129,8 @@ class SessionuserController extends Controller
 			$model->user->displayname, strtoupper($model->eventUser->test_number), $model->eventUser->major,
 			Utility::getLocalDayName($model->session->session_date, false), date('d', strtotime($model->session->session_date)), Utility::getLocalMonthName($model->session->session_date), date('Y', strtotime($model->session->session_date)),
 			$model->session->session_name, $model->session->session_time_start, $model->session->session_time_finish);
-		$message = file_get_contents(YiiBase::getPathOfAlias('webroot.externals.recruitment.template').'/pln_cdugm19_body_email.php');
+		$template = 'pln_cdugm19_mail';
+		$message = file_get_contents(YiiBase::getPathOfAlias('webroot.externals.recruitment.template').'/'.$template.'.php');
 		$message = str_ireplace($search, $replace, $message);
 		$attachment = $model->getPdf($model);
 		SupportMailSetting::sendEmail($model->user->email, $model->user->displayname, 'UNDANGAN PANGGILAN TES PT PLN (Persero) | CAREER DAYS UGM 19', $message, 1, null, $attachment);

@@ -48,6 +48,15 @@
 				<?php /*<div class="small-px silent"></div>*/?>
 			</div>
 		</div>
+
+		<div class="clearfix">
+			<?php echo $form->labelEx($model,'session_code'); ?>
+			<div class="desc">
+				<?php echo $form->textField($model,'session_code',array('maxlength'=>32)); ?>
+				<?php echo $form->error($model,'session_code'); ?>
+				<?php /*<div class="small-px silent"></div>*/?>
+			</div>
+		</div>
 			
 		<div class="clearfix">
 			<?php echo $form->labelEx($model,'session_info'); ?>
