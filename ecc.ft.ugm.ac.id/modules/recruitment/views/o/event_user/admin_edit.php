@@ -15,7 +15,7 @@
 
 	$this->breadcrumbs=array(
 		'Recruitment Event Users'=>array('manage'),
-		$model->id=>array('view','id'=>$model->id),
+		$model->event_user_id=>array('view','id'=>$model->event_user_id),
 		'Update',
 	);
 ?>

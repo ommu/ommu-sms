@@ -126,7 +126,7 @@ class SessionuserController extends Controller
 			'{$batch_day}', '{$batch_data}','{$batch_month}', '{$batch_year}',
 			'{$session_date}', '{$session_time_start}', '{$session_time_finish}');
 		$replace	= array(
-			$model->user->displayname, strtoupper($model->eventUser->test_number), $model->eventUser->major,
+			$model->user->displayname, strtoupper($model->eventUser->test_number), $model->user->major,
 			Utility::getLocalDayName($model->session->session_date, false), date('d', strtotime($model->session->session_date)), Utility::getLocalMonthName($model->session->session_date), date('Y', strtotime($model->session->session_date)),
 			$model->session->session_name, $model->session->session_time_start, $model->session->session_time_finish);
 		$template = 'pln_cdugm19_mail';

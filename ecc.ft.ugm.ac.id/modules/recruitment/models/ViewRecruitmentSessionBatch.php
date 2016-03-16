@@ -3,7 +3,7 @@
  * ViewRecruitmentSessionBatch
  * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
- * @created date 11 March 2016, 01:45 WIB
+ * @created date 13 March 2016, 02:05 WIB
  * @link http://company.ommu.co
  * @contact (+62)856-299-4114
  *
@@ -27,6 +27,8 @@
  * @property string $session_name
  * @property string $event_name
  * @property string $users
+ * @property string $user_scan
+ * @property string $user_notscan
  */
 class ViewRecruitmentSessionBatch extends CActiveRecord
 {
@@ -71,10 +73,10 @@ class ViewRecruitmentSessionBatch extends CActiveRecord
 			array('session_id', 'numerical', 'integerOnly'=>true),
 			array('batch_id', 'length', 'max'=>11),
 			array('batch_name, session_name, event_name', 'length', 'max'=>32),
-			array('users', 'length', 'max'=>21),
+			array('users, user_scan, user_notscan', 'length', 'max'=>21),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('batch_id, session_id, batch_name, session_name, event_name, users', 'safe', 'on'=>'search'),
+			array('batch_id, session_id, batch_name, session_name, event_name, users, user_scan, user_notscan', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -86,6 +88,8 @@ class ViewRecruitmentSessionBatch extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+			'session' => array(self::BELONGS_TO, 'RecruitmentSessions', 'session_id'),
+			'batch' => array(self::BELONGS_TO, 'RecruitmentSessions', 'batch_id'),
 		);
 	}
 
@@ -101,6 +105,8 @@ class ViewRecruitmentSessionBatch extends CActiveRecord
 			'session_name' => 'Session Name',
 			'event_name' => 'Event Name',
 			'users' => 'Users',
+			'user_scan' => 'User Scan',
+			'user_notscan' => 'User Not Scan',
 		);
 	}
 
@@ -128,6 +134,8 @@ class ViewRecruitmentSessionBatch extends CActiveRecord
 		$criteria->compare('t.session_name',strtolower($this->session_name),true);
 		$criteria->compare('t.event_name',strtolower($this->event_name),true);
 		$criteria->compare('t.users',strtolower($this->users),true);
+		$criteria->compare('t.user_scan',strtolower($this->user_scan),true);
+		$criteria->compare('t.user_notscan',strtolower($this->user_notscan),true);
 
 		if(!isset($_GET['ViewRecruitmentSessionBatch_sort']))
 			$criteria->order = 't.batch_id DESC';
@@ -164,6 +172,8 @@ class ViewRecruitmentSessionBatch extends CActiveRecord
 			$this->defaultColumns[] = 'session_name';
 			$this->defaultColumns[] = 'event_name';
 			$this->defaultColumns[] = 'users';
+			$this->defaultColumns[] = 'user_scan';
+			$this->defaultColumns[] = 'user_notscan';
 		}
 
 		return $this->defaultColumns;
@@ -192,6 +202,8 @@ class ViewRecruitmentSessionBatch extends CActiveRecord
 			$this->defaultColumns[] = 'session_name';
 			$this->defaultColumns[] = 'event_name';
 			$this->defaultColumns[] = 'users';
+			$this->defaultColumns[] = 'user_scan';
+			$this->defaultColumns[] = 'user_notscan';
 		}
 		parent::afterConstruct();
 	}
@@ -212,5 +224,4 @@ class ViewRecruitmentSessionBatch extends CActiveRecord
 			return $model;			
 		}
 	}
-
 }

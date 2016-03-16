@@ -151,22 +151,37 @@ class SessionController extends Controller
 		if(!isset($_GET['id']))
 			$this->redirect(Yii::app()->createUrl('site/index'));
 		else
-			$batchId = $_GET['id'];
+			$sessionId = $_GET['id'];
 		
-		$batch = $this->loadModel($batchId);
+		$session = $this->loadModel($sessionId);
 
 		// Uncomment the following line if AJAX validation is needed
-		$this->performAjaxValidation($batch);
+		$this->performAjaxValidation($session);
 
 		if(isset($_POST['RecruitmentSessions'])) {
-			$batch->attributes=$_POST['RecruitmentSessions'];
-			$batch->scenario = 'blastForm';
+			$session->attributes=$_POST['RecruitmentSessions'];
+			$session->scenario = 'blastForm';
 			
-			if($batch->save()) {
-				/*
+			if($session->save()) {
 				$criteria=new CDbCriteria;
 				$criteria->compare('t.publish',1);
-				$criteria->compare('t.session_id',$batchId);
+				if($session->parent_id == 0) {
+					$batch = RecruitmentSessions::model()->findAll(array(
+						'condition' => 'publish = :publish AND parent_id = :parent',
+						'params' => array(
+							':publish' => 1,
+							':parent' => $sessionId,
+						),
+					));
+					$items = array();
+					if($batch != null) {
+						foreach($batch as $key => $val)
+							$items[] = $val->session_id;
+					}
+					$criteria->addInCondition('t.session_id',$items);
+					
+				} else
+					$criteria->compare('t.session_id',$sessionId);
 				
 				$model = RecruitmentSessionUser::model()->findAll($criteria);
 				if($model != null) {
@@ -180,23 +195,28 @@ class SessionController extends Controller
 							'{$session_date}', '{$session_time_start}', '{$session_time_finish}');
 						$replace = array(
 							Utility::getProtocol().'://'.Yii::app()->request->serverName.Yii::app()->request->baseUrl,
-							$val->user->displayname, strtoupper($val->eventUser->test_number), $val->eventUser->major,
+							$val->user->displayname, strtoupper($val->eventUser->test_number), $val->user->major,
 							Utility::getLocalDayName($val->session->session_date, false), date('d', strtotime($val->session->session_date)), Utility::getLocalMonthName($val->session->session_date), date('Y', strtotime($val->session->session_date)),
 							$val->session->session_name, $val->session->session_time_start, $val->session->session_time_finish);
 						$template = 'pln_cdugm19_mail';
 						$message = file_get_contents(YiiBase::getPathOfAlias('webroot.externals.recruitment.template').'/'.$template.'.php');
 						$message = str_ireplace($search, $replace, $message);
-						$session = new RecruitmentSessionUser();
-						$attachment = $session->getPdf($val);
-						SupportMailSetting::sendEmail($val->user->email, $val->user->displayname, $batch->blasting_subject, $message, 1, null, $attachment);
+						$sessions = new RecruitmentSessionUser();
+						$attachment = $sessions->getPdf($val);
+						if(SupportMailSetting::sendEmail($val->user->email, $val->user->displayname, $session->blasting_subject, $message, 1, null, $attachment)) {
+							RecruitmentSessionUser::model()->updateByPk($val->id, array(
+								'sendemail_status'=>1, 
+								'sendemail_id'=>Yii::app()->user->id,
+							));
+						}
+						
 						if($i%50 == 0) {
 							$event = $val->session->session_name.' '.$val->session->viewBatch->session_name.' '.$val->session->recruitment->event_name;
 							SupportMailSetting::sendEmail(SupportMailSetting::getInfo(1,'mail_contact'), 'Ommu Support', 'Send Email Blast: '.$event.' ('.$i.')', $event, 1, null, $attachment);
 						}
 					}
 				}
-				*/
-				RecruitmentSessions::model()->updateByPk($batchId, array('blasting_status'=>1));
+				RecruitmentSessions::model()->updateByPk($sessionId, array('blasting_status'=>1));
 		
 				Yii::app()->user->setFlash('success', 'Blasting success.');
 				$this->redirect(array('manage'));
@@ -213,7 +233,7 @@ class SessionController extends Controller
 		$this->pageDescription = '';
 		$this->pageMeta = '';
 		$this->render('admin_blast',array(
-			'batch'=>$batch,
+			'session'=>$session,
 		));
 	}
 	

@@ -42,7 +42,14 @@
 	<table style="width: 100%;">
 		<tr>
 			<td style="width: 50%; vertical-align: middle; padding-bottom: 20px;">
-				<img style="height: 100px;" src="<?php echo YiiBase::getPathOfAlias('webroot.externals.recruitment.images').'/'?>logo_pln.png" alt="">
+				<?php if($model->session->recruitment->event_logo == '')
+					$images = YiiBase::getPathOfAlias('webroot.public.recruitment').'/recruitment_default.png';
+				else {
+					$images = YiiBase::getPathOfAlias('webroot.public.recruitment').'/'.$model->session->recruitment->event_logo;
+					if(!file_exists($images))
+						$images = YiiBase::getPathOfAlias('webroot.public.recruitment').'/recruitment_default.png';
+				}?>
+				<img style="height: 100px;" src="<?php echo $images;?>" alt="">
 			</td>
 			<td style="width: 50%; vertical-align: middle; padding-bottom: 20px; padding-right: 20px; text-align: right;">
 				<img style="height: 100px;" src="<?php echo YiiBase::getPathOfAlias('webroot.externals.recruitment.images').'/'?>ecc_logo.jpg" alt="">
@@ -63,7 +70,7 @@
 		Kepada Yth.<br/>
 		Sdr/ i. <?php echo $model->user->displayname; ?><br/>
 		<?php echo strtoupper($model->eventUser->test_number); ?><br/>
-		<?php echo $model->eventUser->major; ?>
+		<?php echo $model->user->major; ?>
 	</div>
 			</td>
 			<td style="width: 50%; vertical-align: top; text-align: right; padding-right: 20px; padding-top: 30px;">

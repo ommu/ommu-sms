@@ -58,7 +58,7 @@
 			<h3>
 				<strong><?php echo $i;?></strong>
 				<?php echo $val->session_name;?>
-				<span>(<?php echo $val->session_code != '' ? $val->session_code.'/ ' : ''?><?php echo !in_array($val->session_date, array('0000-00-00','1970-01-01')) ? Utility::dateFormat($val->session_date).'/ ' : '';?> <?php echo $val->view->batchs;?> Batchs/ <?php echo $val->view->users;?> Users)</span>
+				<span>(<?php echo $val->session_code != '' ? $val->session_code.'/ ' : ''?><?php echo !in_array($val->session_date, array('0000-00-00','1970-01-01')) ? Utility::dateFormat($val->session_date).'/ ' : '';?><?php echo $val->view->batchs != 0 ? $val->view->batchs.'Batchs/ ' : ''?><?php echo $val->view->users != 0 ? $val->view->users.'Users/ ' : ''?>)</span>
 			</h3>
 		</div>
 	<?php }?>

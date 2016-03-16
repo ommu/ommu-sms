@@ -60,8 +60,7 @@
 	?>
 	</div>
 	<?php //begin.Messages ?>
-        <a class="button" href="<?php echo Yii::app()->createUrl('recruitment/o/batch/PrintParticipantCard', array('sessionid'=>$_GET['session'], 'barcodetype'=>'upca')) ?>" target="_blank">Print Kartu Peserta</a>
-
+        
 	<div class="boxed">
 		<?php //begin.Grid Item ?>
 		<?php 

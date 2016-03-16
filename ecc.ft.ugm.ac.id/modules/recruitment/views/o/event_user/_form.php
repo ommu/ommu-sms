@@ -55,15 +55,6 @@
 			</div>
 		</div>
 
-		<div class="clearfix">
-			<?php echo $form->labelEx($model,'major'); ?>
-			<div class="desc">
-				<?php echo $form->textField($model,'major',array('maxlength'=>32)); ?>
-				<?php echo $form->error($model,'major'); ?>
-				<?php /*<div class="small-px silent"></div>*/?>
-			</div>
-		</div>
-
 		<div class="clearfix publish">
 			<?php echo $form->labelEx($model,'publish'); ?>
 			<div class="desc">

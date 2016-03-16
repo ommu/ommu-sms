@@ -88,7 +88,7 @@ class BatchController extends Controller
 				//'expression'=>'isset(Yii::app()->user->level) && (Yii::app()->user->level != 1)',
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('manage','import','add','edit','view','runaction','delete','publish','PrintParticipantCard'),
+				'actions'=>array('manage','import','add','edit','view','runaction','delete','publish'),
 				'users'=>array('@'),
 				'expression'=>'isset(Yii::app()->user->level) && in_array(Yii::app()->user->level, array(1,2))',
 			),
@@ -150,6 +150,17 @@ class BatchController extends Controller
 		ob_start();
 		
 		$path = 'public/recruitment/batch_excel';
+
+		// Generate path directory
+		if(!file_exists($path)) {
+			@mkdir($path, 0755, true);
+
+			// Add File in Article Folder (index.php)
+			$newFile = $path.'/index.php';
+			$FileHandle = fopen($newFile, 'w');
+		} else
+			@chmod($path, 0755, true);
+		
 		$error = array();
 		
 		if(isset($_GET['id'])) {
@@ -184,7 +195,7 @@ class BatchController extends Controller
 								'select' => 'user_id, email',
 							));
 							if($user == null)
-								$userId = RecruitmentUsers::insertUser($email, $password, $displayname);
+								$userId = RecruitmentUsers::insertUser($email, $password, $displayname, $major);
 							else
 								$userId = $user->user_id;
 							
@@ -198,7 +209,7 @@ class BatchController extends Controller
 							));
 							//echo $model->recruitment_id.' '.$userId.' '.$test_number.' '.$password.' '.$major;
 							if($eventUser == null)
-								$eventUserId = RecruitmentEventUser::insertUser($model->recruitment_id, $userId, $test_number, $password, $major);
+								$eventUserId = RecruitmentEventUser::insertUser($model->recruitment_id, $userId, $test_number, $password);
 							else
 								$eventUserId = $eventUser->event_user_id;
 							
@@ -273,7 +284,7 @@ class BatchController extends Controller
 							'{$session_date}', '{$session_time_start}', '{$session_time_finish}');
 						$replace = array(
 							Utility::getProtocol().'://'.Yii::app()->request->serverName.Yii::app()->request->baseUrl,
-							$val->user->displayname, strtoupper($val->eventUser->test_number), $val->eventUser->major,
+							$val->user->displayname, strtoupper($val->eventUser->test_number), $val->user->major,
 							Utility::getLocalDayName($val->session->session_date, false), date('d', strtotime($val->session->session_date)), Utility::getLocalMonthName($val->session->session_date), date('Y', strtotime($val->session->session_date)),
 							$val->session->session_name, $val->session->session_time_start, $val->session->session_time_finish);
 						$template = 'pln_cdugm19_mail';
@@ -281,8 +292,12 @@ class BatchController extends Controller
 						$message = str_ireplace($search, $replace, $message);
 						$session = new RecruitmentSessionUser();
 						$attachment = $session->getPdf($val);
-						if(SupportMailSetting::sendEmail($val->user->email, $val->user->displayname, $batch->blasting_subject, $message, 1, null, $attachment))
-							RecruitmentSessionUser::model()->updateByPk($val->id, array('sendemail_status'=>1));
+						if(SupportMailSetting::sendEmail($val->user->email, $val->user->displayname, $batch->blasting_subject, $message, 1, null, $attachment)) {
+							RecruitmentSessionUser::model()->updateByPk($val->id, array(
+								'sendemail_status'=>1, 
+								'sendemail_id'=>Yii::app()->user->id,
+							));
+						}
 						
 						if($i%50 == 0) {
 							$event = $val->session->session_name.' '.$val->session->viewBatch->session_name.' '.$val->session->recruitment->event_name;
@@ -310,7 +325,8 @@ class BatchController extends Controller
 			'batch'=>$batch,
 		));
 	}
-
+      
+	
 	/**
 	 * Creates a new model.
 	 * If creation is successful, the browser will be redirected to the 'view' page.
@@ -574,23 +590,4 @@ class BatchController extends Controller
 		}
 	}
 	
-	public function actionPrintParticipantCard($sessionid, $barcodetype) 
-	{
-		$criteria=new CDbCriteria;
-
-		$criteria->compare('t.publish',1);
-		$criteria->compare('t.session_id', $sessionid);           
-		$criteria->order = 'session_seat ASC';
-		//$criteria->limit = 4;
-
-		$model = RecruitmentSessionUser::model()->findAll($criteria);
-
-		RecruitmentSessionUser::model()->generateBarcodeParticipant($sessionid, $barcodetype, 2, 40);
-
-		$this->layout = false;
-		$this->render('print_participant_card',array(
-			'models'=>$model,
-			'typeBarcode'=>  strtolower($barcodetype),
-		));
-	}
 }

@@ -74,6 +74,19 @@ EOP;
 				<?php /*<div class="small-px silent"></div>*/?>
 			</div>
 		</div>
+		
+		<?php if($model->event_logo != '') {
+			$model->oldEventLogo = $model->event_logo;
+			echo $form->hiddenField($model,'oldEventLogo');
+			$images = Yii::app()->request->baseUrl.'/public/recruitment/'.$model->oldEventLogo;
+		?>
+			<div class="clearfix">
+				<?php echo $form->labelEx($model,'oldEventLogo'); ?>
+				<div class="desc">
+					<img src="<?php echo Utility::getTimThumb($images, 320, 150, 1);?>" alt="">
+				</div>
+			</div>
+		<?php }?>
 
 		<div class="clearfix">
 			<?php echo $form->labelEx($model,'event_logo'); ?>

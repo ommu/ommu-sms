@@ -11,8 +11,11 @@
  *	Index
  *	Manage
  *	SendEmail
+ *	PrintCard
  *	DocumentTest
  *	EntryCard
+ *	AbsenRecap
+ *	AbsenReset
  *	Add
  *	Edit
  *	RunAction
@@ -88,7 +91,7 @@ class SessionuserController extends Controller
 				//'expression'=>'isset(Yii::app()->user->level) && (Yii::app()->user->level != 1)',
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('manage','sendemail','documenttest','entrycard','add','edit','runaction','delete','publish'),
+				'actions'=>array('manage','sendemail','printcard','documenttest','entrycard','absenrecap','absenreset','add','edit','runaction','delete','publish'),
 				'users'=>array('@'),
 				'expression'=>'isset(Yii::app()->user->level) && in_array(Yii::app()->user->level, array(1,2))',
 			),
@@ -130,8 +133,8 @@ class SessionuserController extends Controller
 			}
 		}
 		$columns = $model->getGridColumn($columnTemp);
-
-		$this->pageTitle = 'Recruitment Session Users Manage';
+                
+		$this->pageTitle = 'Recruitment Session Users';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
 		$this->render('/o/session_user/admin_manage',array(
@@ -157,7 +160,7 @@ class SessionuserController extends Controller
 			'{$session_date}', '{$session_time_start}', '{$session_time_finish}');
 		$replace = array(
 			Utility::getProtocol().'://'.Yii::app()->request->serverName.Yii::app()->request->baseUrl,
-			$model->user->displayname, strtoupper($model->eventUser->test_number), $model->eventUser->major,
+			$model->user->displayname, strtoupper($model->eventUser->test_number), $model->user->major,
 			Utility::getLocalDayName($model->session->session_date, false), date('d', strtotime($model->session->session_date)), Utility::getLocalMonthName($model->session->session_date), date('Y', strtotime($model->session->session_date)),
 			$model->session->session_name, $model->session->session_time_start, $model->session->session_time_finish);
 		$template = 'pln_cdugm19_mail';
@@ -165,11 +168,33 @@ class SessionuserController extends Controller
 		$message = str_ireplace($search, $replace, $message);
 		$session = new RecruitmentSessionUser();
 		$attachment = $session->getPdf($model);
-		if(SupportMailSetting::sendEmail($model->user->email, $model->user->displayname, $model->session->blasting_subject, $message, 1, null, $attachment))
-			RecruitmentSessionUser::model()->updateByPk($model->id, array('sendemail_status'=>1));
+		if(SupportMailSetting::sendEmail($model->user->email, $model->user->displayname, $model->session->blasting_subject, $message, 1, null, $attachment)) {
+			RecruitmentSessionUser::model()->updateByPk($model->id, array(
+				'sendemail_status'=>1, 
+				'sendemail_id'=>Yii::app()->user->id,
+			));
+		}
 		
 		Yii::app()->user->setFlash('success', 'Send Email success.');
 		$this->redirect(Yii::app()->controller->createUrl('manage', array('session'=>$model->session_id)));
+		
+		ob_end_flush();
+	}
+
+	/**
+	 * Manages all models.
+	 */
+	public function actionPrintCard($id) 
+	{
+		ini_set('max_execution_time', 0);
+		ob_start();			
+		$model=$this->loadModel($id);
+		
+		echo $model->getPdf($model, true);
+		RecruitmentSessionUser::model()->updateByPk($model->id, array(
+			'printcard_date'=>date('Y-m-d H:i:s'), 
+			'printcard_id'=>Yii::app()->user->id,
+		));
 		
 		ob_end_flush();
 	}
@@ -183,19 +208,87 @@ class SessionuserController extends Controller
 		ob_start();
 		
 		$batch = RecruitmentSessions::model()->findByPk($session);
-		
-		$criteria=new CDbCriteria;
-		$criteria->compare('t.publish',1);
-		$criteria->compare('t.session_id',$session);		
-		$model = RecruitmentSessionUser::model()->findAll($criteria);
-		
-		$template = 'pln_cdugm19_document_test';
-		$path = YiiBase::getPathOfAlias('webroot.public.recruitment.document_test');
-		$documentName = Utility::getUrlTitle('documenttest'.$batch->session_name.' '.$batch->viewBatch->session_name);
-		$document = new RecruitmentSessionUser();
-		echo $document->getPdf($model, true, $template, $path, $documentName, 'L');
+		if(isset($_GET['reset'])) {
+			if(RecruitmentSessions::model()->updateByPk($session, array('documents'=>'')))
+				$this->redirect(Yii::app()->controller->createUrl('documenttest', array('session'=>$session)));
+		}
+			
+		if($batch->parent_id == 0)
+			$itemCount = $batch->view->users;
+		else
+			$itemCount = $batch->viewBatch->users;			
+
+		// Uncomment the following line if AJAX validation is needed
+		$this->performAjaxValidation($batch);
+
+		if(isset($_POST['RecruitmentSessions'])) {
+			$batch->attributes=$_POST['RecruitmentSessions'];
+			$batch->scenario = 'documentTestForm';
+			
+			if($batch->validate()) {
+				$pageitem = $batch->pageItem;
+				$pageSize = $pageitem >= $itemCount ? $itemCount : $pageitem ;
+				$pageCount = $itemCount >= $pageSize ? ($itemCount%$pageSize === 0 ? (int)($itemCount/$pageSize) : (int)($itemCount/$pageSize)+1) : 1;
+				
+				$template = 'document_test';
+				$path = YiiBase::getPathOfAlias('webroot.public.recruitment.document_test');
+				
+				$documentArray = array();
+				for ($i = 1; $i <= $pageCount; $i++) {
+					$offset = (int)($i-1)*$pageSize;
+				
+					$criteria=new CDbCriteria;
+					$criteria->compare('t.publish',1);
+					if($batch->parent_id == 0) {
+						$subBatch = RecruitmentSessions::model()->findAll(array(
+							'condition' => 'publish = :publish AND parent_id = :parent',
+							'params' => array(
+								':publish' => 1,
+								':parent' => $session,
+							),
+						));
+						$items = array();
+						if($subBatch != null) {
+							foreach($subBatch as $key => $val)
+								$items[] = $val->session_id;
+						}
+						$criteria->addInCondition('t.session_id',$items);
+						
+					} else					
+						$criteria->compare('t.session_id',$session);
+					
+					$criteria->limit = $pageSize;
+					$criteria->offset = $offset;
+					$model = RecruitmentSessionUser::model()->findAll($criteria);
+					
+					$documentName = Utility::getUrlTitle('document_test_'.$batch->session_name.' '.$batch->viewBatch->session_name.' '.$batch->recruitment->event_name.'_'.str_pad($i, 3, '0', STR_PAD_LEFT));
+					$document = new RecruitmentSessionUser();
+					$fileName = $document->getPdf($model, false, $template, $path, $documentName, 'L', false);
+					array_push($documentArray, $fileName);
+				}
+				RecruitmentSessions::model()->updateByPk($session, array(
+					'documents'=>implode(',', $documentArray),
+					'document_id'=>Yii::app()->user->id,
+				));
+				
+				Yii::app()->user->setFlash('success', 'Generate Document Test Success.');
+				$this->redirect(Yii::app()->controller->createUrl('documenttest', array('session'=>$session)));
+			}
+		}
 		
 		ob_end_flush();
+		
+		$this->dialogDetail = true;
+		$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage', array('session'=>$session));
+		$this->dialogWidth = 600;
+
+		$this->pageTitle = 'Download Document Test';
+		$this->pageDescription = '';
+		$this->pageMeta = '';
+		$this->render('/o/session_user/admin_document',array(
+			'batch'=>$batch,
+			'itemCount'=>$itemCount,
+		));
 	}
 
 	/**
@@ -208,13 +301,117 @@ class SessionuserController extends Controller
 		
 		$batch = RecruitmentSessions::model()->findByPk($session);
 		
-		$template = 'pln_cdugm19_entrycard';
+		$criteria=new CDbCriteria;
+		$criteria->compare('t.publish',1);
+		$criteria->compare('t.session_id',$session);
+		//$criteria->limit = 4;
+		$model = RecruitmentSessionUser::model()->findAll($criteria);
+		
+		$template = 'entry_card';
 		$path = YiiBase::getPathOfAlias('webroot.public.recruitment.document_entrycard');
-		$documentName = Utility::getUrlTitle('entrycard_'.$batch->session_name.' '.$batch->viewBatch->session_name);		
+		$documentName = Utility::getUrlTitle('entrycard_'.$batch->session_name.' '.$batch->viewBatch->session_name.' '.$batch->recruitment->event_name);		
 		$document = new RecruitmentSessionUser();
 		echo $document->getPdf($model, true, $template, $path, $documentName);
 		
 		ob_end_flush();
+	}
+
+	/**
+	 * Manages all models.
+	 */
+	public function actionAbsenRecap($session) 
+	{
+		ini_set('max_execution_time', 0);
+		ob_start();
+		
+		$batch = RecruitmentSessions::model()->findByPk($session);
+		
+		$criteria=new CDbCriteria;
+		$criteria->compare('t.publish',1);
+		if($batch->parent_id == 0) {
+			$subBatch = RecruitmentSessions::model()->findAll(array(
+				'condition' => 'publish = :publish AND parent_id = :parent',
+				'params' => array(
+					':publish' => 1,
+					':parent' => $session,
+				),
+			));
+			$items = array();
+			if($subBatch != null) {
+				foreach($subBatch as $key => $val)
+					$items[] = $val->session_id;
+			}
+			$criteria->addInCondition('t.session_id',$items);
+			
+		} else					
+			$criteria->compare('t.session_id',$session);
+		
+		//$criteria->limit = 4;
+		$model = RecruitmentSessionUser::model()->findAll($criteria);
+		
+		$template = 'absen_recap';
+		$path = YiiBase::getPathOfAlias('webroot.public.recruitment.document_test');		
+		$documentName = Utility::getUrlTitle('absen_recap_'.$batch->session_name.' '.$batch->viewBatch->session_name.' '.$batch->recruitment->event_name);
+		$document = new RecruitmentSessionUser();
+		echo $document->getPdf($model, true, $template, $path, $documentName);
+		
+		ob_end_flush();
+	}
+
+	/**
+	 * Deletes a particular model.
+	 * If deletion is successful, the browser will be redirected to the 'admin' page.
+	 * @param integer $id the ID of the model to be deleted
+	 */
+	public function actionAbsenReset($session) 
+	{
+		$model=RecruitmentSessions::model()->findByPk($session);
+		
+		if(Yii::app()->request->isPostRequest) {
+			// we only allow deletion via POST request
+			if(isset($session)) {				
+				$criteria=new CDbCriteria;
+				$criteria->compare('t.publish',1);
+				if($model->parent_id == 0) {
+					$batch = RecruitmentSessions::model()->findAll(array(
+						'condition' => 'publish = :publish AND parent_id = :parent',
+						'params' => array(
+							':publish' => 1,
+							':parent' => $session,
+						),
+					));
+					$items = array();
+					if($batch != null) {
+						foreach($batch as $key => $val)
+							$items[] = $val->session_id;
+					}
+					$criteria->addInCondition('t.session_id',$items);
+					
+				} else					
+					$criteria->compare('t.session_id',$session);
+				
+				$user = RecruitmentSessionUser::model()->findAll($criteria);
+				foreach($user as $key => $val)
+					RecruitmentSessionUser::model()->updateByPk($val->id, array('scanner_status'=>0,'scanner_field'=>0));
+				
+				echo CJSON::encode(array(
+					'type' => 5,
+					'get' => Yii::app()->controller->createUrl('manage'),
+					'id' => 'partial-recruitment-session-user',
+					'msg' => '<div class="errorSummary success"><strong>RecruitmentSessionUser success absen reset.</strong></div>',
+				));
+			}
+
+		} else {
+			$this->dialogDetail = true;
+			$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage', array('session'=>$session));
+			$this->dialogWidth = 350;
+
+			$this->pageTitle = 'RecruitmentSessionUser Absen Reset.';
+			$this->pageDescription = '';
+			$this->pageMeta = '';
+			$this->render('/o/session_user/admin_absen_reset');
+		}
 	}
 	
 	/**

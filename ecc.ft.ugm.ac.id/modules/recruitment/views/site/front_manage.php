@@ -30,38 +30,19 @@
 			'linkOptions' => array('title' => Phrase::trans(308,0)),
 		),
 	);
-
 ?>
 
-<?php //begin.Search ?>
-<div class="search-form">
-<?php $this->renderPartial('_search',array(
-	'model'=>$model,
+<?php $this->widget('application.components.system.OGridView', array(
+	'id'=>'recruitments-grid',
+	'dataProvider'=>$model->search(),
+	'filter'=>$model,
+	'pager' => array('header' => ''),
+	'summaryText' => '',
+    'columns'=>array(
+		array(
+			'name' => 'event_name',
+			'value' => $data->event_name,
+			'type' => 'raw',
+		),
+    ),
 )); ?>
-</div>
-<?php //end.Search ?>
-
-<?php //begin.Grid Option ?>
-<div class="grid-form">
-<?php $this->renderPartial('_option_form',array(
-	'model'=>$model,
-)); ?>
-</div>
-<?php //end.Grid Option ?>
-
-<div id="partial-recruitments">
-	<div class="boxed">
-		<?php //begin.Grid Item ?>
-		<?php 
-			$columnData   = $columns;
-			$this->widget('application.components.system.OGridView', array(
-				'id'=>'recruitments-grid',
-				'dataProvider'=>$model->search(),
-				'filter'=>$model,
-				'columns' => $columnData,
-				'pager' => array('header' => ''),
-			));
-		?>
-		<?php //end.Grid Item ?>
-	</div>
-</div>

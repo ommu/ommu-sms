@@ -33,6 +33,11 @@
  * @property string $session_time_finish
  * @property string $blasting_subject
  * @property integer $blasting_status
+ * @property string $blasting_date
+ * @property string $blasting_id
+ * @property string $documents
+ * @property string $document_date
+ * @property integer $document_id
  * @property string $creation_date
  * @property string $creation_id
  * @property string $modified_date
@@ -45,6 +50,7 @@
 class RecruitmentSessions extends CActiveRecord
 {
 	public $defaultColumns = array();
+	public $pageItem;
 	
 	// Variable Search
 	public $recruitment_search;
@@ -79,18 +85,21 @@ class RecruitmentSessions extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('publish, session_name, session_code', 'required'),
-			array('recruitment_id, session_info', 'required', 'on'=>'sessionForm'),
+			array('publish, session_name', 'required'),
+			array('recruitment_id, session_info, session_code', 'required', 'on'=>'sessionForm'),
 			array('parent_id', 'required', 'on'=>'batchForm'),
 			array('blasting_subject', 'required', 'on'=>'blastForm'),
+			array('
+				pageItem', 'required', 'on'=>'documentTestForm'),
 			array('publish', 'numerical', 'integerOnly'=>true),
-			array('recruitment_id, parent_id, creation_id, modified_id', 'length', 'max'=>11),
+			array('recruitment_id, parent_id, document_id, creation_id, modified_id', 'length', 'max'=>11),
 			array('session_name, session_code', 'length', 'max'=>32),
 			array('blasting_subject', 'length', 'max'=>64),
-			array('session_date, session_time_start, session_time_finish', 'safe'),
+			array('session_date, session_time_start, session_time_finish, blasting_subject, blasting_status,
+				pageItem', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('session_id, publish, recruitment_id, parent_id, session_name, session_info, session_code, session_date, session_time_start, session_time_finish, blasting_subject, blasting_status, creation_date, creation_id, modified_date, modified_id,
+			array('session_id, publish, recruitment_id, parent_id, session_name, session_info, session_code, session_date, session_time_start, session_time_finish, blasting_subject, blasting_status, blasting_date, blasting_id, documents, document_date, document_id, creation_date, creation_id, modified_date, modified_id,
 				recruitment_search, session_search, creation_search, modified_search', 'safe', 'on'=>'search'),
 		);
 	}
@@ -108,6 +117,9 @@ class RecruitmentSessions extends CActiveRecord
 			'modified' => array(self::BELONGS_TO, 'Users', 'modified_id'),
 			'view' => array(self::BELONGS_TO, 'ViewRecruitmentSessions', 'session_id'),
 			'viewBatch' => array(self::BELONGS_TO, 'ViewRecruitmentSessionBatch', 'session_id'),
+			'batch' => array(self::HAS_MANY, 'ViewRecruitmentSessionBatch', 'session_id'),
+			'batchPublish' => array(self::HAS_MANY, 'ViewRecruitmentSessionBatch', 'session_id', 'condition'=>'publish=1'),
+			'batchNotPublish' => array(self::HAS_MANY, 'ViewRecruitmentSessionBatch', 'session_id', 'condition'=>'publish=0'),
 			'users' => array(self::HAS_MANY, 'RecruitmentSessionUser', 'session_id'),
 		);
 	}
@@ -130,10 +142,16 @@ class RecruitmentSessions extends CActiveRecord
 			'session_time_finish' => 'Time Finish',
 			'blasting_subject' => 'Blasting Subject',
 			'blasting_status' => 'Blasting',
+			'blasting_date' => 'Blasting Date',
+			'blasting_id' => 'Blasting',
+			'documents' => 'Documents',
+			'document_date' => 'Documents Date',
+			'document_id' => 'Documents',
 			'creation_date' => 'Creation Date',
 			'creation_id' => 'Creation',
 			'modified_date' => 'Modified Date',
 			'modified_id' => 'Modified',
+			'pageItem' => 'Page Item',
 			'recruitment_search' => 'Recruitment',
 			'session_search' => 'Session',
 			'creation_search' => 'Creation',
@@ -193,6 +211,19 @@ class RecruitmentSessions extends CActiveRecord
 		$criteria->compare('t.session_time_finish',strtolower($this->session_time_finish),true);
 		$criteria->compare('t.blasting_subject',strtolower($this->blasting_subject),true);
 		$criteria->compare('t.blasting_status',strtolower($this->blasting_status),true);
+		if($this->blasting_date != null && !in_array($this->blasting_date, array('0000-00-00 00:00:00', '0000-00-00')))
+			$criteria->compare('date(t.blasting_date)',date('Y-m-d', strtotime($this->blasting_date)));
+		if(isset($_GET['blasting']))
+			$criteria->compare('t.blasting_id',$_GET['blasting']);
+		else
+			$criteria->compare('t.blasting_id',$this->blasting_id);
+		$criteria->compare('t.documents',strtolower($this->documents),true);
+		if($this->document_date != null && !in_array($this->document_date, array('0000-00-00 00:00:00', '0000-00-00')))
+			$criteria->compare('date(t.document_date)',date('Y-m-d', strtotime($this->document_date)));
+		if(isset($_GET['document']))
+			$criteria->compare('t.document_id',$_GET['document']);
+		else
+			$criteria->compare('t.document_id',$this->document_id);
 		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00', '0000-00-00')))
 			$criteria->compare('date(t.creation_date)',date('Y-m-d', strtotime($this->creation_date)));
 		if(isset($_GET['creation']))
@@ -275,6 +306,11 @@ class RecruitmentSessions extends CActiveRecord
 			$this->defaultColumns[] = 'session_time_finish';
 			$this->defaultColumns[] = 'blasting_subject';
 			$this->defaultColumns[] = 'blasting_status';
+			$this->defaultColumns[] = 'blasting_date';
+			$this->defaultColumns[] = 'blasting_id';
+			$this->defaultColumns[] = 'documents';
+			$this->defaultColumns[] = 'document_date';
+			$this->defaultColumns[] = 'document_id';
 			$this->defaultColumns[] = 'creation_date';
 			$this->defaultColumns[] = 'creation_id';
 			$this->defaultColumns[] = 'modified_date';
@@ -290,7 +326,7 @@ class RecruitmentSessions extends CActiveRecord
 	protected function afterConstruct() {
 		if(count($this->defaultColumns) == 0) {
 			$controller = strtolower(Yii::app()->controller->id);
-			
+
 			/*
 			$this->defaultColumns[] = array(
 				'class' => 'CCheckBoxColumn',
@@ -304,7 +340,9 @@ class RecruitmentSessions extends CActiveRecord
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
 			);
 			$this->defaultColumns[] = 'session_name';
-			$this->defaultColumns[] = 'session_code';
+			if($controller == 'o/session') {
+				$this->defaultColumns[] = 'session_code';
+			}
 			if($controller == 'o/batch') {
 				$this->defaultColumns[] = array(
 					'name' => 'session_search',
@@ -501,6 +539,9 @@ class RecruitmentSessions extends CActiveRecord
 	 * before validate attributes
 	 */
 	protected function beforeValidate() {
+		$controller = strtolower(Yii::app()->controller->id);
+		$currentAction = strtolower(Yii::app()->controller->id.'/'.Yii::app()->controller->action->id);
+		
 		if(parent::beforeValidate()) {
 			$this->session_date = date('Y-m-d', strtotime($this->session_date));
 			$this->session_time_start = date('H:i:s', strtotime($this->session_time_start));
@@ -510,9 +551,9 @@ class RecruitmentSessions extends CActiveRecord
 				$this->creation_id = Yii::app()->user->id;
 			else {
 				$this->modified_id = Yii::app()->user->id;
+				if(in_array($currentAction, array('o/session/blast','o/batch/blast')))
+					$this->blasting_id = Yii::app()->user->id;
 			}
-			
-			
 		}
 		return true;
 	}
@@ -525,18 +566,18 @@ class RecruitmentSessions extends CActiveRecord
 		$controller = strtolower(Yii::app()->controller->id);
 		$currentAction = strtolower(Yii::app()->controller->id.'/'.Yii::app()->controller->action->id);
 		
-		if($currentAction == 'o/session/blast') {
+		if(!$this->isNewRecord) {
 			$data = self::getSession($this->session_id, null, 'data');
 			if($data != null) {
 				foreach($data as $val) {
 					$batch = self::model()->findByPk($val->session_id);
 					$batch->session_date = $this->session_date;
-					if($this->blasting_status == 1) {
+					if($currentAction == 'o/session/blast') {
 						if($val->blasting_subject == '')
 							$batch->blasting_subject = $this->blasting_subject;
-						$batch->blasting_status = $this->blasting_status;
+						$batch->blasting_status = 1;
 					}
-					$batch->update();
+					$batch->save();
 				}
 			}
 		}

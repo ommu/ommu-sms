@@ -28,6 +28,7 @@
  * @property string $password
  * @property string $displayname
  * @property string $photos
+ * @property string $major
  * @property string $creation_date
  * @property string $creation_ip
  * @property string $update_date
@@ -78,21 +79,21 @@ class RecruitmentUsers extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('enabled, displayname', 'required'),
+			array('enabled, displayname, major', 'required'),
 			array('email', 'required', 'on'=>'adminform, formEdit'),
 			array('
 				newPassword, confirmPassword', 'required', 'on'=>'adminform'),
 			array('enabled, modified_id', 'numerical', 'integerOnly'=>true),
 			array('creation_ip, update_ip, lastlogin_ip', 'length', 'max'=>20),
-			array('salt, email, password', 'length', 'max'=>32),
-			array('displayname', 'length', 'max'=>64),
+			array('salt, password', 'length', 'max'=>32),
+			array('displayname, email', 'length', 'max'=>64),
 			array('email,
 				newPassword, confirmPassword, oldPhoto', 'safe'),
 			array('
 				newPassword', 'compare', 'compareAttribute' => 'confirmPassword', 'message' => 'Kedua password tidak sama2.'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('user_id, enabled, salt, email, password, displayname, photos, creation_date, creation_ip, update_date, update_ip, lastlogin_date, lastlogin_ip, modified_date, modified_id, 
+			array('user_id, enabled, salt, email, password, displayname, photos, major, creation_date, creation_ip, update_date, update_ip, lastlogin_date, lastlogin_ip, modified_date, modified_id, 
 				modified_search', 'safe', 'on'=>'search'),
 		);
 	}
@@ -122,8 +123,9 @@ class RecruitmentUsers extends CActiveRecord
 			'salt' => 'Salt',
 			'email' => 'Email',
 			'password' => 'Password',
-			'displayname' => 'Displayname',
+			'displayname' => 'Display Name',
 			'photos' => 'Photos',
+			'major' => 'Major',
 			'creation_date' => 'Creation Date',
 			'creation_ip' => 'Creation Ip',
 			'update_date' => 'Update Date',
@@ -167,6 +169,7 @@ class RecruitmentUsers extends CActiveRecord
 		$criteria->compare('t.password',strtolower($this->password),true);
 		$criteria->compare('t.displayname',strtolower($this->displayname),true);
 		$criteria->compare('t.photos',strtolower($this->photos),true);
+		$criteria->compare('t.major',strtolower($this->major),true);
 		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00', '0000-00-00')))
 			$criteria->compare('date(t.creation_date)',date('Y-m-d', strtotime($this->creation_date)));
 		$criteria->compare('t.creation_ip',strtolower($this->creation_ip),true);
@@ -228,6 +231,7 @@ class RecruitmentUsers extends CActiveRecord
 			$this->defaultColumns[] = 'password';
 			$this->defaultColumns[] = 'displayname';
 			$this->defaultColumns[] = 'photos';
+			$this->defaultColumns[] = 'major';
 			$this->defaultColumns[] = 'creation_date';
 			$this->defaultColumns[] = 'creation_ip';
 			$this->defaultColumns[] = 'update_date';
@@ -260,6 +264,7 @@ class RecruitmentUsers extends CActiveRecord
 			);
 			$this->defaultColumns[] = 'displayname';
 			$this->defaultColumns[] = 'email';
+			$this->defaultColumns[] = 'major';
 			$this->defaultColumns[] = array(
 				'name' => 'photos',
 				'value' => '$data->photos != "" ? CHtml::link($data->photos, Yii::app()->request->baseUrl.\'/public/recruitment/\'.$data->photos, array(\'target\' => \'_blank\')) : "-"',
@@ -398,12 +403,13 @@ class RecruitmentUsers extends CActiveRecord
 		return md5($salt.$password);
 	}
 	
-	public static function insertUser($email, $password, $displayname) 
+	public static function insertUser($email, $password, $displayname, $major) 
 	{
 		$return = true;
 		
-		$model=new RecruitmentUsers;		
+		$model=new RecruitmentUsers;
 		$model->email = $email;
+		$model->major = $major;
 		$model->newPassword = $password;
 		$model->displayname = $displayname;
 		if($model->save())
@@ -466,7 +472,17 @@ class RecruitmentUsers extends CActiveRecord
 			$this->password = self::hashPassword($this->salt, $this->newPassword);
 			
 			//upload new photo
-			$recruitment_path = "public/recruitment/user_photos";
+			$recruitment_path = "public/recruitment/user_photos";			
+			// Generate path directory
+			if(!file_exists($recruitment_path)) {
+				@mkdir($recruitment_path, 0755, true);
+
+				// Add File in Article Folder (index.php)
+				$newFile = $recruitment_path.'/index.php';
+				$FileHandle = fopen($newFile, 'w');
+			} else
+				@chmod($recruitment_path, 0755, true);
+			
 			$this->photos = CUploadedFile::getInstance($this, 'photos');
 			if($this->photos instanceOf CUploadedFile) {
 				$fileName = time().'_'.Utility::getUrlTitle($this->displayname).'.'.strtolower($this->photos->extensionName);

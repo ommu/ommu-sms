@@ -335,7 +335,7 @@ class Recruitments extends CActiveRecord
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'finish_date',
-				'value' => '$data->finish_date != "1970-01-01" ? Utility::dateFormat($data->finish_date) : "Permanent"',
+				'value' => '$data->finish_date != "1970-01-01" ? Utility::dateFormat($data->finish_date) : "Selesai"',
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
@@ -468,8 +468,7 @@ class Recruitments extends CActiveRecord
 			
 			if($this->permanent != 1 && ($this->start_date != '' && $this->finish_date != '') && (date('Y-m-d', strtotime($this->start_date)) >= date('Y-m-d', strtotime($this->finish_date))))
 				$this->addError('finish_date', 'Finish Data tidak boleh lebih kecil dari Start Date');
-				
-			$this->oldEventLogo = $this->event_logo;			
+			
 			$logo = CUploadedFile::getInstance($this, 'event_logo');		
 			if($logo->name != '') {
 				$extension = pathinfo($logo->name, PATHINFO_EXTENSION);
@@ -489,7 +488,17 @@ class Recruitments extends CActiveRecord
 			$this->finish_date = date('Y-m-d', strtotime($this->finish_date));
 			
 			//upload new logo
-			$recruitment_path = "public/recruitment";
+			$recruitment_path = "public/recruitment";			
+			// Generate path directory
+			if(!file_exists($recruitment_path)) {
+				@mkdir($recruitment_path, 0755, true);
+
+				// Add File in Article Folder (index.php)
+				$newFile = $recruitment_path.'/index.php';
+				$FileHandle = fopen($newFile, 'w');
+			} else
+				@chmod($recruitment_path, 0755, true);
+			
 			$this->event_logo = CUploadedFile::getInstance($this, 'event_logo');
 			if($this->event_logo instanceOf CUploadedFile) {
 				$fileName = time().'_'.Utility::getUrlTitle($this->event_name).'.'.strtolower($this->event_logo->extensionName);
