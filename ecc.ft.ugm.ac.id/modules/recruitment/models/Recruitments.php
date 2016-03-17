@@ -488,7 +488,7 @@ class Recruitments extends CActiveRecord
 			$this->finish_date = date('Y-m-d', strtotime($this->finish_date));
 			
 			//upload new logo
-			$recruitment_path = "public/recruitment";			
+			$recruitment_path = "public/recruitment";
 			// Generate path directory
 			if(!file_exists($recruitment_path)) {
 				@mkdir($recruitment_path, 0755, true);

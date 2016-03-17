@@ -149,11 +149,13 @@ class SessionController extends Controller
 		ob_start();
 		
 		if(!isset($_GET['id']))
-			$this->redirect(Yii::app()->createUrl('site/index'));
+			$this->redirect(Yii::app()->createUrl('admin/index'));
 		else
 			$sessionId = $_GET['id'];
 		
 		$session = $this->loadModel($sessionId);
+		if($session->parent_id != 0)
+			$this->redirect(Yii::app()->createUrl('admin/index'));
 
 		// Uncomment the following line if AJAX validation is needed
 		$this->performAjaxValidation($session);
@@ -179,9 +181,7 @@ class SessionController extends Controller
 							$items[] = $val->session_id;
 					}
 					$criteria->addInCondition('t.session_id',$items);
-					
-				} else
-					$criteria->compare('t.session_id',$sessionId);
+				}
 				
 				$model = RecruitmentSessionUser::model()->findAll($criteria);
 				if($model != null) {

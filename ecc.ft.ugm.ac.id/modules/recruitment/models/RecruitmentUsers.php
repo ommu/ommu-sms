@@ -472,7 +472,7 @@ class RecruitmentUsers extends CActiveRecord
 			$this->password = self::hashPassword($this->salt, $this->newPassword);
 			
 			//upload new photo
-			$recruitment_path = "public/recruitment/user_photos";			
+			$recruitment_path = "public/recruitment/user_photos";
 			// Generate path directory
 			if(!file_exists($recruitment_path)) {
 				@mkdir($recruitment_path, 0755, true);
