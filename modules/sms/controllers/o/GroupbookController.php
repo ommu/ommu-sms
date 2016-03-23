@@ -156,7 +156,7 @@ class GroupbookController extends Controller
 					$url = Yii::app()->controller->createUrl('delete',array('id'=>$model->id));
 				$contact = $model->phonebook_TO->phonebook_name != '' ? $model->phonebook_TO->phonebook_name : $model->phonebook_TO->phonebook_nomor;
 				echo CJSON::encode(array(
-					'data' => '<div>'.$contact.'<a href="'.$url.'" title="'.Phrase::trans(173,0).'">'.Phrase::trans(173,0).'</a></div>',
+					'data' => '<div>'.$contact.'<a href="'.$url.'" title="'.Yii::t('phrase', 'Delete').'">'.Yii::t('phrase', 'Delete').'</a></div>',
 				));
 			}
 		}
@@ -214,7 +214,7 @@ class GroupbookController extends Controller
 	{
 		$model = SmsGroupPhonebook::model()->findByPk($id);
 		if($model===null)
-			throw new CHttpException(404, Phrase::trans(193,0));
+			throw new CHttpException(404, Yii::t('phrase', 'The requested page does not exist.'));
 		return $model;
 	}
 

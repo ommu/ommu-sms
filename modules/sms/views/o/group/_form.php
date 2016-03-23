@@ -98,7 +98,7 @@ EOP;
 					if($phonebook != null) {
 						foreach($phonebook as $key => $val) {
 						$contact = $val->phonebook_TO->phonebook_name != '' ? $val->phonebook_TO->phonebook_name : $val->phonebook_TO->phonebook_nomor; ?>
-						<div><?php echo $contact;?><a href="<?php echo Yii::app()->controller->createUrl('o/groupbook/delete',array('id'=>$val->id,'type'=>'sms'));?>" title="<?php echo Phrase::trans(173,0);?>"><?php echo Phrase::trans(173,0);?></a></div>
+						<div><?php echo $contact;?><a href="<?php echo Yii::app()->controller->createUrl('o/groupbook/delete',array('id'=>$val->id,'type'=>'sms'));?>" title="<?php echo Yii::t('phrase', 'Delete');?>"><?php echo Yii::t('phrase', 'Delete');?></a></div>
 					<?php }
 					}?>
 				</div>
@@ -137,7 +137,7 @@ EOP;
 		<div class="submit clearfix">
 			<label>&nbsp;</label>
 			<div class="desc">
-				<?php echo CHtml::submitButton($model->isNewRecord ? Phrase::trans(1,0) : Phrase::trans(2,0), array('onclick' => 'setEnableSave()')); ?>
+				<?php echo CHtml::submitButton($model->isNewRecord ? Yii::t('phrase', 'Create') : Yii::t('phrase', 'Save')) ,array('onclick' => 'setEnableSave()')); ?>
 			</div>
 		</div>
 
