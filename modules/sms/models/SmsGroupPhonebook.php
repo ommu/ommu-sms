@@ -1,7 +1,7 @@
 <?php
 /**
  * SmsGroupPhonebook
- * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
+ * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
  * @created date 12 February 2016, 18:27 WIB
  * @link http://company.ommu.co

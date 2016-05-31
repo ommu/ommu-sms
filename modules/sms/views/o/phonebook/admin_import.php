@@ -5,7 +5,7 @@
  * @var $model Visits
  * @var $form CActiveForm
  *
- * @author Putra Sudaryanto <putra.sudaryanto@gmail.com>
+ * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
  * @created date 26 January 2016, 13:00 WIB
  * @link https://github.com/oMMuCo
