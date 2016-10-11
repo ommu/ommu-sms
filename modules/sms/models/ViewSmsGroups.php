@@ -88,8 +88,8 @@ class ViewSmsGroups extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'group_id' => 'Group',
-			'contacts' => 'Contacts',
+			'group_id' => Yii::t('attribute', 'Group'),
+			'contacts' => Yii::t('attribute', 'Contacts'),
 		);
 	}
 

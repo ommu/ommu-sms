@@ -15,18 +15,22 @@
 
 class SmsUtility
 {
-	public static function sendSMS($outbox_id, $user_id, $d_nomor, $d_message) {
-		$status = false;
+	public static function sendSMS($outbox_id, $user_id, $d_nomor, $d_message) 
+	{
+		$smsGatewayConnected = SmsUtility::getConnected();
 		
-		$message_type = 1; // text, default
-		//$url = 'http://192.168.3.13'; 			//swevel wifi
-		//$url = 'http://192.168.43.187'; 			//android wifi
-		
-		$dlr_url = 'http://192.168.3.13'.Yii::app()->createUrl('sms/outbox/dlr', array('type' => '%d', 'outbox_id' =>$outbox_id, 'user_id' =>$user_id, 'smsc_s'=>'%Q', 'smsc_d'=>'%q'));
-		$d_message = urlencode(iconv('utf-8', 'ucs-2', $d_message));
-		
-		$smsGatewayConnected = SmsUtility::getConnectedSmsGateway() ;
 		if($smsGatewayConnected != 'neither-connected') {
+			$status = false;			
+			$message_type = 1; // text, default
+			
+			if(in_array($smsGatewayConnected, array('http://103.255.15.100','http://localhost','http://127.0.0.1','http://192.168.30.100')))
+				$smsGatewayConnectedPath = $smsGatewayConnected.'/bpadportal';
+			else
+				$smsGatewayConnectedPath = $smsGatewayConnected;
+			
+			$dlr_url = $smsGatewayConnectedPath.preg_replace('('.Yii::app()->request->baseUrl.')', '', Yii::app()->createUrl('sms/outbox/dlr', array('type' => '%d', 'outbox_id' =>$outbox_id, 'user_id' =>$user_id, 'smsc_s'=>'%Q', 'smsc_d'=>'%q')));
+			$d_message = urlencode(iconv('utf-8', 'ucs-2', $d_message));
+			
 			$URL = $smsGatewayConnected.':13013/cgi-bin/sendsms?user=admin&password=adminadmin&to='.$d_nomor.'&text='.$d_message;
 			$URL .= '&charset=utf8';
 			$URL .= '&coding=2';
@@ -40,15 +44,14 @@ class SmsUtility
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 			curl_setopt($ch, CURLOPT_TIMEOUT, 60);
 			$result = curl_exec($ch);
-			file_put_contents('assets/cek_sms_sent.txt', $result.'#'.$URL);
+			file_put_contents('assets/sms_sent_check.txt', $result.'#'.$URL);
 			if(curl_close($ch))
 				$status = true;
 			
 			return $status;
 			
-		} else {
+		} else
 			return false;
-		}
 	}
 	
 	public static function setSmsDeliveryStatus($outbox_id, $user_id, $c_status, $smsc_s, $smsc_d) {
@@ -79,41 +82,28 @@ class SmsUtility
 	 * @param type $operator not yet using
 	 * @return type
 	 */
-	public static function getConnectedSmsGateway() {
-		//todo with operator
-		$listUrlAlternatif = array(
-			/* 
-			'http://127.0.0.1',				//localhost
-			'http://localhost',				//localhost
-			'http://192.168.30.100',		//localhost
-			'http://103.255.15.100',		//ip static
-			*/
-			'http://192.168.3.54',			//swevel wifi
-			'http://192.168.43.245',		//android wifi
-		);
+	public static function getConnected() {
+		$smsServerOptions = Yii::app()->params['sms_server_options'];
 		$connectedUrl = 'neither-connected';
 		
-		foreach ($listUrlAlternatif as $val)
-		{
-			if (SmsUtility::isDomainAvailible($val))
-			{
+		foreach ($smsServerOptions as $val) {
+			if (SmsUtility::isServerAvailible($val)) {
 				$connectedUrl = $val;
 				break;
 			}
 		}
 
-		file_put_contents('assets/smsgateway_domain_actived.txt', $connectedUrl);
+		file_put_contents('assets/sms_server_actived.txt', $connectedUrl);
 
 		return $connectedUrl;
 	}
 
 	//returns true, if domain is availible, false if not
-	public static function isDomainAvailible($domain) 
+	public static function isServerAvailible($domain) 
 	{
 		//check, if a valid url is provided
-		if (!filter_var($domain, FILTER_VALIDATE_URL)) {
+		if (!filter_var($domain, FILTER_VALIDATE_URL))
 			return false;
-		}
 
 		//initialize curl
 		$curlInit = curl_init($domain);

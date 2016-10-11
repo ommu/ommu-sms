@@ -86,10 +86,10 @@ class SmsOutboxGroup extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'group_id' => 'Group',
-			'creation_date' => 'Creation Date',
-			'creation_id' => 'Creation',
-			'creation_search' => 'Creation',
+			'group_id' => Yii::t('attribute', 'Group'),
+			'creation_date' => Yii::t('attribute', 'Creation Date'),
+			'creation_id' => Yii::t('attribute', 'Creation'),
+			'creation_search' => Yii::t('attribute', 'Creation'),
 		);
 	}
 

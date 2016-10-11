@@ -136,6 +136,7 @@ class OutboxController extends Controller
 				$command->query();				
 			}			
 		}
+		exit();
 	}
 
 	/**

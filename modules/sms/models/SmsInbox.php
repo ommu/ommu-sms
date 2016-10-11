@@ -100,21 +100,21 @@ class SmsInbox extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'inbox_id' => 'Inbox',
-			'user_id' => 'User',
-			'smsc_source' => 'Smsc Source',
-			'smsc_sender' => 'Smsc Sender',
-			'sender_nomor' => 'Sender Nomor',
-			'message' => 'Message',
-			'readed' => 'Readed',
-			'queue_no' => 'Queue No',
-			'group' => 'Group',
-			'reply' => 'Reply',
-			'status' => 'Status',
-			'message_date' => 'Message Date',
-			'creation_date' => 'Creation Date',
-			'c_timestamp' => 'C Timestamp',
-			'user_search' => 'User',
+			'inbox_id' => Yii::t('attribute', 'Inbox'),
+			'user_id' => Yii::t('attribute', 'User'),
+			'smsc_source' => Yii::t('attribute', 'Smsc Source'),
+			'smsc_sender' => Yii::t('attribute', 'Smsc Sender'),
+			'sender_nomor' => Yii::t('attribute', 'Sender Nomor'),
+			'message' => Yii::t('attribute', 'Message'),
+			'readed' => Yii::t('attribute', 'Readed'),
+			'queue_no' => Yii::t('attribute', 'Queue No'),
+			'group' => Yii::t('attribute', 'Group'),
+			'reply' => Yii::t('attribute', 'Reply'),
+			'status' => Yii::t('attribute', 'Status'),
+			'message_date' => Yii::t('attribute', 'Message Date'),
+			'creation_date' => Yii::t('attribute', 'Creation Date'),
+			'c_timestamp' => Yii::t('attribute', 'C Timestamp'),
+			'user_search' => Yii::t('attribute', 'User'),
 		);
 	}
 

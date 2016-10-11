@@ -116,6 +116,7 @@ class InboxController extends Controller
 			$model->message_date = $message_date;
 			$model->save();
 		}
+		exit();
 		
 	}
 

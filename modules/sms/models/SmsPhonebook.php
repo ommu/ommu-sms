@@ -100,18 +100,18 @@ class SmsPhonebook extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'phonebook_id' => 'Phonebook',
-			'status' => 'Status',
-			'user_id' => 'User',
-			'phonebook_nomor' => 'Phonebook Nomor',
-			'phonebook_name' => 'Phonebook Name',
-			'creation_date' => 'Creation Date',
-			'creation_id' => 'Creation',
-			'modified_date' => 'Modified Date',
-			'modified_id' => 'Modified',
-			'user_search' => 'User',
-			'creation_search' => 'Creation',
-			'modified_search' => 'Modified',
+			'phonebook_id' => Yii::t('attribute', 'Phonebook'),
+			'status' => Yii::t('attribute', 'Status'),
+			'user_id' => Yii::t('attribute', 'User'),
+			'phonebook_nomor' => Yii::t('attribute', 'Phonebook Nomor'),
+			'phonebook_name' => Yii::t('attribute', 'Phonebook Name'),
+			'creation_date' => Yii::t('attribute', 'Creation Date'),
+			'creation_id' => Yii::t('attribute', 'Creation'),
+			'modified_date' => Yii::t('attribute', 'Modified Date'),
+			'modified_id' => Yii::t('attribute', 'Modified'),
+			'user_search' => Yii::t('attribute', 'User'),
+			'creation_search' => Yii::t('attribute', 'Creation'),
+			'modified_search' => Yii::t('attribute', 'Modified'),
 		);
 	}
 
@@ -365,7 +365,7 @@ class SmsPhonebook extends CActiveRecord
 					'params'    => array(':p_nomor' => $this->phonebook_nomor),
 				));
 				if($phonebook != null)
-					$this->addError('phonebook_nomor', 'Contact sudah ada pada database.');
+					$this->addError('phonebook_nomor', Yii::t('phrase', 'Contact sudah ada pada database.'));
 					
 				$this->creation_id = Yii::app()->user->id;				
 			}

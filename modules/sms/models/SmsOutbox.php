@@ -111,24 +111,24 @@ class SmsOutbox extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'outbox_id' => 'Outbox',
-			'status' => 'Status',
-			'user_id' => 'User',
-			'group_id' => 'Group',
-			'smsc_source' => 'Smsc Source',
-			'smsc_destination' => 'Smsc Destination',
-			'destination_nomor' => 'Destination Nomor',
-			'message' => 'Message',
-			'creation_date' => 'Creation Date',
-			'creation_id' => 'Creation',
-			'updated_date' => 'Updated Date',
-			'c_timestamp' => 'C Timestamp',
-			'messageType' => 'SMS Type',
-			'contact_input' => 'Destination Nomor',
-			'multiple_input' => 'Destination Nomor',
-			'group_input' => 'Phonebook Group',
-			'user_search' => 'User',
-			'creation_search' => 'Creation',
+			'outbox_id' => Yii::t('attribute', 'Outbox'),
+			'status' => Yii::t('attribute', 'Status'),
+			'user_id' => Yii::t('attribute', 'User'),
+			'group_id' => Yii::t('attribute', 'Group'),
+			'smsc_source' => Yii::t('attribute', 'Smsc Source'),
+			'smsc_destination' => Yii::t('attribute', 'Smsc Destination'),
+			'destination_nomor' => Yii::t('attribute', 'Destination Nomor'),
+			'message' => Yii::t('attribute', 'Message'),
+			'creation_date' => Yii::t('attribute', 'Creation Date'),
+			'creation_id' => Yii::t('attribute', 'Creation'),
+			'updated_date' => Yii::t('attribute', 'Updated Date'),
+			'c_timestamp' => Yii::t('attribute', 'C Timestamp'),
+			'messageType' => Yii::t('attribute', 'SMS Type'),
+			'contact_input' => Yii::t('attribute', 'Destination Nomor'),
+			'multiple_input' => Yii::t('attribute', 'Destination Nomor'),
+			'group_input' => Yii::t('attribute', 'Phonebook Group'),
+			'user_search' => Yii::t('attribute', 'User'),
+			'creation_search' => Yii::t('attribute', 'Creation'),
 		);
 	}
 
@@ -286,15 +286,15 @@ class SmsOutbox extends CActiveRecord
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'status',
-				'value' => '$data->status == 0 ? "Pending" : ($data->status == 1 ? "Sent" : ($data->status == 2 ? "Failed" : "Delivered"))',
+				'value' => '$data->status == 0 ? Yii::t(\'phrase\', \'Pending\') : ($data->status == 1 ? Yii::t(\'phrase\', \'Sent\') : ($data->status == 2 ? Yii::t(\'phrase\', \'Failed\') : Yii::t(\'phrase\', \'Delivered\')))',
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
 				'filter'=>array(
-					0=>'Pending',
-					1=>'Sent',
-					2=>'Failed',
-					3=>'Delivered',
+					0=>Yii::t('phrase', 'Pending'),
+					1=>Yii::t('phrase', 'Sent'),
+					2=>Yii::t('phrase', 'Failed'),
+					3=>Yii::t('phrase', 'Delivered'),
 				),
 				'type' => 'raw',
 			);
@@ -345,10 +345,10 @@ class SmsOutbox extends CActiveRecord
 				$this->user_id = Yii::app()->user->id;
 			
 			if($this->messageType == 1 && $this->contact_input == '')
-				$this->addError('contact_input', 'Destination number cannot be blank.');
+				$this->addError('contact_input', Yii::t('phrase', 'Destination number cannot be blank.'));
 			
 			if($this->messageType == 3 && $this->group_input == '')
-				$this->addError('group_input', 'Phonebook group cannot be blank.');
+				$this->addError('group_input', Yii::t('phrase', 'Phonebook group cannot be blank.'));
 			
 			$this->c_timestamp = time();
 		}

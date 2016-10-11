@@ -104,19 +104,19 @@ class SmsGroups extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'group_id' => 'Group',
-			'status' => 'Status',
-			'group_name' => 'Group Name',
-			'group_desc' => 'Group Desc',
-			'creation_date' => 'Creation Date',
-			'creation_id' => 'Creation',
-			'modified_date' => 'Modified Date',
-			'modified_id' => 'Modified',
-			'creation_search' => 'Creation',
-			'modified_search' => 'Modified',
-			'contact_input' => 'Contact in Group',
-			'import_excel' => 'Import Group Phonebook',
-			'groupbookExcel' => 'Group Phonebook Excel',
+			'group_id' => Yii::t('attribute', 'Group'),
+			'status' => Yii::t('attribute', 'Status'),
+			'group_name' => Yii::t('attribute', 'Group Name'),
+			'group_desc' => Yii::t('attribute', 'Group Desc'),
+			'creation_date' => Yii::t('attribute', 'Creation Date'),
+			'creation_id' => Yii::t('attribute', 'Creation'),
+			'modified_date' => Yii::t('attribute', 'Modified Date'),
+			'modified_id' => Yii::t('attribute', 'Modified'),
+			'creation_search' => Yii::t('attribute', 'Creation'),
+			'modified_search' => Yii::t('attribute', 'Modified'),
+			'contact_input' => Yii::t('attribute', 'Contact in Group'),
+			'import_excel' => Yii::t('attribute', 'Import Group Phonebook'),
+			'groupbookExcel' => Yii::t('attribute', 'Group Phonebook Excel'),
 		);
 	}
 
@@ -336,9 +336,9 @@ class SmsGroups extends CActiveRecord
 					if($file->name != '') {
 						$extension = pathinfo($file->name, PATHINFO_EXTENSION);
 						if(!in_array(strtolower($extension), array('xls','xlsx')))
-							$this->addError('groupbookExcel', 'The file "'.$file->name.'" cannot be uploaded. Only files with these extensions are allowed: xls, xlsx.');
+							$this->addError('groupbookExcel', Yii::t('phrase', 'The file {name} cannot be uploaded. Only files with these extensions are allowed: xls, xlsx.', array('{alias}'=>$file->name)));
 					} else
-						$this->addError('groupbookExcel', 'File import cannot be blank.');
+						$this->addError('groupbookExcel', Yii::t('phrase', 'File import cannot be blank.'));
 				}
 				
 				$this->modified_id = Yii::app()->user->id;
@@ -406,7 +406,7 @@ class SmsGroups extends CActiveRecord
 						}
 						
 					} else {
-						$this->addError('groupbookExcel', 'Data excel gagal terupload.');
+						$this->addError('groupbookExcel', Yii::t('phrase', 'Data excel gagal terupload.'));
 					}
 				}				
 			}

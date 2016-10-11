@@ -107,18 +107,18 @@ class ViewSmsOutbox extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'outbox_id' => 'Outbox',
-			'status' => 'Status',
-			'group_id' => 'Group',
-			'smsc_source' => 'Smsc Source',
-			'destination_nomor' => 'Destination Nomor',
-			'message' => 'Message',
-			'sents' => 'Penerima',
-			'creation_date' => 'Creation Date',
-			'creation_id' => 'Creation',
-			'updated_date' => 'Updated Date',
-			'noted' => 'Noted',
-			'creation_search' => 'Creation',
+			'outbox_id' => Yii::t('attribute', 'Outbox'),
+			'status' => Yii::t('attribute', 'Status'),
+			'group_id' => Yii::t('attribute', 'Group'),
+			'smsc_source' => Yii::t('attribute', 'Smsc Source'),
+			'destination_nomor' => Yii::t('attribute', 'Destination Nomor'),
+			'message' => Yii::t('attribute', 'Message'),
+			'sents' => Yii::t('attribute', 'Penerima'),
+			'creation_date' => Yii::t('attribute', 'Creation Date'),
+			'creation_id' => Yii::t('attribute', 'Creation'),
+			'updated_date' => Yii::t('attribute', 'Updated Date'),
+			'noted' => Yii::t('attribute', 'Noted'),
+			'creation_search' => Yii::t('attribute', 'Creation'),
 		);
 	}
 

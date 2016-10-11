@@ -94,15 +94,15 @@ class SmsGroupPhonebook extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'id' => 'ID',
-			'group_id' => 'Group',
-			'phonebook_id' => 'Phonebook',
-			'creation_date' => 'Creation Date',
-			'creation_id' => 'Creation',
-			'group_search' => 'Group',
-			'phonebook_search' => 'Phonebook',
-			'phonebook_nomor_search' => 'Phonebook Nomor',
-			'creation_search' => 'Creation',
+			'id' => Yii::t('attribute', 'ID'),
+			'group_id' => Yii::t('attribute', 'Group'),
+			'phonebook_id' => Yii::t('attribute', 'Phonebook'),
+			'creation_date' => Yii::t('attribute', 'Creation Date'),
+			'creation_id' => Yii::t('attribute', 'Creation'),
+			'group_search' => Yii::t('attribute', 'Group'),
+			'phonebook_search' => Yii::t('attribute', 'Phonebook'),
+			'phonebook_nomor_search' => Yii::t('attribute', 'Phonebook Nomor'),
+			'creation_search' => Yii::t('attribute', 'Creation'),
 		);
 	}
 
