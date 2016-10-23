@@ -353,6 +353,13 @@ class SmsGroups extends CActiveRecord
 	protected function beforeSave() {
 		if(parent::beforeSave()) {
 			$path = 'public/sms';
+			if(!file_exists($path)) {
+				mkdir($path, 0755, true);
+
+				// Add File in User Folder (index.php)
+				$newFile = $path.'/index.php';
+				$FileHandle = fopen($newFile, 'w');
+			}
 			
 			if(!$this->isNewRecord) {
 				$this->groupbookExcel = CUploadedFile::getInstance($this, 'groupbookExcel');

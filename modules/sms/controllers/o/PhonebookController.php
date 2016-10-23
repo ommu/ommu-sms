@@ -206,6 +206,13 @@ class PhonebookController extends Controller
 		ob_start();
 		
 		$path = 'public/sms';
+		if(!file_exists($path)) {
+			mkdir($path, 0755, true);
+
+			// Add File in User Folder (index.php)
+			$newFile = $path.'/index.php';
+			$FileHandle = fopen($newFile, 'w');
+		}
 		$error = array();
 		
 		if(isset($_FILES['phonebookExcel'])) {
