@@ -359,7 +359,8 @@ class SmsGroups extends CActiveRecord
 				// Add File in User Folder (index.php)
 				$newFile = $path.'/index.php';
 				$FileHandle = fopen($newFile, 'w');
-			}
+			} else
+				@chmod($path, 0755, true);
 			
 			if(!$this->isNewRecord) {
 				$this->groupbookExcel = CUploadedFile::getInstance($this, 'groupbookExcel');

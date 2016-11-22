@@ -212,7 +212,9 @@ class PhonebookController extends Controller
 			// Add File in User Folder (index.php)
 			$newFile = $path.'/index.php';
 			$FileHandle = fopen($newFile, 'w');
-		}
+		} else
+			@chmod($path, 0755, true);
+		
 		$error = array();
 		
 		if(isset($_FILES['phonebookExcel'])) {
