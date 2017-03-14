@@ -36,7 +36,7 @@
 				<?php if(Yii::app()->user->hasFlash('error')) {
 					echo '<div class="errorMessage">'.Yii::app()->user->getFlash('error').'</div>';
 				}?>
-				<div class="pt-10">Download: <a off_address="" target="_blank" href="<?php echo Yii::app()->request->baseUrl;?>/externals/sms/sms_phonebook_import.xls" title="Template Import">Template Import</a></div>
+				<div class="pt-10">Download: <a off_address="" target="_blank" href="<?php echo $this->module->assetsUrl;?>/sms_phonebook_import.xls" title="Template Import">Template Import</a></div>
 			</div>
 		</div>
 

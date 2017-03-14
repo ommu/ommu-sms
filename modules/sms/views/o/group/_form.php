@@ -118,7 +118,7 @@ EOP;
 			<?php echo $form->labelEx($model,'groupbookExcel'); ?>
 			<div class="desc">
 				<?php echo $form->fileField($model,'groupbookExcel'); ?>
-				<div class="pt-10">Download: <a off_address="" target="_blank" href="<?php echo Yii::app()->request->baseUrl;?>/externals/sms/sms_groupbook_import.xls" title="Template Import Groupbook">Template Import Groupbook</a></div>
+				<div class="pt-10">Download: <a off_address="" target="_blank" href="<?php echo $this->module->assetsUrl;?>/sms_groupbook_import.xls" title="Template Import Groupbook">Template Import Groupbook</a></div>
 				<?php echo $form->error($model,'groupbookExcel'); ?>
 				<?php /*<div class="small-px silent"></div>*/?>
 			</div>
