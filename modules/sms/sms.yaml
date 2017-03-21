@@ -13,63 +13,63 @@ db_sql_filename	:
 
 plugin_menu		:
 	- urlTitle: Inbox
-		urlRules: {siteType: 0,1, userLevel: 1,2}
+		urlRules: {siteType: "0,1", userLevel: "1,2"}
 		urlPath: {url: o/inbox/manage, attr: -, icon: -}
 		
 	- urlTitle: Outbox
-		urlRules: {siteType: 0,1, userLevel: 1,2}
+		urlRules: {siteType: "0,1", userLevel: "1,2"}
 		urlPath: {url: o/outbox/manage, attr: -, icon: -}
 		submenu :
 			- urlTitle: Sent Item
-				urlRules: {siteType: 0,1, userLevel: 1,2}
+				urlRules: {siteType: "0,1", userLevel: "1,2"}
 				urlPath: {url: o/sentitem/manage, attr: -, icon: -}
 		
 	- urlTitle: Phonebook
-		urlRules: {siteType: 0,1, userLevel: 1,2}
+		urlRules: {siteType: "0,1", userLevel: "1,2"}
 		urlPath: {url: o/phonebook/manage, attr: -, icon: -}
 		
 	- urlTitle: Group Contact
-		urlRules: {siteType: 0,1, userLevel: 1,2}
+		urlRules: {siteType: "0,1", userLevel: "1,2"}
 		urlPath: {url: o/group/manage, attr: -, icon: -}
 
 content_menu	:
 # controller o/inbox
 	- urlTitle: Send SMS
-		urlRules: {sms, o/inbox, manage, siteType: 0,1, userLevel: 1}
+		urlRules: {sms, o/inbox, manage, siteType: "0,1", userLevel: 1}
 		urlPath: {url: o/outbox/add, attr: inbox=active, icon: -}
 		
 	- urlTitle: Blasting SMS
-		urlRules: {sms, o/inbox, manage, siteType: 0,1, userLevel: 1}
+		urlRules: {sms, o/inbox, manage, siteType: "0,1", userLevel: 1}
 		urlPath: {url: o/outbox/blast, attr: inbox=active, icon: -}
 		
 # controller o/outbox
 
 	- urlTitle: Send SMS
-		urlRules: {sms, o/outbox, manage, siteType: 0,1, userLevel: 1}
+		urlRules: {sms, o/outbox, manage, siteType: "0,1", userLevel: 1}
 		urlPath: {url: add, attr: -, icon: -}
 		
 	- urlTitle: Blasting SMS
-		urlRules: {sms, o/outbox, manage, siteType: 0,1, userLevel: 1}
+		urlRules: {sms, o/outbox, manage, siteType: "0,1", userLevel: 1}
 		urlPath: {url: blast, attr: -, icon: -}
 		
 # controller o/sentitem
 		
 	- urlTitle: Back to Outbox
-		urlRules: {sms, o/sentitem, manage, siteType: 0,1, userLevel: 1}
+		urlRules: {sms, o/sentitem, manage, siteType: "0,1", userLevel: 1}
 		urlPath: {url: o/outbox/manage, attr: -, icon: -}
 		
 # controller o/phonebook
 
 	- urlTitle: Add Phonebook
-		urlRules: {sms, o/phonebook, manage, siteType: 0,1, userLevel: 1}
+		urlRules: {sms, o/phonebook, manage, siteType: "0,1", userLevel: 1}
 		urlPath: {url: add, attr: -, icon: -}
 
 	- urlTitle: Import Phonebook
-		urlRules: {sms, o/phonebook, manage, siteType: 0,1, userLevel: 1}
+		urlRules: {sms, o/phonebook, manage, siteType: "0,1", userLevel: 1}
 		urlPath: {url: import, attr: -, icon: -}
 		
 # controller o/group
 
 	- urlTitle: Add Group
-		urlRules: {sms, o/group, manage, siteType: 0,1, userLevel: 1}
+		urlRules: {sms, o/group, manage, siteType: "0,1", userLevel: 1}
 		urlPath: {url: add, attr: -, icon: -}
