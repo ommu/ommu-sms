@@ -1,8 +1,10 @@
 <?php
 /**
  * SmsGroupPhonebook
+ * version: 0.0.1
+ *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
- * @copyright Copyright (c) 2016 Ommu Platform (ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 12 February 2016, 18:27 WIB
  * @link http://company.ommu.co
  * @contact (+62)856-299-4114
@@ -242,7 +244,7 @@ class SmsGroupPhonebook extends CActiveRecord
 					'model'=>$this,
 					'attribute'=>'creation_date',
 					'language' => 'en',
-					'i18nScriptFile' => 'jquery-ui-i18n.min.js'
+					'i18nScriptFile' => 'jquery-ui-i18n.min.js',
 					//'mode'=>'datetime',
 					'htmlOptions' => array(
 						'id' => 'creation_date_filter',
