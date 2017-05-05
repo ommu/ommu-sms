@@ -16,7 +16,7 @@
 	
 	$cs = Yii::app()->getClientScript();
 $js=<<<EOP
-	$('#SmsGroups_import_excel').live('change', function() {
+	$('#SmsGroups_import_excel').on('change', function() {
 		var id = $(this).prop('checked');		
 		if(id == true) {
 			$('div#import').slideDown();

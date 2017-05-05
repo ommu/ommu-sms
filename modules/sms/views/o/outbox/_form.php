@@ -16,7 +16,7 @@
 
 	$cs = Yii::app()->getClientScript();
 $js=<<<EOP
-	$('select#SmsOutbox_messageType').live('change', function() {
+	$('select#SmsOutbox_messageType').on('change', function() {
 		var id = $(this).val();
 		$('fieldset div.type').slideUp();
 		if(id == '1') {
