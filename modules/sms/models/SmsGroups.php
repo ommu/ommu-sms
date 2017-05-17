@@ -309,7 +309,7 @@ class SmsGroups extends CActiveRecord
 	{		
 		$criteria=new CDbCriteria;
 		if($status != null)
-			$criteria->compare('t.status',$status);
+			$criteria->compare('status',$status);
 		
 		$model = self::model()->findAll($criteria);
 
