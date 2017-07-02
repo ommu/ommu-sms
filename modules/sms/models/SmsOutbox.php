@@ -37,7 +37,7 @@
  * @property integer $c_timestamp
  *
  * The followings are the available model relations:
- * @property OmmuSmsKannelDlr[] $ommuSmsKannelDlrs
+ * @property SmsKannelDlr[] $SmsKannelDlrs
  */
 class SmsOutbox extends CActiveRecord
 {
