@@ -22,7 +22,7 @@
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 12 February 2016, 18:27 WIB
- * @link http://company.ommu.co
+ * @link https://github.com/ommu/mod-sms
  * @contact (+62)856-299-4114
  *
  *----------------------------------------------------------------------------------------------------------
@@ -160,27 +160,26 @@ class GroupController extends Controller
 							'type' => 5,
 							'get' => Yii::app()->controller->createUrl('edit', array('id'=>$model->group_id)),
 							'id' => 'partial-sms-groups',
-							'msg' => '<div class="errorSummary success"><strong>SmsGroups success created.</strong></div>',
+							'msg' => '<div class="errorSummary success"><strong>Group success created.</strong></div>',
 						));
 					} else {
 						print_r($model->getErrors());
 					}
 				}
 			}
-			Yii::app()->end();
-			
-		} else {
-			$this->dialogDetail = true;
-			$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
-			$this->dialogWidth = 600;
-
-			$this->pageTitle = 'Create Sms Groups';
-			$this->pageDescription = '';
-			$this->pageMeta = '';
-			$this->render('admin_add',array(
-				'model'=>$model,
-			));			
+			Yii::app()->end();			
 		}
+		
+		$this->dialogDetail = true;
+		$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
+		$this->dialogWidth = 600;
+
+		$this->pageTitle = 'Create Sms Groups';
+		$this->pageDescription = '';
+		$this->pageMeta = '';
+		$this->render('admin_add',array(
+			'model'=>$model,
+		));
 	}
 
 	/**
@@ -191,12 +190,7 @@ class GroupController extends Controller
 	public function actionEdit($id) 
 	{
 		$model=$this->loadModel($id);
-		$phonebook = SmsGroupPhonebook::model()->findAll(array(
-			'condition' => 'group_id = :group',
-			'params' => array(
-				':group' => $model->group_id,
-			),
-		));
+		$phonebooks = $model->phonebooks;
 
 		// Uncomment the following line if AJAX validation is needed
 		$this->performAjaxValidation($model);
@@ -204,49 +198,22 @@ class GroupController extends Controller
 		if(isset($_POST['SmsGroups'])) {
 			$model->attributes=$_POST['SmsGroups'];
 			
-			/*
-			$jsonError = CActiveForm::validate($model);
-			if(strlen($jsonError) > 2) {
-				echo $jsonError;
-
-			} else {
-				if(isset($_GET['enablesave']) && $_GET['enablesave'] == 1) {
-					if($model->save()) {
-						echo CJSON::encode(array(
-							'type' => 5,
-							'get' => Yii::app()->controller->createUrl('manage'),
-							'id' => 'partial-sms-groups',
-							'msg' => '<div class="errorSummary success"><strong>SmsGroups success updated.</strong></div>',
-						));
-					} else {
-						print_r($model->getErrors());
-					}
-				}
-			}
-			Yii::app()->end();
-			*/
-			
 			if($model->save()) {
 				if($model->import_excel == 1)					
-					Yii::app()->user->setFlash('success', 'Import Excell Success + (Error in '.count($model->errorRowImport).' row)');
+					Yii::app()->user->setFlash('success', 'Import Excell Success + (Error in $errorRowImport row)', array('$errorRowImport'=>count($model->errorRowImport)));
 				else
-					Yii::app()->user->setFlash('success', 'SmsGroups success updated.');
+					Yii::app()->user->setFlash('success', 'Group success updated.');
 				$this->redirect(array('manage'));
 			}
 		}
-		//} else {
-			/* $this->dialogDetail = true;
-			$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
-			$this->dialogWidth = 600; */
 			
-			$this->pageTitle = 'Update Sms Groups';
-			$this->pageDescription = '';
-			$this->pageMeta = '';
-			$this->render('admin_edit',array(
-				'model'=>$model,
-				'phonebook'=>$phonebook,
-			));			
-		//}
+		$this->pageTitle = 'Update Sms Groups';
+		$this->pageDescription = '';
+		$this->pageMeta = '';
+		$this->render('admin_edit',array(
+			'model'=>$model,
+			'phonebooks'=>$phonebooks,
+		));
 	}
 	
 	/**
@@ -280,15 +247,13 @@ class GroupController extends Controller
 		
 		if(Yii::app()->request->isPostRequest) {
 			// we only allow deletion via POST request
-			if(isset($id)) {
-				if($model->delete()) {
-					echo CJSON::encode(array(
-						'type' => 5,
-						'get' => Yii::app()->controller->createUrl('manage'),
-						'id' => 'partial-sms-groups',
-						'msg' => '<div class="errorSummary success"><strong>SmsGroups success deleted.</strong></div>',
-					));
-				}
+			if($model->delete()) {
+				echo CJSON::encode(array(
+					'type' => 5,
+					'get' => Yii::app()->controller->createUrl('manage'),
+					'id' => 'partial-sms-groups',
+					'msg' => '<div class="errorSummary success"><strong>Group success deleted.</strong></div>',
+				));
 			}
 
 		} else {
@@ -296,7 +261,7 @@ class GroupController extends Controller
 			$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
 			$this->dialogWidth = 350;
 
-			$this->pageTitle = 'SmsGroups Delete.';
+			$this->pageTitle = 'Delete Group';
 			$this->pageDescription = '';
 			$this->pageMeta = '';
 			$this->render('admin_delete');
@@ -331,7 +296,7 @@ class GroupController extends Controller
 						'type' => 5,
 						'get' => Yii::app()->controller->createUrl('manage'),
 						'id' => 'partial-sms-groups',
-						'msg' => '<div class="errorSummary success"><strong>SmsGroups success published.</strong></div>',
+						'msg' => '<div class="errorSummary success"><strong>Group success updated.</strong></div>',
 					));
 				}
 			}

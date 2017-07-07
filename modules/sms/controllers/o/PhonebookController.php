@@ -318,12 +318,18 @@ class PhonebookController extends Controller
 		if(isset($_POST['SmsPhonebook'])) {
 			$model->attributes=$_POST['SmsPhonebook'];
 			
+			if(!$model->getErrors())
+				$phonebook_nomor = $model->phonebook_nomor;
+			
 			$jsonError = CActiveForm::validate($model);
 			if(strlen($jsonError) > 2) {
 				echo $jsonError;
 
 			} else {
 				if(isset($_GET['enablesave']) && $_GET['enablesave'] == 1) {
+					if($phonebook_nomor != $model->phonebook_nomor)
+						$model->phonebook_nomor = SmsPhonebook::setPhoneNumber($model->phonebook_nomor);
+						
 					if($model->save()) {
 						echo CJSON::encode(array(
 							'type' => 5,

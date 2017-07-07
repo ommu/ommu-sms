@@ -6,7 +6,7 @@
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 12 February 2016, 18:26 WIB
- * @link http://company.ommu.co
+ * @link https://github.com/ommu/mod-sms
  * @contact (+62)856-299-4114
  *
  * This is the template for generating the model class of a specified table.
@@ -43,6 +43,7 @@ class SmsGroups extends CActiveRecord
 	// Variable Search
 	public $creation_search;
 	public $modified_search;
+	public $contact_search;
 
 	/**
 	 * Returns the static model of the specified AR class.
@@ -82,7 +83,7 @@ class SmsGroups extends CActiveRecord
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('group_id, status, group_name, group_desc, creation_date, creation_id, modified_date, modified_id,
-				creation_search, modified_search', 'safe', 'on'=>'search'),
+				creation_search, modified_search, contact_search', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -94,9 +95,10 @@ class SmsGroups extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'view_group' => array(self::BELONGS_TO, 'ViewSmsGroups', 'group_id'),
-			'creation_TO' => array(self::BELONGS_TO, 'Users', 'creation_id'),
-			'modified_TO' => array(self::BELONGS_TO, 'Users', 'modified_id'),
+			'view' => array(self::BELONGS_TO, 'ViewSmsGroups', 'group_id'),
+			'creation' => array(self::BELONGS_TO, 'Users', 'creation_id'),
+			'modified' => array(self::BELONGS_TO, 'Users', 'modified_id'),
+			'phonebooks' => array(self::HAS_MANY, 'SmsGroupPhonebook', 'group_id'),
 		);
 	}
 
@@ -108,14 +110,15 @@ class SmsGroups extends CActiveRecord
 		return array(
 			'group_id' => Yii::t('attribute', 'Group'),
 			'status' => Yii::t('attribute', 'Status'),
-			'group_name' => Yii::t('attribute', 'Group Name'),
-			'group_desc' => Yii::t('attribute', 'Group Desc'),
+			'group_name' => Yii::t('attribute', 'Group'),
+			'group_desc' => Yii::t('attribute', 'Description'),
 			'creation_date' => Yii::t('attribute', 'Creation Date'),
 			'creation_id' => Yii::t('attribute', 'Creation'),
 			'modified_date' => Yii::t('attribute', 'Modified Date'),
 			'modified_id' => Yii::t('attribute', 'Modified'),
 			'creation_search' => Yii::t('attribute', 'Creation'),
 			'modified_search' => Yii::t('attribute', 'Modified'),
+			'contact_search' => Yii::t('attribute', 'Contacts'),
 			'contact_input' => Yii::t('attribute', 'Contact in Group'),
 			'import_excel' => Yii::t('attribute', 'Import Group Phonebook'),
 			'groupbookExcel' => Yii::t('attribute', 'Group Phonebook Excel'),
@@ -139,6 +142,21 @@ class SmsGroups extends CActiveRecord
 		// @todo Please modify the following code to remove attributes that should not be searched.
 
 		$criteria=new CDbCriteria;
+		
+		// Custom Search
+		$criteria->with = array(
+			'view' => array(
+				'alias'=>'view',
+			),
+			'creation' => array(
+				'alias'=>'creation',
+				'select'=>'displayname'
+			),
+			'modified' => array(
+				'alias'=>'modified',
+				'select'=>'displayname'
+			),
+		);
 
 		$criteria->compare('t.group_id',$this->group_id);
 		$criteria->compare('t.status',$this->status);
@@ -157,22 +175,9 @@ class SmsGroups extends CActiveRecord
 		else
 			$criteria->compare('t.modified_id',$this->modified_id);
 		
-		// Custom Search
-		$criteria->with = array(
-			'view_group' => array(
-				'alias'=>'view_group',
-			),
-			'creation_TO' => array(
-				'alias'=>'creation_TO',
-				'select'=>'displayname'
-			),
-			'modified_TO' => array(
-				'alias'=>'modified_TO',
-				'select'=>'displayname'
-			),
-		);
-		$criteria->compare('creation_TO.displayname',strtolower($this->creation_search), true);
-		$criteria->compare('modified_TO.displayname',strtolower($this->modified_search), true);
+		$criteria->compare('creation.displayname',strtolower($this->creation_search), true);
+		$criteria->compare('modified.displayname',strtolower($this->modified_search), true);
+		$criteria->compare('view.contacts',$this->contact_search);
 
 		if(!isset($_GET['SmsGroups_sort']))
 			$criteria->order = 't.group_id DESC';
@@ -228,16 +233,8 @@ class SmsGroups extends CActiveRecord
 			$this->defaultColumns[] = 'group_name';
 			$this->defaultColumns[] = 'group_desc';
 			$this->defaultColumns[] = array(
-				'header' => 'Contact',
-				'value' => 'CHtml::link($data->view_group->contacts." contact", Yii::app()->controller->createUrl("o/groupbook/manage",array("group"=>$data->group_id)))',
-				'htmlOptions' => array(
-					'class' => 'center',
-				),
-				'type' => 'raw',
-			);
-			$this->defaultColumns[] = array(
 				'name' => 'creation_search',
-				'value' => '$data->creation_TO->displayname',
+				'value' => '$data->creation->displayname',
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'creation_date',
@@ -265,10 +262,18 @@ class SmsGroups extends CActiveRecord
 					),
 				), true),
 			);
+			$this->defaultColumns[] = array(
+				'name' => 'contact_search',
+				'value' => 'CHtml::link($data->view->contacts ? $data->view->contacts : 0, Yii::app()->controller->createUrl("o/groupbook/manage",array("group"=>$data->group_id)))',
+				'htmlOptions' => array(
+					'class' => 'center',
+				),
+				'type' => 'raw',
+			);
 			if(!isset($_GET['type'])) {
 				$this->defaultColumns[] = array(
 					'name' => 'status',
-					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("status",array("id"=>$data->group_id)), $data->status, "Disable, Enable")',
+					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("status",array("id"=>$data->group_id)), $data->status, "Disable,Enable")',
 					'htmlOptions' => array(
 						'class' => 'center',
 					),
@@ -328,17 +333,17 @@ class SmsGroups extends CActiveRecord
 	 * before validate attributes
 	 */
 	protected function beforeValidate() {
-		if(parent::beforeValidate()) {			
+		if(parent::beforeValidate()) {
 			if($this->isNewRecord)
 				$this->creation_id = Yii::app()->user->id;
 			
 			else {
 				if($this->import_excel == 1) {
 					$file = CUploadedFile::getInstance($this, 'groupbookExcel');
-					if($file->name != '') {
+					if($file != null) {
 						$extension = pathinfo($file->name, PATHINFO_EXTENSION);
 						if(!in_array(strtolower($extension), array('xls','xlsx')))
-							$this->addError('groupbookExcel', Yii::t('phrase', 'The file {name} cannot be uploaded. Only files with these extensions are allowed: xls, xlsx.', array('{alias}'=>$file->name)));
+							$this->addError('groupbookExcel', Yii::t('phrase', 'The file $filename cannot be uploaded. Only files with these extensions are allowed: xls, xlsx.', array('$filename'=>$file->name)));
 					} else
 						$this->addError('groupbookExcel', Yii::t('phrase', 'File import cannot be blank.'));
 				}
@@ -352,48 +357,46 @@ class SmsGroups extends CActiveRecord
 	/**
 	 * before save attributes
 	 */
-	protected function beforeSave() {
-		if(parent::beforeSave()) {
-			$path = 'public/sms';
-			if(!file_exists($path)) {
-				mkdir($path, 0755, true);
+	protected function beforeSave() 
+	{
+		if(parent::beforeSave()) 
+		{
+			$sms_path = 'public/sms';
+			if(!file_exists($sms_path)) {
+				mkdir($sms_path, 0755, true);
 
 				// Add File in User Folder (index.php)
-				$newFile = $path.'/index.php';
+				$newFile = $sms_path.'/index.php';
 				$FileHandle = fopen($newFile, 'w');
 			} else
-				@chmod($path, 0755, true);
+				@chmod($sms_path, 0755, true);
 			
-			if(!$this->isNewRecord) {
+			if(!$this->isNewRecord) 
+			{
 				$this->groupbookExcel = CUploadedFile::getInstance($this, 'groupbookExcel');
 				if($this->groupbookExcel instanceOf CUploadedFile) {
 					$fileName = time().'_'.Utility::getUrlTitle(date('d-m-Y H:i:s')).'_'.Utility::getUrlTitle(Yii::app()->user->displayname).'.'.strtolower($this->groupbookExcel->extensionName);
-					if($this->groupbookExcel->saveAs($path.'/'.$fileName)) {
+					if($this->groupbookExcel->saveAs($sms_path.'/'.$fileName)) {
 						Yii::import('ext.excel_reader.OExcelReader');
-						$xls = new OExcelReader($path.'/'.$fileName);
+						$xls = new OExcelReader($sms_path.'/'.$fileName);
 					
 						for ($row = 2; $row <= $xls->sheets[0]['numRows']; $row++) {
 							$no						= trim($xls->sheets[0]['cells'][$row][1]);
-							$phonebook_id			= trim($xls->sheets[0]['cells'][$row][2]);
-							$user_id				= trim($xls->sheets[0]['cells'][$row][3]);
-							//$phonebook_name			= ucwords(strtolower(trim($xls->sheets[0]['cells'][$row][4])));
-							$phonebook_name			= trim($xls->sheets[0]['cells'][$row][4]);
-							$phonebook_nomor		= trim($xls->sheets[0]['cells'][$row][5]);
+							$phonebook_name			= trim($xls->sheets[0]['cells'][$row][2]);
+							$phonebook_nomor		= trim($xls->sheets[0]['cells'][$row][3]);
 							
 							$phonebook_nomor = SmsPhonebook::setPhoneNumber($phonebook_nomor);
-							if($phonebook_id == '') {
-								$phonebook = SmsPhonebook::model()->find(array(
-									'select'    => 'phonebook_id',
-									'condition' => 'phonebook_nomor=:p_nomor',
-									'params'    => array(
-										':p_nomor' => $phonebook_nomor,
-									),
-								));
-								if($phonebook != null)
-									$phonebook_id = $phonebook->phonebook_id;								
-								else
-									$phonebook_id = SmsPhonebook::insertPhonebook($user_id, $phonebook_nomor, $phonebook_name);
-							}
+							$phonebook = SmsPhonebook::model()->find(array(
+								'select'    => 'phonebook_id',
+								'condition' => 'phonebook_nomor=:nomor',
+								'params'    => array(
+									':nomor' => $phonebook_nomor,
+								),
+							));
+							if($phonebook != null)
+								$phonebook_id = $phonebook->phonebook_id;								
+							else
+								$phonebook_id = SmsPhonebook::insertPhonebook($phonebook_nomor, $phonebook_name);
 							
 							$groupbook = SmsGroupPhonebook::model()->find(array(
 								'select'    => 'id',
@@ -415,9 +418,8 @@ class SmsGroups extends CActiveRecord
 								array_push($this->errorRowImport, $row);
 						}
 						
-					} else {
+					} else
 						$this->addError('groupbookExcel', Yii::t('phrase', 'Data excel gagal terupload.'));
-					}
 				}				
 			}
 		}

@@ -8,7 +8,7 @@
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 12 February 2016, 18:27 WIB
- * @link http://company.ommu.co
+ * @link https://github.com/ommu/mod-sms
  * @contact (+62)856-299-4114
  *
  */
@@ -46,7 +46,7 @@
 		),
 		array(
 			'name'=>'creation_id',
-			'value'=>$model->creation_id != 0 ? $model->creation_TO->displayname : '-',
+			'value'=>$model->creation_id != 0 ? $model->creation->displayname : '-',
 		),
 		array(
 			'name'=>'modified_date',
@@ -54,7 +54,7 @@
 		),
 		array(
 			'name'=>'modified_id',
-			'value'=>$model->modified_id != 0 ? $model->modified_TO->displayname : '-',
+			'value'=>$model->modified_id != 0 ? $model->modified->displayname : '-',
 		),
 	),
 )); ?>

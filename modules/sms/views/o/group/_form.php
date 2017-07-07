@@ -9,7 +9,7 @@
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 12 February 2016, 18:27 WIB
- * @link http://company.ommu.co
+ * @link https://github.com/ommu/mod-sms
  * @contact (+62)856-299-4114
  *
  */
@@ -66,7 +66,6 @@ EOP;
 				//echo $form->textField($model,'contact_input',array('maxlength'=>32, 'class'=>'span-5'));
 				$url = Yii::app()->controller->createUrl('o/groupbook/add', array('type'=>'sms'));
 				$group = $model->group_id;
-				$contactId = 'SmsGroups_contact_input';
 				$this->widget('zii.widgets.jui.CJuiAutoComplete', array(
 					'model' => $model,
 					'attribute' => 'contact_input',
@@ -82,7 +81,7 @@ EOP;
 								data: { group_id: '$group', phonebook_id: ui.item.id},
 								dataType: 'json',
 								success: function(response) {
-									$('form #$contactId').val('');
+									$('form #SmsGroups_contact_input').val('');
 									$('form #phonebook-suggest').append(response.data);
 								}
 							});
@@ -96,21 +95,23 @@ EOP;
 				echo $form->error($model,'contact_input'); ?>
 				<div id="phonebook-suggest" class="suggest clearfix">
 					<?php 
-					if($phonebook != null) {
-						foreach($phonebook as $key => $val) {
-						$contact = $val->phonebook_TO->phonebook_name != '' ? $val->phonebook_TO->phonebook_name : $val->phonebook_TO->phonebook_nomor; ?>
-						<div><?php echo $contact;?><a href="<?php echo Yii::app()->controller->createUrl('o/groupbook/delete',array('id'=>$val->id,'type'=>'sms'));?>" title="<?php echo Yii::t('phrase', 'Delete');?>"><?php echo Yii::t('phrase', 'Delete');?></a></div>
+					if(!empty($phonebooks)) {
+						foreach($phonebooks as $key => $val) {
+							if($val->phonebook->phonebook_name && $val->phonebook->phonebook_nomor)
+								$contact = Yii::t('phrase', '$phonebook_name ($phonebook_nomor)', array('$phonebook_name'=>$val->phonebook->phonebook_name,'$phonebook_nomor'=>$val->phonebook->phonebook_nomor));
+							else
+								$contact = $val->phonebook->phonebook_name ? $val->phonebook->phonebook_name : $val->phonebook->phonebook_nomor; ?>
+							<div><?php echo $contact;?><a href="<?php echo Yii::app()->controller->createUrl('o/groupbook/delete',array('id'=>$val->id,'type'=>'sms'));?>" title="<?php echo Yii::t('phrase', 'Delete');?>"><?php echo Yii::t('phrase', 'Delete');?></a></div>
 					<?php }
 					}?>
 				</div>
 			</div>
 		</div>
 		
-		<div class="clearfix publish">
+		<div class="clearfix">
 			<?php echo $form->labelEx($model,'import_excel'); ?>
 			<div class="desc">
 				<?php echo $form->checkBox($model,'import_excel'); ?>
-				<?php echo $form->labelEx($model,'import_excel'); ?>
 				<?php echo $form->error($model,'import_excel'); ?>
 			</div>
 		</div>
@@ -129,7 +130,6 @@ EOP;
 			<?php echo $form->labelEx($model,'status'); ?>
 			<div class="desc">
 				<?php echo $form->checkBox($model,'status'); ?>
-				<?php echo $form->labelEx($model,'status'); ?>
 				<?php echo $form->error($model,'status'); ?>
 				<?php /*<div class="small-px silent"></div>*/?>
 			</div>
@@ -138,7 +138,7 @@ EOP;
 		<div class="submit clearfix">
 			<label>&nbsp;</label>
 			<div class="desc">
-				<?php echo CHtml::submitButton($model->isNewRecord ? Yii::t('phrase', 'Create') : Yii::t('phrase', 'Save')) ,array('onclick' => 'setEnableSave()')); ?>
+				<?php echo CHtml::submitButton($model->isNewRecord ? Yii::t('phrase', 'Create') : Yii::t('phrase', 'Save') ,array('onclick' => 'setEnableSave()')); ?>
 			</div>
 		</div>
 

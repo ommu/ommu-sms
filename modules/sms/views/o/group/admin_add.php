@@ -9,7 +9,7 @@
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 12 February 2016, 18:27 WIB
- * @link http://company.ommu.co
+ * @link https://github.com/ommu/mod-sms
  * @contact (+62)856-299-4114
  *
  */
@@ -40,7 +40,7 @@
 		<div class="clearfix">
 			<?php echo $form->labelEx($model,'group_name'); ?>
 			<div class="desc">
-				<?php echo $form->textField($model,'group_name',array('size'=>32,'maxlength'=>32)); ?>
+				<?php echo $form->textField($model,'group_name',array('maxlength'=>32)); ?>
 				<?php echo $form->error($model,'group_name'); ?>
 				<?php /*<div class="small-px silent"></div>*/?>
 			</div>
@@ -68,7 +68,7 @@
 	</fieldset>
 </div>
 <div class="dialog-submit">
-	<?php echo CHtml::submitButton($model->isNewRecord ? Yii::t('phrase', 'Create') : Yii::t('phrase', 'Save')) ,array('onclick' => 'setEnableSave()')); ?>
+	<?php echo CHtml::submitButton($model->isNewRecord ? Yii::t('phrase', 'Create') : Yii::t('phrase', 'Save') ,array('onclick' => 'setEnableSave()')); ?>
 	<?php echo CHtml::button(Yii::t('phrase', 'Close'), array('id'=>'closed')); ?>
 </div>
 <?php $this->endWidget(); ?>

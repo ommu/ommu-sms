@@ -36,40 +36,39 @@ content_menu	:
 # controller o/inbox
 	- urlTitle: Send SMS
 		urlRules: {sms, o/inbox, manage, siteType: "0,1", userLevel: 1}
-		urlPath: {url: o/outbox/add, attr: inbox=active, icon: -}
-		
+		urlPath: {url: o/outbox/add, attr: inbox=active, icon: -}		
 	- urlTitle: Blasting SMS
 		urlRules: {sms, o/inbox, manage, siteType: "0,1", userLevel: 1}
 		urlPath: {url: o/outbox/blast, attr: inbox=active, icon: -}
 		
 # controller o/outbox
-
 	- urlTitle: Send SMS
 		urlRules: {sms, o/outbox, manage, siteType: "0,1", userLevel: 1}
-		urlPath: {url: add, attr: -, icon: -}
-		
+		urlPath: {url: add, attr: -, icon: -}		
 	- urlTitle: Blasting SMS
 		urlRules: {sms, o/outbox, manage, siteType: "0,1", userLevel: 1}
 		urlPath: {url: blast, attr: -, icon: -}
 		
-# controller o/sentitem
-		
+# controller o/sentitem		
 	- urlTitle: Back to Outbox
 		urlRules: {sms, o/sentitem, manage, siteType: "0,1", userLevel: 1}
 		urlPath: {url: o/outbox/manage, attr: -, icon: -}
 		
 # controller o/phonebook
-
 	- urlTitle: Add Phonebook
 		urlRules: {sms, o/phonebook, manage, siteType: "0,1", userLevel: 1}
 		urlPath: {url: add, attr: -, icon: -}
-
 	- urlTitle: Import Phonebook
 		urlRules: {sms, o/phonebook, manage, siteType: "0,1", userLevel: 1}
 		urlPath: {url: import, attr: -, icon: -}
 		
 # controller o/group
-
 	- urlTitle: Add Group
 		urlRules: {sms, o/group, manage, siteType: "0,1", userLevel: 1}
 		urlPath: {url: add, attr: -, icon: -}
+	- urlTitle: Back to Manage
+		urlRules: {sms, o/group, edit, siteType: "0,1", userLevel: 1}
+		urlPath: {url: manage, attr: -, icon: -}
+	- urlTitle: View Group
+		urlRules: {sms, o/group, edit, siteType: "0,1", userLevel: 1}
+		urlPath: {url: view, attr: id=$_GET*id, icon: -}

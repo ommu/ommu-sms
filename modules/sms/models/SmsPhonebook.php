@@ -323,13 +323,19 @@ class SmsPhonebook extends CActiveRecord
 	public static function insertPhonebook($phonebook_nomor, $phonebook_name)
 	{
 		$return = true;
-		
-		$model=new SmsPhonebook;
-		
-		$model->phonebook_nomor = $phonebook_nomor;
-		$model->phonebook_name = $phonebook_name;
-		if($model->save())
-			$return = $model->phonebook_id;
+		$phonebook = SmsPhonebook::model()->find(array(
+			'select'    => 'phonebook_id',
+			'condition' => 'phonebook_nomor= :nomor',
+			'params'    => array(':nomor' => trim($phonebook_nomor)),
+		));
+		if($phonebook == null) {		
+			$model=new SmsPhonebook;
+			
+			$model->phonebook_nomor = $phonebook_nomor;
+			$model->phonebook_name = $phonebook_name;
+			if($model->save())
+				$return = $model->phonebook_id;			
+		}
 		
 		return $return;
 	}
@@ -342,7 +348,7 @@ class SmsPhonebook extends CActiveRecord
 		$action = strtolower(Yii::app()->controller->action->id);
 	
 		if(parent::beforeValidate()) 
-		{
+		{				
 			if($this->isNewRecord) {
 				$this->phonebook_nomor = self::setPhoneNumber($this->phonebook_nomor);
 				
@@ -353,14 +359,13 @@ class SmsPhonebook extends CActiveRecord
 						'params'    => array(':nomor' => trim($this->phonebook_nomor)),
 					));
 					if($phonebook != null)
-						$this->addError('phonebook_nomor', Yii::t('phrase', 'Contact sudah ada pada database.'));						
+						$this->addError('phonebook_nomor', Yii::t('phrase', 'Contact sudah ada pada database.'));
 				}
 					
 				$this->creation_id = Yii::app()->user->id;				
 			}
 			else
 				$this->modified_id = Yii::app()->user->id;
-			
 		}
 		return true;
 	}
