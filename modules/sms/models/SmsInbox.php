@@ -6,7 +6,7 @@
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 12 February 2016, 04:03 WIB
- * @link http://company.ommu.co
+ * @link https://github.com/ommu/mod-sms
  * @contact (+62)856-299-4114
  *
  * This is the template for generating the model class of a specified table.
@@ -24,7 +24,7 @@
  *
  * The followings are the available columns in table 'ommu_sms_inbox':
  * @property string $inbox_id
- * @property string $user_id
+ * @property string $phonebook_id
  * @property string $smsc_source
  * @property string $smsc_sender
  * @property string $sender_nomor
@@ -43,7 +43,7 @@ class SmsInbox extends CActiveRecord
 	public $defaultColumns = array();
 	
 	// Variable Search
-	public $user_search;
+	public $phonebook_search;
 
 	/**
 	 * Returns the static model of the specified AR class.
@@ -74,13 +74,13 @@ class SmsInbox extends CActiveRecord
 		return array(
 			array('sender_nomor, message', 'required'),
 			array('readed, queue_no, group, reply, c_timestamp', 'numerical', 'integerOnly'=>true),
-			array('user_id', 'length', 'max'=>11),
+			array('phonebook_id', 'length', 'max'=>11),
 			array('smsc_source, smsc_sender, sender_nomor', 'length', 'max'=>15),
 			array('message_date', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('inbox_id, user_id, smsc_source, smsc_sender, sender_nomor, message, readed, queue_no, group, reply, status, message_date, creation_date, c_timestamp,
-				user_search', 'safe', 'on'=>'search'),
+			array('inbox_id, phonebook_id, smsc_source, smsc_sender, sender_nomor, message, readed, queue_no, group, reply, status, message_date, creation_date, c_timestamp,
+				phonebook_search', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -92,7 +92,7 @@ class SmsInbox extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'user_TO' => array(self::BELONGS_TO, 'Users', 'user_id'),
+			'phonebook' => array(self::BELONGS_TO, 'SmsPhonebook', 'phonebook_id'),
 		);
 	}
 
@@ -103,7 +103,7 @@ class SmsInbox extends CActiveRecord
 	{
 		return array(
 			'inbox_id' => Yii::t('attribute', 'Inbox'),
-			'user_id' => Yii::t('attribute', 'User'),
+			'phonebook_id' => Yii::t('attribute', 'Phonebook'),
 			'smsc_source' => Yii::t('attribute', 'Smsc Source'),
 			'smsc_sender' => Yii::t('attribute', 'Smsc Sender'),
 			'sender_nomor' => Yii::t('attribute', 'Sender Nomor'),
@@ -116,7 +116,7 @@ class SmsInbox extends CActiveRecord
 			'message_date' => Yii::t('attribute', 'Message Date'),
 			'creation_date' => Yii::t('attribute', 'Creation Date'),
 			'c_timestamp' => Yii::t('attribute', 'C Timestamp'),
-			'user_search' => Yii::t('attribute', 'User'),
+			'phonebook_search' => Yii::t('attribute', 'Phonebook'),
 		);
 	}
 
@@ -137,12 +137,20 @@ class SmsInbox extends CActiveRecord
 		// @todo Please modify the following code to remove attributes that should not be searched.
 
 		$criteria=new CDbCriteria;
+		
+		// Custom Search
+		$criteria->with = array(
+			'phonebook' => array(
+				'alias'=>'phonebook',
+				'select'=>'phonebook_name'
+			),
+		);
 
 		$criteria->compare('t.inbox_id',strtolower($this->inbox_id),true);
-		if(isset($_GET['user']))
-			$criteria->compare('t.user_id',$_GET['user']);
+		if(isset($_GET['phonebook']))
+			$criteria->compare('t.phonebook_id',$_GET['phonebook']);
 		else
-			$criteria->compare('t.user_id',$this->user_id);
+			$criteria->compare('t.phonebook_id',$this->phonebook_id);
 		$criteria->compare('t.smsc_source',strtolower($this->smsc_source),true);
 		$criteria->compare('t.smsc_sender',strtolower($this->smsc_sender),true);
 		$criteria->compare('t.sender_nomor',strtolower($this->sender_nomor),true);
@@ -158,14 +166,7 @@ class SmsInbox extends CActiveRecord
 			$criteria->compare('date(t.creation_date)',date('Y-m-d', strtotime($this->creation_date)));
 		$criteria->compare('t.c_timestamp',$this->c_timestamp);
 		
-		// Custom Search
-		$criteria->with = array(
-			'user_TO' => array(
-				'alias'=>'user_TO',
-				'select'=>'displayname'
-			),
-		);
-		$criteria->compare('user_TO.displayname',strtolower($this->user_search), true);
+		$criteria->compare('phonebook.phonebook_name',strtolower($this->phonebook_search), true);
 
 		if(!isset($_GET['SmsInbox_sort']))
 			$criteria->order = 't.inbox_id DESC';
@@ -197,7 +198,6 @@ class SmsInbox extends CActiveRecord
 			}
 		} else {
 			//$this->defaultColumns[] = 'inbox_id';
-			$this->defaultColumns[] = 'user_id';
 			$this->defaultColumns[] = 'smsc_source';
 			$this->defaultColumns[] = 'smsc_sender';
 			$this->defaultColumns[] = 'sender_nomor';
@@ -225,8 +225,8 @@ class SmsInbox extends CActiveRecord
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
 			);
 			$this->defaultColumns[] = array(
-				'name' => 'user_search',
-				'value' => '$data->user_id != 0 ? $data->user_TO->displayname : "-"',
+				'name' => 'phonebook_search',
+				'value' => '$data->phonebook_id != 0 ? $data->phonebook->phonebook_name : $data->phonebook->phonebook_nomor',
 			);
 			$this->defaultColumns[] = 'sender_nomor';
 			$this->defaultColumns[] = 'message';
@@ -281,8 +281,19 @@ class SmsInbox extends CActiveRecord
 	 * before validate attributes
 	 */
 	protected function beforeValidate() {
-		if(parent::beforeValidate()) {			
+		if(parent::beforeValidate()) {
 			$this->c_timestamp = time();
+		}
+		return true;
+	}
+
+	/**
+	 * before save attributes
+	 */
+	protected function beforeSave() 
+	{
+		if(parent::beforeSave()) {
+			$this->sender_nomor = SmsPhonebook::setPhoneNumber($this->sender_nomor);
 		}
 		return true;
 	}

@@ -6,7 +6,7 @@
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 12 February 2016, 17:25 WIB
- * @link http://company.ommu.co
+ * @link https://github.com/ommu/mod-sms
  * @contact (+62)856-299-4114
  *
  * This is the template for generating the model class of a specified table.
@@ -89,7 +89,7 @@ class SmsPhonebook extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'user_TO' => array(self::BELONGS_TO, 'Users', 'user_id'),
+			'user' => array(self::BELONGS_TO, 'Users', 'user_id'),
 			'creation_TO' => array(self::BELONGS_TO, 'Users', 'creation_id'),
 			'modified_TO' => array(self::BELONGS_TO, 'Users', 'modified_id'),
 			'geroupbook_ONE' => array(self::HAS_ONE, 'SmsGroupPhonebook', 'phonebook_id'),
@@ -158,8 +158,8 @@ class SmsPhonebook extends CActiveRecord
 		
 		// Custom Search
 		$criteria->with = array(
-			'user_TO' => array(
-				'alias'=>'user_TO',
+			'user' => array(
+				'alias'=>'user',
 				'select'=>'displayname'
 			),
 			'creation_TO' => array(
@@ -171,7 +171,7 @@ class SmsPhonebook extends CActiveRecord
 				'select'=>'displayname'
 			),
 		);
-		$criteria->compare('user_TO.displayname',strtolower($this->user_search), true);
+		$criteria->compare('user.displayname',strtolower($this->user_search), true);
 		$criteria->compare('creation_TO.displayname',strtolower($this->creation_search), true);
 		$criteria->compare('modified_TO.displayname',strtolower($this->modified_search), true);
 
@@ -237,7 +237,7 @@ class SmsPhonebook extends CActiveRecord
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'user_search',
-				'value' => '$data->user_id != 0 ? $data->user_TO->displayname : "-"',
+				'value' => '$data->user_id != 0 ? $data->user->displayname : "-"',
 			);
 			$this->defaultColumns[] = 'phonebook_nomor';
 			$this->defaultColumns[] = 'phonebook_name';
@@ -309,27 +309,26 @@ class SmsPhonebook extends CActiveRecord
 	/**
 	 * User get information
 	 */
-	public static function setPhoneNumber($phonebook_nomor, $type=null)
+	public static function setPhoneNumber($phonenumber, $type=null)
 	{
-		$phonenumber = $phonebook_nomor;
 		if($type == null) {
-			if(substr($phonebook_nomor, 0, 1) != '+') {
-				if(substr($phonebook_nomor, 0, 1) == '0')
-					$phonenumber = '+62'.substr($phonebook_nomor, 1);
-				else {
-					if(substr($phonebook_nomor, 0, 2) == '62')
-						$phonenumber = '+'.$phonebook_nomor;
-					else
-						$phonenumber = '+62'.$phonebook_nomor;
-				}
-			}			
-		} else {
-			if(substr($phonebook_nomor, 0, 1) == '+') {
-				if(substr($phonebook_nomor, 0, 3) == '+62')
-					$phonenumber = '0'.substr($phonebook_nomor, 3);
+			if(substr($phonenumber, 0, 1) == '+') {
+				if(substr($phonenumber, 0, 3) == '+62')
+					$phonenumber = '0'.substr($phonenumber, 3);
 			} else {
-				if(substr($phonebook_nomor, 0, 3) != '0' && substr($phonebook_nomor, 0, 2) == '62')
-					$phonenumber = '0'.substr($phonebook_nomor, 2);
+				if(substr($phonenumber, 0, 3) != '0' && substr($phonenumber, 0, 2) == '62')
+					$phonenumber = '0'.substr($phonenumber, 2);
+			}
+		} else {
+			if(substr($phonenumber, 0, 1) != '+') {
+				if(substr($phonenumber, 0, 1) == '0')
+					$phonenumber = '+62'.substr($phonenumber, 1);
+				else {
+					if(substr($phonenumber, 0, 2) == '62')
+						$phonenumber = '+'.$phonenumber;
+					else
+						$phonenumber = '+62'.$phonenumber;
+				}
 			}
 		}
 		
