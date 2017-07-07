@@ -8,7 +8,7 @@
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 12 February 2016, 17:31 WIB
- * @link http://company.ommu.co
+ * @link https://github.com/ommu/mod-sms
  * @contact (+62)856-299-4114
  *
  */
@@ -19,64 +19,45 @@
 	);
 ?>
 
-<?php //begin.Messages ?>
-<?php
-if(Yii::app()->user->hasFlash('success'))
-	echo Utility::flashSuccess(Yii::app()->user->getFlash('success'));
-?>
-<?php //end.Messages ?>
-
-<?php $this->widget('application.components.system.FDetailView', array(
-	'data'=>$model,
-	'attributes'=>array(
-		array(
-			'name'=>'phonebook_id',
-			'value'=>$model->phonebook_id,
-			//'value'=>$model->phonebook_id != '' ? $model->phonebook_id : '-',
-		),
-		array(
-			'name'=>'status',
-			'value'=>$model->status == '1' ? Chtml::image(Yii::app()->theme->baseUrl.'/images/icons/publish.png') : Chtml::image(Yii::app()->theme->baseUrl.'/images/icons/unpublish.png'),
-			//'value'=>$model->status,
-		),
-		array(
-			'name'=>'user_id',
-			'value'=>$model->user_id,
-			//'value'=>$model->user_id != '' ? $model->user_id : '-',
-		),
-		array(
-			'name'=>'phonebook_nomor',
-			'value'=>$model->phonebook_nomor,
-			//'value'=>$model->phonebook_nomor != '' ? $model->phonebook_nomor : '-',
-		),
-		array(
-			'name'=>'phonebook_name',
-			'value'=>'value'=>$model->phonebook_name != '' ? $model->phonebook_name : '-',
-			//'value'=>$model->phonebook_name != '' ? CHtml::link($model->phonebook_name, Yii::app()->request->baseUrl.'/public/visit/'.$model->phonebook_name, array('target' => '_blank')) : '-',
-			'type'=>'raw',
-		),
-		array(
-			'name'=>'creation_date',
-			'value'=>Utility::dateFormat($model->creation_date, true),
-		),
-		array(
-			'name'=>'creation_id',
-			'value'=>$model->creation_id,
-			//'value'=>$model->creation_id != '' ? $model->creation_id : '-',
-		),
-		array(
-			'name'=>'modified_date',
-			'value'=>Utility::dateFormat($model->modified_date, true),
-		),
-		array(
-			'name'=>'modified_id',
-			'value'=>$model->modified_id,
-			//'value'=>$model->modified_id != '' ? $model->modified_id : '-',
-		),
-	),
-)); ?>
-
 <div class="dialog-content">
+	<?php $this->widget('application.components.system.FDetailView', array(
+		'data'=>$model,
+		'attributes'=>array(
+			array(
+				'name'=>'phonebook_id',
+				'value'=>$model->phonebook_id,
+			),
+			array(
+				'name'=>'status',
+				'value'=>$model->status == '1' ? Chtml::image(Yii::app()->theme->baseUrl.'/images/icons/publish.png') : Chtml::image(Yii::app()->theme->baseUrl.'/images/icons/unpublish.png'),
+				'type'=>'raw',
+			),
+			array(
+				'name'=>'phonebook_nomor',
+				'value'=>$model->phonebook_nomor ? $model->phonebook_nomor : '-',
+			),
+			array(
+				'name'=>'phonebook_name',
+				'value'=>$model->phonebook_name ? $model->phonebook_name : '-',
+			),
+			array(
+				'name'=>'creation_date',
+				'value'=>!in_array($model->creation_date, array('0000-00-00 00:00:00','1970-01-01 00:00:00')) ? Utility::dateFormat($model->creation_date, true) : '-',
+			),
+			array(
+				'name'=>'creation_id',
+				'value'=>$model->creation_id ? $model->creation->displayname : '-',
+			),
+			array(
+				'name'=>'modified_date',
+				'value'=>!in_array($model->modified_date, array('0000-00-00 00:00:00','1970-01-01 00:00:00')) ? Utility::dateFormat($model->modified_date, true) : '-',
+			),
+			array(
+				'name'=>'modified_id',
+				'value'=>$model->modified_id ? $model->modified->displayname : '-',
+			),
+		),
+	)); ?>
 </div>
 <div class="dialog-submit">
 	<?php echo CHtml::button(Yii::t('phrase', 'Close'), array('id'=>'closed')); ?>

@@ -25,7 +25,6 @@
  * The followings are the available columns in table 'ommu_sms_phonebook':
  * @property string $phonebook_id
  * @property integer $status
- * @property string $user_id
  * @property string $phonebook_nomor
  * @property string $phonebook_name
  * @property string $creation_date
@@ -38,7 +37,6 @@ class SmsPhonebook extends CActiveRecord
 	public $defaultColumns = array();
 	
 	// Variable Search
-	public $user_search;
 	public $creation_search;
 	public $modified_search;
 
@@ -71,13 +69,13 @@ class SmsPhonebook extends CActiveRecord
 		return array(
 			array('status, phonebook_nomor', 'required'),
 			array('status', 'numerical', 'integerOnly'=>true),
-			array('user_id, creation_id, modified_id', 'length', 'max'=>11),
+			array('creation_id, modified_id', 'length', 'max'=>11),
 			array('phonebook_nomor', 'length', 'max'=>15),
-			array('user_id, phonebook_name', 'safe'),
+			array('phonebook_name', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('phonebook_id, status, user_id, phonebook_nomor, phonebook_name, creation_date, creation_id, modified_date, modified_id,
-				user_search, creation_search, modified_search', 'safe', 'on'=>'search'),
+			array('phonebook_id, status, phonebook_nomor, phonebook_name, creation_date, creation_id, modified_date, modified_id,
+				creation_search, modified_search', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -89,10 +87,9 @@ class SmsPhonebook extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'user' => array(self::BELONGS_TO, 'Users', 'user_id'),
-			'creation_TO' => array(self::BELONGS_TO, 'Users', 'creation_id'),
-			'modified_TO' => array(self::BELONGS_TO, 'Users', 'modified_id'),
-			'geroupbook_ONE' => array(self::HAS_ONE, 'SmsGroupPhonebook', 'phonebook_id'),
+			'creation' => array(self::BELONGS_TO, 'Users', 'creation_id'),
+			'modified' => array(self::BELONGS_TO, 'Users', 'modified_id'),
+			'group' => array(self::HAS_ONE, 'SmsGroupPhonebook', 'phonebook_id'),
 		);
 	}
 
@@ -104,14 +101,12 @@ class SmsPhonebook extends CActiveRecord
 		return array(
 			'phonebook_id' => Yii::t('attribute', 'Phonebook'),
 			'status' => Yii::t('attribute', 'Status'),
-			'user_id' => Yii::t('attribute', 'User'),
 			'phonebook_nomor' => Yii::t('attribute', 'Phonebook Nomor'),
 			'phonebook_name' => Yii::t('attribute', 'Phonebook Name'),
 			'creation_date' => Yii::t('attribute', 'Creation Date'),
 			'creation_id' => Yii::t('attribute', 'Creation'),
 			'modified_date' => Yii::t('attribute', 'Modified Date'),
 			'modified_id' => Yii::t('attribute', 'Modified'),
-			'user_search' => Yii::t('attribute', 'User'),
 			'creation_search' => Yii::t('attribute', 'Creation'),
 			'modified_search' => Yii::t('attribute', 'Modified'),
 		);
@@ -134,13 +129,21 @@ class SmsPhonebook extends CActiveRecord
 		// @todo Please modify the following code to remove attributes that should not be searched.
 
 		$criteria=new CDbCriteria;
+		
+		// Custom Search
+		$criteria->with = array(
+			'creation' => array(
+				'alias'=>'creation',
+				'select'=>'displayname'
+			),
+			'modified' => array(
+				'alias'=>'modified',
+				'select'=>'displayname'
+			),
+		);
 
 		$criteria->compare('t.phonebook_id',strtolower($this->phonebook_id),true);
 		$criteria->compare('t.status',$this->status);
-		if(isset($_GET['user']))
-			$criteria->compare('t.user_id',$_GET['user']);
-		else
-			$criteria->compare('t.user_id',$this->user_id);
 		$criteria->compare('t.phonebook_nomor',strtolower($this->phonebook_nomor),true);
 		$criteria->compare('t.phonebook_name',strtolower($this->phonebook_name),true);
 		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00', '0000-00-00')))
@@ -156,24 +159,8 @@ class SmsPhonebook extends CActiveRecord
 		else
 			$criteria->compare('t.modified_id',$this->modified_id);
 		
-		// Custom Search
-		$criteria->with = array(
-			'user' => array(
-				'alias'=>'user',
-				'select'=>'displayname'
-			),
-			'creation_TO' => array(
-				'alias'=>'creation_TO',
-				'select'=>'displayname'
-			),
-			'modified_TO' => array(
-				'alias'=>'modified_TO',
-				'select'=>'displayname'
-			),
-		);
-		$criteria->compare('user.displayname',strtolower($this->user_search), true);
-		$criteria->compare('creation_TO.displayname',strtolower($this->creation_search), true);
-		$criteria->compare('modified_TO.displayname',strtolower($this->modified_search), true);
+		$criteria->compare('creation.displayname',strtolower($this->creation_search), true);
+		$criteria->compare('modified.displayname',strtolower($this->modified_search), true);
 
 		if(!isset($_GET['SmsPhonebook_sort']))
 			$criteria->order = 't.phonebook_id DESC';
@@ -206,7 +193,6 @@ class SmsPhonebook extends CActiveRecord
 		} else {
 			//$this->defaultColumns[] = 'phonebook_id';
 			$this->defaultColumns[] = 'status';
-			$this->defaultColumns[] = 'user_id';
 			$this->defaultColumns[] = 'phonebook_nomor';
 			$this->defaultColumns[] = 'phonebook_name';
 			$this->defaultColumns[] = 'creation_date';
@@ -235,15 +221,11 @@ class SmsPhonebook extends CActiveRecord
 				'header' => 'No',
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
 			);
-			$this->defaultColumns[] = array(
-				'name' => 'user_search',
-				'value' => '$data->user_id != 0 ? $data->user->displayname : "-"',
-			);
 			$this->defaultColumns[] = 'phonebook_nomor';
 			$this->defaultColumns[] = 'phonebook_name';
 			$this->defaultColumns[] = array(
 				'name' => 'creation_search',
-				'value' => '$data->creation_TO->displayname',
+				'value' => '$data->creation->displayname',
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'creation_date',
@@ -274,7 +256,7 @@ class SmsPhonebook extends CActiveRecord
 			if(!isset($_GET['type'])) {
 				$this->defaultColumns[] = array(
 					'name' => 'status',
-					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("status",array("id"=>$data->phonebook_id)), $data->status, "Enable,Block")',
+					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("status",array("id"=>$data->phonebook_id)), $data->status, \'Enable,Block\')',
 					'htmlOptions' => array(
 						'class' => 'center',
 					),
@@ -338,13 +320,12 @@ class SmsPhonebook extends CActiveRecord
 	/**
 	 * User get information
 	 */
-	public static function insertPhonebook($user_id, $phonebook_nomor, $phonebook_name)
+	public static function insertPhonebook($phonebook_nomor, $phonebook_name)
 	{
 		$return = true;
 		
 		$model=new SmsPhonebook;
 		
-		$model->user_id = $user_id;
 		$model->phonebook_nomor = $phonebook_nomor;
 		$model->phonebook_name = $phonebook_name;
 		if($model->save())
@@ -356,17 +337,24 @@ class SmsPhonebook extends CActiveRecord
 	/**
 	 * before validate attributes
 	 */
-	protected function beforeValidate() {
-		if(parent::beforeValidate()) {
-			if($this->isNewRecord) {				
+	protected function beforeValidate() 
+	{
+		$action = strtolower(Yii::app()->controller->action->id);
+	
+		if(parent::beforeValidate()) 
+		{
+			if($this->isNewRecord) {
 				$this->phonebook_nomor = self::setPhoneNumber($this->phonebook_nomor);
-				$phonebook = SmsPhonebook::model()->find(array(
-					'select'    => 'phonebook_id',
-					'condition' => 'phonebook_nomor= :p_nomor',
-					'params'    => array(':p_nomor' => $this->phonebook_nomor),
-				));
-				if($phonebook != null)
-					$this->addError('phonebook_nomor', Yii::t('phrase', 'Contact sudah ada pada database.'));
+				
+				if(in_array($action, array('add'))) {
+					$phonebook = SmsPhonebook::model()->find(array(
+						'select'    => 'phonebook_id',
+						'condition' => 'phonebook_nomor= :nomor',
+						'params'    => array(':nomor' => trim($this->phonebook_nomor)),
+					));
+					if($phonebook != null)
+						$this->addError('phonebook_nomor', Yii::t('phrase', 'Contact sudah ada pada database.'));						
+				}
 					
 				$this->creation_id = Yii::app()->user->id;				
 			}

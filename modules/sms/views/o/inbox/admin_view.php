@@ -20,46 +20,43 @@
 ?>
 
 <div class="dialog-content">
-<?php $this->widget('application.components.system.FDetailView', array(
-	'data'=>$model,
-	'attributes'=>array(
-		array(
-			'name'=>'inbox_id',
-			'value'=>$model->inbox_id,
+	<?php $this->widget('application.components.system.FDetailView', array(
+		'data'=>$model,
+		'attributes'=>array(
+			array(
+				'name'=>'inbox_id',
+				'value'=>$model->inbox_id,
+			),
+			array(
+				'name'=>'phonebook_id',
+				'value'=>$model->phonebook_id && $model->phonebook->phonebook_name ? $model->phonebook->phonebook_name : $model->phonebook->phonebook_nomor,
+			),
+			array(
+				'name'=>'sender_nomor',
+				'value'=>$model->sender_nomor ? $model->sender_nomor : '-',
+			),
+			array(
+				'name'=>'message',
+				'value'=>$model->message ? $model->message : '-',
+			),
+			array(
+				'name'=>'smsc_source',
+				'value'=>$model->smsc_source ? $model->smsc_source : '-',
+			),
+			array(
+				'name'=>'smsc_sender',
+				'value'=>$model->smsc_sender ? $model->smsc_sender : '-',
+			),
+			array(
+				'name'=>'message_date',
+				'value'=>!in_array($model->message_date, array('0000-00-00 00:00:00','1970-01-01 00:00:00')) ? Utility::dateFormat($model->message_date, true) : '-',
+			),
+			array(
+				'name'=>'creation_date',
+				'value'=>!in_array($model->creation_date, array('0000-00-00 00:00:00','1970-01-01 00:00:00')) ? Utility::dateFormat($model->creation_date, true) : '-',
+			),
 		),
-		array(
-			'name'=>'user_id',
-			'value'=>$model->user_id,
-		),
-		array(
-			'name'=>'sender_nomor',
-			'value'=>$model->sender_nomor,
-		),
-		array(
-			'name'=>'message',
-			'value'=>$model->message != '' ? $model->message : '-',
-			'type'=>'raw',
-		),
-		array(
-			'name'=>'smsc_source',
-			'value'=>$model->smsc_source,
-		),
-		array(
-			'name'=>'smsc_sender',
-			'value'=>$model->smsc_sender,
-		),
-		/*
-		array(
-			'name'=>'message_date',
-			'value'=>Utility::dateFormat($model->message_date, true),
-		),
-		*/
-		array(
-			'name'=>'creation_date',
-			'value'=>Utility::dateFormat($model->creation_date, true),
-		),
-	),
-)); ?>
+	)); ?>
 </div>
 <div class="dialog-submit">
 	<?php echo CHtml::button(Yii::t('phrase', 'Close'), array('id'=>'closed')); ?>

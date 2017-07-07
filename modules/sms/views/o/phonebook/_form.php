@@ -9,7 +9,7 @@
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 12 February 2016, 17:31 WIB
- * @link http://company.ommu.co
+ * @link https://github.com/ommu/mod-sms
  * @contact (+62)856-299-4114
  *
  */
@@ -29,15 +29,6 @@
 			<?php echo $form->errorSummary($model); ?>
 		</div>
 		<?php //begin.Messages ?>
-
-		<div class="clearfix">
-			<?php echo $form->labelEx($model,'user_id'); ?>
-			<div class="desc">
-				<?php echo $form->textField($model,'user_id',array('maxlength'=>11)); ?>
-				<?php echo $form->error($model,'user_id'); ?>
-				<?php /*<div class="small-px silent"></div>*/?>
-			</div>
-		</div>
 
 		<div class="clearfix">
 			<?php echo $form->labelEx($model,'phonebook_nomor'); ?>
@@ -70,7 +61,7 @@
 	</fieldset>
 </div>
 <div class="dialog-submit">
-	<?php echo CHtml::submitButton($model->isNewRecord ? Yii::t('phrase', 'Create') : Yii::t('phrase', 'Save')) ,array('onclick' => 'setEnableSave()')); ?>
+	<?php echo CHtml::submitButton($model->isNewRecord ? Yii::t('phrase', 'Create') : Yii::t('phrase', 'Save') ,array('onclick' => 'setEnableSave()')); ?>
 	<?php echo CHtml::button(Yii::t('phrase', 'Close'), array('id'=>'closed')); ?>
 </div>
 <?php $this->endWidget(); ?>

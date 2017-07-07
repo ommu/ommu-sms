@@ -25,7 +25,7 @@
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 12 February 2016, 17:31 WIB
- * @link http://company.ommu.co
+ * @link https://github.com/ommu/mod-sms
  * @contact (+62)856-299-4114
  *
  *----------------------------------------------------------------------------------------------------------
@@ -147,11 +147,11 @@ class PhonebookController extends Controller
 	{
 		if(isset($_GET['term'])) {
 			$criteria = new CDbCriteria;
-			$criteria->select	= "phonebook_id, phonebook_nomor, phonebook_name";
+			$criteria->select = "phonebook_id, phonebook_nomor, phonebook_name";
 			
 			if(isset($_GET['group'])) {
 				$criteria->with = array(
-					'geroupbook_ONE' => array(
+					'group' => array(
 						'alias'=>'b',
 					),
 				);
@@ -203,15 +203,15 @@ class PhonebookController extends Controller
 		ini_set('max_execution_time', 0);
 		ob_start();
 		
-		$path = 'public/sms';
-		if(!file_exists($path)) {
-			mkdir($path, 0755, true);
+		$sms_path = 'public/sms';
+		if(!file_exists($sms_path)) {
+			mkdir($sms_path, 0755, true);
 
 			// Add File in User Folder (index.php)
-			$newFile = $path.'/index.php';
+			$newFile = $sms_path.'/index.php';
 			$FileHandle = fopen($newFile, 'w');
 		} else
-			@chmod($path, 0755, true);
+			@chmod($sms_path, 0755, true);
 		
 		$error = array();
 		
@@ -219,18 +219,16 @@ class PhonebookController extends Controller
 			$fileName = CUploadedFile::getInstanceByName('phonebookExcel');
 			if(in_array(strtolower($fileName->extensionName), array('xls','xlsx'))) {
 				$file = time().'_'.Utility::getUrlTitle(date('d-m-Y H:i:s')).'_'.Utility::getUrlTitle(Yii::app()->user->displayname).'.'.strtolower($fileName->extensionName);
-				if($fileName->saveAs($path.'/'.$file)) {
+				if($fileName->saveAs($sms_path.'/'.$file)) {
 					Yii::import('ext.excel_reader.OExcelReader');
-					$xls = new OExcelReader($path.'/'.$file);
+					$xls = new OExcelReader($sms_path.'/'.$file);
 					
 					for ($row = 2; $row <= $xls->sheets[0]['numRows']; $row++) {
 						$no						= trim($xls->sheets[0]['cells'][$row][1]);
-						$user_id				= trim($xls->sheets[0]['cells'][$row][2]);
-						$phonebook_name			= ucfirst(strtolower(trim($xls->sheets[0]['cells'][$row][3])));
-						$phonebook_nomor		= trim($xls->sheets[0]['cells'][$row][4]);
+						$phonebook_name			= ucfirst(strtolower(trim($xls->sheets[0]['cells'][$row][2])));
+						$phonebook_nomor		= trim($xls->sheets[0]['cells'][$row][3]);
 						
-						$phonebook_nomor = SmsPhonebook::setPhoneNumber($phonebook_nomor);
-						SmsPhonebook::insertPhonebook($user_id, $phonebook_nomor, $phonebook_name);
+						SmsPhonebook::insertPhonebook($phonebook_nomor, $phonebook_name);
 					}
 					
 					Yii::app()->user->setFlash('success', 'Import Excell Success.');
@@ -290,20 +288,19 @@ class PhonebookController extends Controller
 					}
 				}
 			}
-			Yii::app()->end();
-			
-		} else {
-			$this->dialogDetail = true;
-			$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
-			$this->dialogWidth = 600;
-
-			$this->pageTitle = 'Create Sms Phonebooks';
-			$this->pageDescription = '';
-			$this->pageMeta = '';
-			$this->render('admin_add',array(
-				'model'=>$model,
-			));			
+			Yii::app()->end();			
 		}
+		
+		$this->dialogDetail = true;
+		$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
+		$this->dialogWidth = 600;
+
+		$this->pageTitle = 'Create Sms Phonebooks';
+		$this->pageDescription = '';
+		$this->pageMeta = '';
+		$this->render('admin_add',array(
+			'model'=>$model,
+		));
 	}
 
 	/**
@@ -339,20 +336,19 @@ class PhonebookController extends Controller
 					}
 				}
 			}
-			Yii::app()->end();
-			
-		} else {
-			$this->dialogDetail = true;
-			$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
-			$this->dialogWidth = 600;
-
-			$this->pageTitle = 'Update Sms Phonebooks';
-			$this->pageDescription = '';
-			$this->pageMeta = '';
-			$this->render('admin_edit',array(
-				'model'=>$model,
-			));			
+			Yii::app()->end();			
 		}
+		
+		$this->dialogDetail = true;
+		$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
+		$this->dialogWidth = 600;
+
+		$this->pageTitle = 'Update Sms Phonebooks';
+		$this->pageDescription = '';
+		$this->pageMeta = '';
+		$this->render('admin_edit',array(
+			'model'=>$model,
+		));
 	}
 	
 	/**
@@ -369,7 +365,7 @@ class PhonebookController extends Controller
 
 		$this->pageTitle = 'View Sms Phonebooks';
 		$this->pageDescription = '';
-		$this->pageMeta = $setting->meta_keyword;
+		$this->pageMeta = '';
 		$this->render('admin_view',array(
 			'model'=>$model,
 		));
@@ -422,15 +418,13 @@ class PhonebookController extends Controller
 		
 		if(Yii::app()->request->isPostRequest) {
 			// we only allow deletion via POST request
-			if(isset($id)) {
-				if($model->delete()) {
-					echo CJSON::encode(array(
-						'type' => 5,
-						'get' => Yii::app()->controller->createUrl('manage'),
-						'id' => 'partial-sms-phonebook',
-						'msg' => '<div class="errorSummary success"><strong>SmsPhonebook success deleted.</strong></div>',
-					));
-				}
+			if($model->delete()) {
+				echo CJSON::encode(array(
+					'type' => 5,
+					'get' => Yii::app()->controller->createUrl('manage'),
+					'id' => 'partial-sms-phonebook',
+					'msg' => '<div class="errorSummary success"><strong>SmsPhonebook success deleted.</strong></div>',
+				));
 			}
 
 		} else {

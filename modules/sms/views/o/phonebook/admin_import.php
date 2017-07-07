@@ -9,7 +9,7 @@
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 26 January 2016, 13:00 WIB
- * @link https://github.com/oMMuCo
+ * @link https://github.com/ommu/mod-sms
  * @contact (+62)856-299-4114
  *
  */
