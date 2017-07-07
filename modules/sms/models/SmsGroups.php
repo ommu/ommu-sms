@@ -115,13 +115,13 @@ class SmsGroups extends CActiveRecord
 			'creation_date' => Yii::t('attribute', 'Creation Date'),
 			'creation_id' => Yii::t('attribute', 'Creation'),
 			'modified_date' => Yii::t('attribute', 'Modified Date'),
+			'contact_input' => Yii::t('attribute', 'Contact in Group'),
+			'import_excel' => Yii::t('attribute', 'Import Group Phonebook'),
+			'groupbookExcel' => Yii::t('attribute', 'Group Phonebook Excel'),
 			'modified_id' => Yii::t('attribute', 'Modified'),
 			'creation_search' => Yii::t('attribute', 'Creation'),
 			'modified_search' => Yii::t('attribute', 'Modified'),
 			'contact_search' => Yii::t('attribute', 'Contacts'),
-			'contact_input' => Yii::t('attribute', 'Contact in Group'),
-			'import_excel' => Yii::t('attribute', 'Import Group Phonebook'),
-			'groupbookExcel' => Yii::t('attribute', 'Group Phonebook Excel'),
 		);
 	}
 

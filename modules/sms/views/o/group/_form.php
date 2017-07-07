@@ -69,7 +69,7 @@ EOP;
 				$this->widget('zii.widgets.jui.CJuiAutoComplete', array(
 					'model' => $model,
 					'attribute' => 'contact_input',
-					'source' => Yii::app()->controller->createUrl('o/phonebook/suggest', array('group'=>$model->group_id)),
+					'source' => Yii::app()->controller->createUrl('o/groupbook/suggest', array('group'=>$model->group_id)),
 					'options' => array(
 						//'delay '=> 50,
 						'minLength' => 1,

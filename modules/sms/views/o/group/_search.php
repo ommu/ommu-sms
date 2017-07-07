@@ -32,12 +32,12 @@
 
 		<li>
 			<?php echo $model->getAttributeLabel('group_name'); ?><br/>
-			<?php echo $form->textField($model,'group_name',array('size'=>32,'maxlength'=>32)); ?>
+			<?php echo $form->textField($model,'group_name'); ?>
 		</li>
 
 		<li>
 			<?php echo $model->getAttributeLabel('group_desc'); ?><br/>
-			<?php echo $form->textArea($model,'group_desc',array('rows'=>6, 'cols'=>50)); ?>
+			<?php echo $form->textArea($model,'group_desc'); ?>
 		</li>
 
 		<li>
@@ -47,7 +47,7 @@
 
 		<li>
 			<?php echo $model->getAttributeLabel('creation_id'); ?><br/>
-			<?php echo $form->textField($model,'creation_id',array('size'=>11,'maxlength'=>11)); ?>
+			<?php echo $form->textField($model,'creation_id'); ?>
 		</li>
 
 		<li>
@@ -57,7 +57,7 @@
 
 		<li>
 			<?php echo $model->getAttributeLabel('modified_id'); ?><br/>
-			<?php echo $form->textField($model,'modified_id',array('size'=>11,'maxlength'=>11)); ?>
+			<?php echo $form->textField($model,'modified_id'); ?>
 		</li>
 
 		<li class="submit">

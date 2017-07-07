@@ -9,7 +9,7 @@
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 12 February 2016, 18:28 WIB
- * @link http://company.ommu.co
+ * @link https://github.com/ommu/mod-sms
  * @contact (+62)856-299-4114
  *
  */
@@ -22,7 +22,12 @@
 	<ul>
 		<li>
 			<?php echo $model->getAttributeLabel('id'); ?><br/>
-			<?php echo $form->textField($model,'id',array('size'=>11,'maxlength'=>11)); ?>
+			<?php echo $form->textField($model,'id'); ?>
+		</li>
+
+		<li>
+			<?php echo $model->getAttributeLabel('status'); ?><br/>
+			<?php echo $form->textField($model,'status'); ?>
 		</li>
 
 		<li>
@@ -32,7 +37,7 @@
 
 		<li>
 			<?php echo $model->getAttributeLabel('phonebook_id'); ?><br/>
-			<?php echo $form->textField($model,'phonebook_id',array('size'=>11,'maxlength'=>11)); ?>
+			<?php echo $form->textField($model,'phonebook_id'); ?>
 		</li>
 
 		<li>
@@ -42,7 +47,7 @@
 
 		<li>
 			<?php echo $model->getAttributeLabel('creation_id'); ?><br/>
-			<?php echo $form->textField($model,'creation_id',array('size'=>11,'maxlength'=>11)); ?>
+			<?php echo $form->textField($model,'creation_id'); ?>
 		</li>
 
 		<li class="submit">

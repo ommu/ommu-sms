@@ -49,7 +49,7 @@
 		<div class="clearfix">
 			<?php echo $form->labelEx($model,'group_desc'); ?>
 			<div class="desc">
-				<?php echo $form->textArea($model,'group_desc',array('rows'=>6, 'cols'=>50)); ?>
+				<?php echo $form->textArea($model,'group_desc',array('rows'=>6, 'cols'=>50, 'class'=>'span-10 smaller')); ?>
 				<?php echo $form->error($model,'group_desc'); ?>
 				<?php /*<div class="small-px silent"></div>*/?>
 			</div>

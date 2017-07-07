@@ -9,6 +9,7 @@
  *
  * TOC :
  *	Index
+ *	Suggest
  *	Manage
  *	Add
  *	Delete
@@ -19,7 +20,7 @@
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 12 February 2016, 18:28 WIB
- * @link http://company.ommu.co
+ * @link https://github.com/ommu/mod-sms
  * @contact (+62)856-299-4114
  *
  *----------------------------------------------------------------------------------------------------------
@@ -74,7 +75,7 @@ class GroupbookController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array(),
+				'actions'=>array('suggest'),
 				'users'=>array('@'),
 				'expression'=>'isset(Yii::app()->user->level)',
 				//'expression'=>'isset(Yii::app()->user->level) && (Yii::app()->user->level != 1)',
@@ -100,6 +101,55 @@ class GroupbookController extends Controller
 	public function actionIndex() 
 	{
 		$this->redirect(array('manage'));
+	}
+
+	/**
+	 * Lists all models.
+	 */
+	public function actionSuggest($group=null) 
+	{
+		if(Yii::app()->request->isAjaxRequest) {
+			$model = SmsGroups::model()->findByPk($group);
+			$items = array();
+			if($model != null) {
+				$phonebooks = $model->phonebooks;		
+				if(!empty($phonebooks)) {
+					foreach($phonebooks as $key => $val) {
+						$items[] = $val->phonebook_id;
+					}
+				}
+			}
+				
+			if(isset($_GET['term'])) {
+				$criteria = new CDbCriteria;
+				$criteria->select = "phonebook_id, status, phonebook_nomor, phonebook_name";
+				$criteria->compare('phonebook_nomor', strtolower(trim($_GET['term'])), true);
+				$criteria->compare('phonebook_name', strtolower(trim($_GET['term'])), true, 'OR');	
+				$criteria->compare('status', 1);		
+				if(!empty($phonebooks))
+					$criteria->addNotInCondition('phonebook_id',$items);
+				$criteria->order = "phonebook_name ASC";
+				//print_r($criteria);
+				$model = SmsPhonebook::model()->findAll($criteria);
+
+				if($model) {
+					foreach($model as $items) {
+						if($items->phonebook_name && $items->phonebook_nomor)
+							$contact = Yii::t('phrase', '$phonebook_name ($phonebook_nomor)', array('$phonebook_name'=>$items->phonebook_name,'$phonebook_nomor'=>$items->phonebook_nomor));
+						else
+							$contact = $items->phonebook_name ? $items->phonebook_name : $items->phonebook_nomor;
+						$result[] = array(
+							'id' => $items->phonebook_id, 
+							'value' => $contact,
+						);
+					}
+				}
+			}
+			echo CJSON::encode($result);
+			Yii::app()->end();
+			
+		} else
+			throw new CHttpException(404, Yii::t('phrase', 'The requested page does not exist.'));
 	}
 
 	/**
@@ -152,7 +202,10 @@ class GroupbookController extends Controller
 					$url = Yii::app()->controller->createUrl('delete',array('id'=>$model->id,'type'=>'sms'));
 				else 
 					$url = Yii::app()->controller->createUrl('delete',array('id'=>$model->id));
-				$contact = $model->phonebook_TO->phonebook_name != '' ? $model->phonebook_TO->phonebook_name : $model->phonebook_TO->phonebook_nomor;
+				if($model->phonebook->phonebook_name && $model->phonebook->phonebook_nomor)
+					$contact = Yii::t('phrase', '$phonebook_name ($phonebook_nomor)', array('$phonebook_name'=>$model->phonebook->phonebook_name,'$phonebook_nomor'=>$model->phonebook->phonebook_nomor));
+				else
+					$contact = $model->phonebook->phonebook_name ? $model->phonebook->phonebook_name : $model->phonebook->phonebook_nomor;
 				echo CJSON::encode(array(
 					'data' => '<div>'.$contact.'<a href="'.$url.'" title="'.Yii::t('phrase', 'Delete').'">'.Yii::t('phrase', 'Delete').'</a></div>',
 				));
@@ -171,8 +224,7 @@ class GroupbookController extends Controller
 		
 		if(Yii::app()->request->isPostRequest) {
 			// we only allow deletion via POST request
-			if(isset($id)) {
-				$model->delete();
+			if($model->delete()) {
 				if(isset($_GET['type']) && $_GET['type'] == 'sms') {
 					echo CJSON::encode(array(
 						'type' => 4,

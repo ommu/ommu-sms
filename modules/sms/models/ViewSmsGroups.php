@@ -6,7 +6,7 @@
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 13 February 2016, 21:11 WIB
- * @link http://company.ommu.co
+ * @link https://github.com/ommu/mod-sms
  * @contact (+62)856-299-4114
  *
  * This is the template for generating the model class of a specified table.
@@ -25,6 +25,7 @@
  * The followings are the available columns in table '_view_sms_groups':
  * @property integer $group_id
  * @property string $contacts
+ * @property string $contact_all
  */
 class ViewSmsGroups extends CActiveRecord
 {
@@ -66,10 +67,10 @@ class ViewSmsGroups extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('group_id', 'numerical', 'integerOnly'=>true),
-			array('contacts', 'length', 'max'=>21),
+			array('contacts, contact_all', 'length', 'max'=>21),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('group_id, contacts', 'safe', 'on'=>'search'),
+			array('group_id, contacts, contact_all', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -92,6 +93,7 @@ class ViewSmsGroups extends CActiveRecord
 		return array(
 			'group_id' => Yii::t('attribute', 'Group'),
 			'contacts' => Yii::t('attribute', 'Contacts'),
+			'contact_all' => Yii::t('attribute', 'Contact All'),
 		);
 	}
 
@@ -115,6 +117,7 @@ class ViewSmsGroups extends CActiveRecord
 
 		$criteria->compare('t.group_id',$this->group_id);
 		$criteria->compare('t.contacts',strtolower($this->contacts),true);
+		$criteria->compare('t.contact_all',strtolower($this->contact_all),true);
 
 		if(!isset($_GET['ViewSmsGroups_sort']))
 			$criteria->order = 't.group_id DESC';
@@ -147,6 +150,7 @@ class ViewSmsGroups extends CActiveRecord
 		} else {
 			$this->defaultColumns[] = 'group_id';
 			$this->defaultColumns[] = 'contacts';
+			$this->defaultColumns[] = 'contact_all';
 		}
 
 		return $this->defaultColumns;
@@ -163,6 +167,7 @@ class ViewSmsGroups extends CActiveRecord
 			);
 			$this->defaultColumns[] = 'group_id';
 			$this->defaultColumns[] = 'contacts';
+			$this->defaultColumns[] = 'contact_all';
 		}
 		parent::afterConstruct();
 	}

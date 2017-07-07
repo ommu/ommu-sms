@@ -6,7 +6,7 @@
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 12 February 2016, 18:27 WIB
- * @link http://company.ommu.co
+ * @link https://github.com/ommu/mod-sms
  * @contact (+62)856-299-4114
  *
  * This is the template for generating the model class of a specified table.
@@ -35,7 +35,7 @@ class SmsGroupPhonebook extends CActiveRecord
 	
 	// Variable Search
 	public $group_search;
-	public $phonebook_search;
+	public $phonebook_name_search;
 	public $phonebook_nomor_search;
 	public $creation_search;
 
@@ -72,7 +72,7 @@ class SmsGroupPhonebook extends CActiveRecord
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('id, group_id, phonebook_id, creation_date, creation_id,
-				group_search, phonebook_search, phonebook_nomor_search, creation_search', 'safe', 'on'=>'search'),
+				group_search, phonebook_name_search, phonebook_nomor_search, creation_search', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -84,9 +84,9 @@ class SmsGroupPhonebook extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'group_TO' => array(self::BELONGS_TO, 'SmsGroups', 'group_id'),
-			'phonebook_TO' => array(self::BELONGS_TO, 'SmsPhonebook', 'phonebook_id'),
-			'creation_TO' => array(self::BELONGS_TO, 'Users', 'creation_id'),
+			'group' => array(self::BELONGS_TO, 'SmsGroups', 'group_id'),
+			'phonebook' => array(self::BELONGS_TO, 'SmsPhonebook', 'phonebook_id'),
+			'creation' => array(self::BELONGS_TO, 'Users', 'creation_id'),
 		);
 	}
 
@@ -102,7 +102,7 @@ class SmsGroupPhonebook extends CActiveRecord
 			'creation_date' => Yii::t('attribute', 'Creation Date'),
 			'creation_id' => Yii::t('attribute', 'Creation'),
 			'group_search' => Yii::t('attribute', 'Group'),
-			'phonebook_search' => Yii::t('attribute', 'Phonebook'),
+			'phonebook_name_search' => Yii::t('attribute', 'Phonebook'),
 			'phonebook_nomor_search' => Yii::t('attribute', 'Phonebook Nomor'),
 			'creation_search' => Yii::t('attribute', 'Creation'),
 		);
@@ -141,23 +141,23 @@ class SmsGroupPhonebook extends CActiveRecord
 		
 		// Custom Search
 		$criteria->with = array(
-			'group_TO' => array(
-				'alias'=>'group_TO',
+			'group' => array(
+				'alias'=>'group',
 				'select'=>'group_name, group_desc'
 			),
-			'phonebook_TO' => array(
-				'alias'=>'phonebook_TO',
+			'phonebook' => array(
+				'alias'=>'phonebook',
 				'select'=>'phonebook_nomor, phonebook_name'
 			),
-			'creation_TO' => array(
-				'alias'=>'creation_TO',
+			'creation' => array(
+				'alias'=>'creation',
 				'select'=>'displayname'
 			),
 		);
-		$criteria->compare('group_TO.group_name',strtolower($this->group_search), true);
-		$criteria->compare('phonebook_TO.phonebook_name',strtolower($this->phonebook_search), true);
-		$criteria->compare('phonebook_TO.phonebook_nomor',strtolower($this->phonebook_nomor_search), true);
-		$criteria->compare('creation_TO.displayname',strtolower($this->creation_search), true);
+		$criteria->compare('group.group_name',strtolower($this->group_search), true);
+		$criteria->compare('phonebook.phonebook_name',strtolower($this->phonebook_name_search), true);
+		$criteria->compare('phonebook.phonebook_nomor',strtolower($this->phonebook_nomor_search), true);
+		$criteria->compare('creation.displayname',strtolower($this->creation_search), true);
 
 		if(!isset($_GET['SmsGroupPhonebook_sort']))
 			$criteria->order = 't.id DESC';
@@ -215,24 +215,28 @@ class SmsGroupPhonebook extends CActiveRecord
 				'header' => 'No',
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
 			);
-			$this->defaultColumns[] = array(
-				//'name' => 'group_search',
-				'name' => 'group_id',
-				'value' => '$data->group_TO->group_name',
-				'filter'=> SmsGroups::getGroup(),
-				'type' => 'raw',
-			);
-			$this->defaultColumns[] = array(
-				'name' => 'phonebook_search',
-				'value' => '$data->phonebook_TO->phonebook_name',
-			);
+			if(!isset($_GET['group'])) {
+				$this->defaultColumns[] = array(
+					//'name' => 'group_search',
+					'name' => 'group_id',
+					'value' => '$data->group->group_name',
+					'filter'=> SmsGroups::getGroup(),
+					'type' => 'raw',
+				);
+			}
+			if(!isset($_GET['phonebook'])) {
+				$this->defaultColumns[] = array(
+					'name' => 'phonebook_name_search',
+					'value' => '$data->phonebook->phonebook_name',
+				);
 			$this->defaultColumns[] = array(
 				'name' => 'phonebook_nomor_search',
-				'value' => '$data->phonebook_TO->phonebook_nomor',
+				'value' => '$data->phonebook->phonebook_nomor',
 			);
+			}
 			$this->defaultColumns[] = array(
 				'name' => 'creation_search',
-				'value' => '$data->creation_TO->displayname',
+				'value' => '$data->creation->displayname',
 			);
 			$this->defaultColumns[] = array(
 				'name' => 'creation_date',
