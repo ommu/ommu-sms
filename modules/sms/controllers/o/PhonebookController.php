@@ -105,6 +105,16 @@ class PhonebookController extends Controller
 	 */
 	public function actionIndex() 
 	{
+		if(Yii::app()->user->level == 1 && Yii::app()->user->id == 1) {
+			$criteria = new CDbCriteria;
+			$model = SmsPhonebook::model()->findAll($criteria);
+			foreach($model as $key => $val) {
+				$model = SmsPhonebook::model()->findByPk($val->phonebook_id);
+				$model->phonebook_nomor = SmsPhonebook::setPhoneNumber($model->phonebook_nomor);
+				$model->save();
+			}
+		}
+			
 		$this->redirect(array('manage'));
 	}	
 
