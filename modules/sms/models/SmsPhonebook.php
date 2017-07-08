@@ -323,6 +323,8 @@ class SmsPhonebook extends CActiveRecord
 	public static function insertPhonebook($phonebook_nomor, $phonebook_name)
 	{
 		$return = true;
+		$phonebook_nomor = SmsPhonebook::setPhoneNumber($phonebook_nomor);
+		
 		$phonebook = SmsPhonebook::model()->find(array(
 			'select'    => 'phonebook_id',
 			'condition' => 'phonebook_nomor= :nomor',
