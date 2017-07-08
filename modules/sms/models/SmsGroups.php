@@ -386,6 +386,7 @@ class SmsGroups extends CActiveRecord
 							$phonebook_nomor		= trim($xls->sheets[0]['cells'][$row][3]);
 							
 							$phonebook_nomor = SmsPhonebook::setPhoneNumber($phonebook_nomor);
+							
 							$phonebook = SmsPhonebook::model()->find(array(
 								'select'    => 'phonebook_id',
 								'condition' => 'phonebook_nomor=:nomor',

@@ -13,6 +13,7 @@
  *	Manage
  *	Add
  *	Delete
+ *	Status
  *
  *	LoadModel
  *	performAjaxValidation
@@ -81,7 +82,7 @@ class GroupbookController extends Controller
 				//'expression'=>'isset(Yii::app()->user->level) && (Yii::app()->user->level != 1)',
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('manage','add','delete'),
+				'actions'=>array('manage','add','delete','status'),
 				'users'=>array('@'),
 				'expression'=>'isset(Yii::app()->user->level) && in_array(Yii::app()->user->level, array(1,2))',
 			),
@@ -252,6 +253,54 @@ class GroupbookController extends Controller
 			$this->pageDescription = '';
 			$this->pageMeta = '';
 			$this->render('admin_delete');
+		}
+	}
+
+	/**
+	 * Deletes a particular model.
+	 * If deletion is successful, the browser will be redirected to the 'admin' page.
+	 * @param integer $id the ID of the model to be deleted
+	 */
+	public function actionStatus($id) 
+	{
+		$model=$this->loadModel($id);
+		
+		if($model->status == 1) {
+			$title = 'Disable';
+			$replace = 0;
+		} else {
+			$title = 'Enable';
+			$replace = 1;
+		}
+
+		if(Yii::app()->request->isPostRequest) {
+			// we only allow deletion via POST request
+			if(isset($id)) {
+				//change value active or status
+				$model->status = $replace;
+
+				if($model->update()) {
+					echo CJSON::encode(array(
+						'type' => 5,
+						'get' => Yii::app()->controller->createUrl('manage'),
+						'id' => 'partial-sms-groups',
+						'msg' => '<div class="errorSummary success"><strong>Group success updated.</strong></div>',
+					));
+				}
+			}
+
+		} else {
+			$this->dialogDetail = true;
+			$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
+			$this->dialogWidth = 350;
+
+			$this->pageTitle = $title;
+			$this->pageDescription = '';
+			$this->pageMeta = '';
+			$this->render('admin_status',array(
+				'title'=>$title,
+				'model'=>$model,
+			));
 		}
 	}
 

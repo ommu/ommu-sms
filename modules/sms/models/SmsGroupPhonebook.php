@@ -24,6 +24,7 @@
  *
  * The followings are the available columns in table 'ommu_sms_group_phonebook':
  * @property string $id
+ * @property integer $status
  * @property integer $group_id
  * @property string $phonebook_id
  * @property string $creation_date
@@ -67,11 +68,11 @@ class SmsGroupPhonebook extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('group_id, phonebook_id', 'required'),
-			array('group_id', 'numerical', 'integerOnly'=>true),
+			array('status, group_id', 'numerical', 'integerOnly'=>true),
 			array('phonebook_id, creation_id', 'length', 'max'=>11),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, group_id, phonebook_id, creation_date, creation_id,
+			array('id, status, group_id, phonebook_id, creation_date, creation_id,
 				group_search, phonebook_name_search, phonebook_nomor_search, creation_search', 'safe', 'on'=>'search'),
 		);
 	}
@@ -97,6 +98,7 @@ class SmsGroupPhonebook extends CActiveRecord
 	{
 		return array(
 			'id' => Yii::t('attribute', 'ID'),
+			'status' => Yii::t('attribute', 'Status'),
 			'group_id' => Yii::t('attribute', 'Group'),
 			'phonebook_id' => Yii::t('attribute', 'Phonebook'),
 			'creation_date' => Yii::t('attribute', 'Creation Date'),
@@ -127,6 +129,7 @@ class SmsGroupPhonebook extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('t.id',strtolower($this->id),true);
+		$criteria->compare('t.status',$this->status);
 		if(isset($_GET['group']))
 			$criteria->compare('t.group_id',$_GET['group']);
 		else
@@ -264,6 +267,20 @@ class SmsGroupPhonebook extends CActiveRecord
 					),
 				), true),
 			);
+			if(!isset($_GET['type'])) {
+				$this->defaultColumns[] = array(
+					'name' => 'status',
+					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("status",array("id"=>$data->id)), $data->status, "Disable,Enable")',
+					'htmlOptions' => array(
+						'class' => 'center',
+					),
+					'filter'=>array(
+						1=>'Enable',
+						0=>'Disable',
+					),
+					'type' => 'raw',
+				);
+			}
 		}
 		parent::afterConstruct();
 	}
