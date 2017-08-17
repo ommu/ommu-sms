@@ -99,8 +99,25 @@ class InboxController extends Controller
 	/**
 	 * Lists all models.
 	 */
-	public function actionIndex() 
+	public function actionIndex($id=null) 
 	{
+		ini_set('max_execution_time', 0);
+		ob_start();
+		
+		if(Yii::app()->user->level == 1 && Yii::app()->user->id == 1) {
+			$criteria = new CDbCriteria;
+			if($id)
+				$criteria->compare('t.inbox_id','>'.$id);
+			$model = SmsInbox::model()->findAll($criteria);
+			foreach($model as $key => $val) {
+				$model = SmsInbox::model()->findByPk($val->inbox_id);
+				$model->sender_nomor = SmsPhonebook::setPhoneNumber($model->sender_nomor);
+				$model->save();
+			}
+		}
+
+		ob_end_flush();
+		
 		$this->redirect(array('manage'));
 	}
 
