@@ -12,6 +12,7 @@
  *	Manage
  *	Add
  *	View
+ *	Delete
  *
  *	LoadModel
  *	performAjaxValidation
@@ -19,7 +20,7 @@
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 15 February 2016, 11:43 WIB
- * @link http://company.ommu.co
+ * @link https://github.com/ommu/mod-sms
  * @contact (+62)856-299-4114
  *
  *----------------------------------------------------------------------------------------------------------
@@ -196,8 +197,8 @@ class OutboxController extends Controller
 					));
 					if($groupbook != null) {
 						foreach($groupbook as $key => $val) {
-							$outbox_id = SmsOutbox::insertOutbox($val->phonebook_TO->phonebook_nomor, $model->message, $outboxGroup);
-							$phonebook = SmsPhonebook::setPhoneNumber($val->phonebook_TO->phonebook_nomor, 'nasional');
+							$outbox_id = SmsOutbox::insertOutbox($val->phonebook->phonebook_nomor, $model->message, $outboxGroup);
+							$phonebook = SmsPhonebook::setPhoneNumber($val->phonebook->phonebook_nomor, 'nasional');
 							SmsUtility::sendSMS($outbox_id, Yii::app()->user->id, $phonebook, $model->message);
 						}
 					}
@@ -245,10 +246,42 @@ class OutboxController extends Controller
 
 		$this->pageTitle = 'View View Sms Outboxes';
 		$this->pageDescription = '';
-		$this->pageMeta = $setting->meta_keyword;
+		$this->pageMeta = '';
 		$this->render('admin_view',array(
 			'model'=>$model,
 		));
+	}
+
+	/**
+	 * Deletes a particular model.
+	 * If deletion is successful, the browser will be redirected to the 'admin' page.
+	 * @param integer $id the ID of the model to be deleted
+	 */
+	public function actionDelete($id) 
+	{
+		$model=$this->loadModel($id);
+		
+		if(Yii::app()->request->isPostRequest) {
+			// we only allow deletion via POST request
+			if($model->delete()) {
+				echo CJSON::encode(array(
+					'type' => 5,
+					'get' => Yii::app()->controller->createUrl('manage'),
+					'id' => 'partial-sms-inbox',
+					'msg' => '<div class="errorSummary success"><strong>SmsInbox success deleted.</strong></div>',
+				));
+			}
+
+		} else {
+			$this->dialogDetail = true;
+			$this->dialogGroundUrl = Yii::app()->controller->createUrl('manage');
+			$this->dialogWidth = 350;
+
+			$this->pageTitle = 'SmsInbox Delete.';
+			$this->pageDescription = '';
+			$this->pageMeta = '';
+			$this->render('admin_delete');
+		}
 	}
 	
 	/**
