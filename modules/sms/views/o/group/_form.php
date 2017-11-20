@@ -28,7 +28,7 @@ EOP;
 	$cs->registerScript('setting', $js, CClientScript::POS_END);
 ?>
 
-<?php $form=$this->beginWidget('application.components.system.OActiveForm', array(
+<?php $form=$this->beginWidget('application.libraries.core.components.system.OActiveForm', array(
 	'id'=>'articles-form',
 	'enableAjaxValidation'=>$validation,
 	'htmlOptions' => array('enctype' => 'multipart/form-data')
