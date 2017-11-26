@@ -25,7 +25,7 @@
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 12 February 2016, 17:31 WIB
- * @link https://github.com/ommu/mod-sms
+ * @link https://github.com/ommu/ommu-sms
  * @contact (+62)856-299-4114
  *
  *----------------------------------------------------------------------------------------------------------
@@ -230,7 +230,7 @@ class PhonebookController extends Controller
 			if(in_array(strtolower($fileName->extensionName), array('xls','xlsx'))) {
 				$file = time().'_'.Utility::getUrlTitle(date('d-m-Y H:i:s')).'_'.Utility::getUrlTitle(Yii::app()->user->displayname).'.'.strtolower($fileName->extensionName);
 				if($fileName->saveAs($sms_path.'/'.$file)) {
-					Yii::import('ext.excel_reader.OExcelReader');
+					Yii::import('ext.php-excel-reader.OExcelReader');
 					$xls = new OExcelReader($sms_path.'/'.$file);
 					
 					for ($row = 2; $row <= $xls->sheets[0]['numRows']; $row++) {

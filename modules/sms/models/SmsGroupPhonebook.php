@@ -6,7 +6,7 @@
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 12 February 2016, 18:27 WIB
- * @link https://github.com/ommu/mod-sms
+ * @link https://github.com/ommu/ommu-sms
  * @contact (+62)856-299-4114
  *
  * This is the template for generating the model class of a specified table.
