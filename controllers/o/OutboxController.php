@@ -4,9 +4,8 @@
  * @var $this OutboxController
  * @var $model ViewSmsOutbox
  * @var $form CActiveForm
- * version: 0.0.1
- * Reference start
  *
+ * Reference start
  * TOC :
  *	Index
  *	Manage
@@ -18,10 +17,10 @@
  *	performAjaxValidation
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
+ * @contact (+62)856-299-4114
  * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
  * @created date 15 February 2016, 11:43 WIB
  * @link https://github.com/ommu/ommu-sms
- * @contact (+62)856-299-4114
  *
  *----------------------------------------------------------------------------------------------------------
  */
