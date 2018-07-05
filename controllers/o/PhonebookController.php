@@ -227,7 +227,7 @@ class PhonebookController extends Controller
 		if(isset($_FILES['phonebookExcel'])) {
 			$fileName = CUploadedFile::getInstanceByName('phonebookExcel');
 			if(in_array(strtolower($fileName->extensionName), array('xls','xlsx'))) {
-				$file = time().'_'.Utility::getUrlTitle(date('d-m-Y H:i:s')).'_'.Utility::getUrlTitle(Yii::app()->user->displayname).'.'.strtolower($fileName->extensionName);
+				$file = time().'_'.$this->urlTitle(date('d-m-Y H:i:s')).'_'.$this->urlTitle(Yii::app()->user->displayname).'.'.strtolower($fileName->extensionName);
 				if($fileName->saveAs($sms_path.'/'.$file)) {
 					Yii::import('ext.php-excel-reader.OExcelReader');
 					$xls = new OExcelReader($sms_path.'/'.$file);

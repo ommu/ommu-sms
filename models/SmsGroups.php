@@ -33,6 +33,8 @@
  */
 class SmsGroups extends CActiveRecord
 {
+	use UtilityTrait;
+
 	public $defaultColumns = array();
 	public $contact_input;
 	public $import_excel;
@@ -377,7 +379,7 @@ class SmsGroups extends CActiveRecord
 			{
 				$this->groupbookExcel = CUploadedFile::getInstance($this, 'groupbookExcel');
 				if($this->groupbookExcel instanceOf CUploadedFile) {
-					$fileName = time().'_'.Utility::getUrlTitle(date('d-m-Y H:i:s')).'_'.Utility::getUrlTitle(Yii::app()->user->displayname).'.'.strtolower($this->groupbookExcel->extensionName);
+					$fileName = time().'_'.$this->urlTitle(date('d-m-Y H:i:s')).'_'.$this->urlTitle(Yii::app()->user->displayname).'.'.strtolower($this->groupbookExcel->extensionName);
 					if($this->groupbookExcel->saveAs($sms_path.'/'.$fileName)) {
 						Yii::import('ext.php-excel-reader.OExcelReader');
 						$xls = new OExcelReader($sms_path.'/'.$fileName);
