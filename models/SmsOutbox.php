@@ -4,7 +4,7 @@
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @contact (+62)856-299-4114
- * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (www.ommu.co)
  * @created date 12 February 2016, 04:03 WIB
  * @link https://github.com/ommu/ommu-sms
  *
@@ -151,29 +151,29 @@ class SmsOutbox extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('t.outbox_id',$this->outbox_id);
-		$criteria->compare('t.status',$this->status);
-		if(isset($_GET['user']))
-			$criteria->compare('t.user_id',$_GET['user']);
+		$criteria->compare('t.outbox_id', $this->outbox_id);
+		$criteria->compare('t.status', $this->status);
+		if(Yii::app()->getRequest()->getParam('user'))
+			$criteria->compare('t.user_id', Yii::app()->getRequest()->getParam('user'));
 		else
-			$criteria->compare('t.user_id',$this->user_id);
-		if(isset($_GET['group']))
-			$criteria->compare('t.group_id',$_GET['group']);
+			$criteria->compare('t.user_id', $this->user_id);
+		if(Yii::app()->getRequest()->getParam('group'))
+			$criteria->compare('t.group_id', Yii::app()->getRequest()->getParam('group'));
 		else
-			$criteria->compare('t.group_id',$this->group_id);
-		$criteria->compare('t.smsc_source',strtolower($this->smsc_source),true);
-		$criteria->compare('t.smsc_destination',strtolower($this->smsc_destination),true);
-		$criteria->compare('t.destination_nomor',strtolower($this->destination_nomor),true);
-		$criteria->compare('t.message',strtolower($this->message),true);
-		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00', '0000-00-00')))
-			$criteria->compare('date(t.creation_date)',date('Y-m-d', strtotime($this->creation_date)));
-		if(isset($_GET['creation']))
-			$criteria->compare('t.creation_id',$_GET['creation']);
+			$criteria->compare('t.group_id', $this->group_id);
+		$criteria->compare('t.smsc_source', strtolower($this->smsc_source), true);
+		$criteria->compare('t.smsc_destination', strtolower($this->smsc_destination), true);
+		$criteria->compare('t.destination_nomor', strtolower($this->destination_nomor), true);
+		$criteria->compare('t.message', strtolower($this->message), true);
+		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00','1970-01-01 00:00:00','0002-12-02 07:07:12','-0001-11-30 00:00:00')))
+			$criteria->compare('date(t.creation_date)', date('Y-m-d', strtotime($this->creation_date)));
+		if(Yii::app()->getRequest()->getParam('creation'))
+			$criteria->compare('t.creation_id', Yii::app()->getRequest()->getParam('creation'));
 		else
-			$criteria->compare('t.creation_id',$this->creation_id);
-		if($this->updated_date != null && !in_array($this->updated_date, array('0000-00-00 00:00:00', '0000-00-00')))
-			$criteria->compare('date(t.updated_date)',date('Y-m-d', strtotime($this->updated_date)));
-		$criteria->compare('t.c_timestamp',$this->c_timestamp);
+			$criteria->compare('t.creation_id', $this->creation_id);
+		if($this->updated_date != null && !in_array($this->updated_date, array('0000-00-00 00:00:00','1970-01-01 00:00:00','0002-12-02 07:07:12','-0001-11-30 00:00:00')))
+			$criteria->compare('date(t.updated_date)', date('Y-m-d', strtotime($this->updated_date)));
+		$criteria->compare('t.c_timestamp', $this->c_timestamp);
 		
 		// Custom Search
 		$criteria->with = array(
@@ -186,10 +186,10 @@ class SmsOutbox extends CActiveRecord
 				'select'=>'displayname'
 			),
 		);
-		$criteria->compare('user_TO.displayname',strtolower($this->user_search), true);
-		$criteria->compare('creation_TO.displayname',strtolower($this->creation_search), true);
+		$criteria->compare('user_TO.displayname', strtolower($this->user_search), true);
+		$criteria->compare('creation_TO.displayname', strtolower($this->creation_search), true);
 
-		if(!isset($_GET['SmsOutbox_sort']))
+		if(!Yii::app()->getRequest()->getParam('SmsOutbox_sort'))
 			$criteria->order = 't.outbox_id DESC';
 
 		return new CActiveDataProvider($this, array(
@@ -276,7 +276,7 @@ class SmsOutbox extends CActiveRecord
 					),
 					'options'=>array(
 						'showOn' => 'focus',
-						'dateFormat' => 'dd-mm-yy',
+						'dateFormat' => 'yy-mm-dd',
 						'showOtherMonths' => true,
 						'selectOtherMonths' => true,
 						'changeMonth' => true,
@@ -309,7 +309,7 @@ class SmsOutbox extends CActiveRecord
 	public static function getInfo($id, $column=null)
 	{
 		if($column != null) {
-			$model = self::model()->findByPk($id,array(
+			$model = self::model()->findByPk($id, array(
 				'select' => $column,
 			));
  			if(count(explode(',', $column)) == 1)

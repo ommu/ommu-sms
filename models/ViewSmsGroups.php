@@ -4,7 +4,7 @@
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @contact (+62)856-299-4114
- * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (www.ommu.co)
  * @created date 13 February 2016, 21:11 WIB
  * @link https://github.com/ommu/ommu-sms
  *
@@ -114,11 +114,11 @@ class ViewSmsGroups extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('t.group_id',$this->group_id);
-		$criteria->compare('t.contacts',strtolower($this->contacts),true);
-		$criteria->compare('t.contact_all',strtolower($this->contact_all),true);
+		$criteria->compare('t.group_id', $this->group_id);
+		$criteria->compare('t.contacts', strtolower($this->contacts), true);
+		$criteria->compare('t.contact_all', strtolower($this->contact_all), true);
 
-		if(!isset($_GET['ViewSmsGroups_sort']))
+		if(!Yii::app()->getRequest()->getParam('ViewSmsGroups_sort'))
 			$criteria->order = 't.group_id DESC';
 
 		return new CActiveDataProvider($this, array(
@@ -177,7 +177,7 @@ class ViewSmsGroups extends CActiveRecord
 	public static function getInfo($id, $column=null)
 	{
 		if($column != null) {
-			$model = self::model()->findByPk($id,array(
+			$model = self::model()->findByPk($id, array(
 				'select' => $column,
 			));
  			if(count(explode(',', $column)) == 1)

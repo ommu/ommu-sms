@@ -4,7 +4,7 @@
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @contact (+62)856-299-4114
- * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (www.ommu.co)
  * @created date 15 February 2016, 11:40 WIB
  * @link https://github.com/ommu/ommu-sms
  *
@@ -141,27 +141,27 @@ class ViewSmsOutbox extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('t.outbox_id',$this->outbox_id);
-		$criteria->compare('t.status',$this->status);
-		if(isset($_GET['group']))
-			$criteria->compare('t.group_id',$_GET['group']);
+		$criteria->compare('t.outbox_id', $this->outbox_id);
+		$criteria->compare('t.status', $this->status);
+		if(Yii::app()->getRequest()->getParam('group'))
+			$criteria->compare('t.group_id', Yii::app()->getRequest()->getParam('group'));
 		else
-			$criteria->compare('t.group_id',$this->group_id);
-		$criteria->compare('t.smsc_source',strtolower($this->smsc_source),true);
-		$criteria->compare('t.destination_nomor',strtolower($this->destination_nomor),true);
-		$criteria->compare('t.message',strtolower($this->message),true);
-		$criteria->compare('t.sents',strtolower($this->sents),true);
-		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00', '0000-00-00')))
-			$criteria->compare('date(t.creation_date)',date('Y-m-d', strtotime($this->creation_date)));
-		if(isset($_GET['creation']))
-			$criteria->compare('t.creation_id',$_GET['creation']);
+			$criteria->compare('t.group_id', $this->group_id);
+		$criteria->compare('t.smsc_source', strtolower($this->smsc_source), true);
+		$criteria->compare('t.destination_nomor', strtolower($this->destination_nomor), true);
+		$criteria->compare('t.message', strtolower($this->message), true);
+		$criteria->compare('t.sents', strtolower($this->sents), true);
+		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00','1970-01-01 00:00:00','0002-12-02 07:07:12','-0001-11-30 00:00:00')))
+			$criteria->compare('date(t.creation_date)', date('Y-m-d', strtotime($this->creation_date)));
+		if(Yii::app()->getRequest()->getParam('creation'))
+			$criteria->compare('t.creation_id', Yii::app()->getRequest()->getParam('creation'));
 		else
-			$criteria->compare('t.creation_id',$this->creation_id);
-		if($this->updated_date != null && !in_array($this->updated_date, array('0000-00-00 00:00:00', '0000-00-00')))
-			$criteria->compare('date(t.updated_date)',date('Y-m-d', strtotime($this->updated_date)));
-		$criteria->compare('t.noted',strtolower($this->noted),true);
+			$criteria->compare('t.creation_id', $this->creation_id);
+		if($this->updated_date != null && !in_array($this->updated_date, array('0000-00-00 00:00:00','1970-01-01 00:00:00','0002-12-02 07:07:12','-0001-11-30 00:00:00')))
+			$criteria->compare('date(t.updated_date)', date('Y-m-d', strtotime($this->updated_date)));
+		$criteria->compare('t.noted', strtolower($this->noted), true);
 
-		if(!isset($_GET['ViewSmsOutbox_sort']))
+		if(!Yii::app()->getRequest()->getParam('ViewSmsOutbox_sort'))
 			$criteria->order = 't.outbox_id DESC';
 
 		return new CActiveDataProvider($this, array(
@@ -222,7 +222,7 @@ class ViewSmsOutbox extends CActiveRecord
 			$this->defaultColumns[] = 'message';
 			$this->defaultColumns[] = array(
 				'name' => 'sents',
-				'value' => 'CHtml::link($data->sents." contact", Yii::app()->controller->createUrl("o/sentitem/manage",array("group"=>$data->group_id)))',				
+				'value' => 'CHtml::link($data->sents." contact", Yii::app()->controller->createUrl("o/sentitem/manage", array("group"=>$data->group_id)))',				
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
@@ -249,7 +249,7 @@ class ViewSmsOutbox extends CActiveRecord
 					),
 					'options'=>array(
 						'showOn' => 'focus',
-						'dateFormat' => 'dd-mm-yy',
+						'dateFormat' => 'yy-mm-dd',
 						'showOtherMonths' => true,
 						'selectOtherMonths' => true,
 						'changeMonth' => true,
@@ -282,7 +282,7 @@ class ViewSmsOutbox extends CActiveRecord
 	public static function getInfo($id, $column=null)
 	{
 		if($column != null) {
-			$model = self::model()->findByPk($id,array(
+			$model = self::model()->findByPk($id, array(
 				'select' => $column,
 			));
  			if(count(explode(',', $column)) == 1)

@@ -20,7 +20,7 @@
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @contact (+62)856-299-4114
- * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (www.ommu.co)
  * @created date 12 February 2016, 18:27 WIB
  * @link https://github.com/ommu/ommu-sms
  *
@@ -128,7 +128,7 @@ class GroupController extends Controller
 		$this->pageTitle = 'Sms Groups Manage';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
-		$this->render('admin_manage',array(
+		$this->render('admin_manage', array(
 			'model'=>$model,
 			'columns' => $columns,
 		));
@@ -153,7 +153,7 @@ class GroupController extends Controller
 				echo $jsonError;
 
 			} else {
-				if(isset($_GET['enablesave']) && $_GET['enablesave'] == 1) {
+				if(Yii::app()->getRequest()->getParam('enablesave') == 1) {
 					if($model->save()) {
 						echo CJSON::encode(array(
 							'type' => 5,
@@ -176,7 +176,7 @@ class GroupController extends Controller
 		$this->pageTitle = 'Create Sms Groups';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
-		$this->render('admin_add',array(
+		$this->render('admin_add', array(
 			'model'=>$model,
 		));
 	}
@@ -209,7 +209,7 @@ class GroupController extends Controller
 		$this->pageTitle = 'Update Sms Groups';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
-		$this->render('admin_edit',array(
+		$this->render('admin_edit', array(
 			'model'=>$model,
 			'phonebooks'=>$phonebooks,
 		));
@@ -230,7 +230,7 @@ class GroupController extends Controller
 		$this->pageTitle = 'View Sms Groups';
 		$this->pageDescription = '';
 		$this->pageMeta = $setting->meta_keyword;
-		$this->render('admin_view',array(
+		$this->render('admin_view', array(
 			'model'=>$model,
 		));
 	}
@@ -308,7 +308,7 @@ class GroupController extends Controller
 			$this->pageTitle = $title;
 			$this->pageDescription = '';
 			$this->pageMeta = '';
-			$this->render('admin_status',array(
+			$this->render('admin_status', array(
 				'title'=>$title,
 				'model'=>$model,
 			));

@@ -19,7 +19,7 @@
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @contact (+62)856-299-4114
- * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (www.ommu.co)
  * @created date 12 February 2016, 18:28 WIB
  * @link https://github.com/ommu/ommu-sms
  *
@@ -120,11 +120,11 @@ class GroupbookController extends Controller
 				}
 			}
 				
-			if(isset($_GET['term'])) {
+			if(Yii::app()->getRequest()->getParam('term')) {
 				$criteria = new CDbCriteria;
 				$criteria->select = "phonebook_id, status, phonebook_nomor, phonebook_name";
-				$criteria->compare('phonebook_nomor', strtolower(trim($_GET['term'])), true);
-				$criteria->compare('phonebook_name', strtolower(trim($_GET['term'])), true, 'OR');	
+				$criteria->compare('phonebook_nomor', strtolower(trim(Yii::app()->getRequest()->getParam('term'))), true);
+				$criteria->compare('phonebook_name', strtolower(trim(Yii::app()->getRequest()->getParam('term'))), true, 'OR');	
 				$criteria->compare('status', 1);		
 				if(!empty($phonebooks))
 					$criteria->addNotInCondition('phonebook_id',$items);
@@ -176,7 +176,7 @@ class GroupbookController extends Controller
 		$this->pageTitle = 'Sms Group Phonebooks Manage';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
-		$this->render('admin_manage',array(
+		$this->render('admin_manage', array(
 			'model'=>$model,
 			'columns' => $columns,
 		));
@@ -198,10 +198,10 @@ class GroupbookController extends Controller
 			$model->phonebook_id = $_POST['phonebook_id'];
 
 			if($model->save()) {
-				if(isset($_GET['type']) && $_GET['type'] == 'sms')
-					$url = Yii::app()->controller->createUrl('delete',array('id'=>$model->id,'type'=>'sms'));
+				if(Yii::app()->getRequest()->getParam('type') == 'sms')
+					$url = Yii::app()->controller->createUrl('delete', array('id'=>$model->id,'type'=>'sms'));
 				else 
-					$url = Yii::app()->controller->createUrl('delete',array('id'=>$model->id));
+					$url = Yii::app()->controller->createUrl('delete', array('id'=>$model->id));
 				if($model->phonebook->phonebook_name && $model->phonebook->phonebook_nomor)
 					$contact = Yii::t('phrase', '$phonebook_name ($phonebook_nomor)', array('$phonebook_name'=>$model->phonebook->phonebook_name,'$phonebook_nomor'=>$model->phonebook->phonebook_nomor));
 				else
@@ -225,7 +225,7 @@ class GroupbookController extends Controller
 		if(Yii::app()->request->isPostRequest) {
 			// we only allow deletion via POST request
 			if($model->delete()) {
-				if(isset($_GET['type']) && $_GET['type'] == 'sms') {
+				if(Yii::app()->getRequest()->getParam('type') == 'sms') {
 					echo CJSON::encode(array(
 						'type' => 4,
 					));
@@ -241,7 +241,7 @@ class GroupbookController extends Controller
 
 		} else {
 			$this->dialogDetail = true;
-			if(isset($_GET['type']) && $_GET['type'] == 'sms')
+			if(Yii::app()->getRequest()->getParam('type') == 'sms')
 				$url = Yii::app()->controller->createUrl('o/group/edit', array('id'=>$model->group_id));
 			else
 				$url = Yii::app()->controller->createUrl('manage');
@@ -296,7 +296,7 @@ class GroupbookController extends Controller
 			$this->pageTitle = $title;
 			$this->pageDescription = '';
 			$this->pageMeta = '';
-			$this->render('admin_status',array(
+			$this->render('admin_status', array(
 				'title'=>$title,
 				'model'=>$model,
 			));

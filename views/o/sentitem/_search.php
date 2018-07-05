@@ -7,7 +7,7 @@
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @contact (+62)856-299-4114
- * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (www.ommu.co)
  * @created date 12 February 2016, 04:07 WIB
  * @link https://github.com/ommu/ommu-sms
  *
@@ -31,32 +31,32 @@
 
 		<li>
 			<?php echo $model->getAttributeLabel('user_id'); ?><br/>
-			<?php echo $form->textField($model,'user_id',array('size'=>11,'maxlength'=>11)); ?>
+			<?php echo $form->textField($model,'user_id', array('size'=>11,'maxlength'=>11)); ?>
 		</li>
 
 		<li>
 			<?php echo $model->getAttributeLabel('group_id'); ?><br/>
-			<?php echo $form->textField($model,'group_id',array('size'=>11,'maxlength'=>11)); ?>
+			<?php echo $form->textField($model,'group_id', array('size'=>11,'maxlength'=>11)); ?>
 		</li>
 
 		<li>
 			<?php echo $model->getAttributeLabel('smsc_source'); ?><br/>
-			<?php echo $form->textField($model,'smsc_source',array('size'=>15,'maxlength'=>15)); ?>
+			<?php echo $form->textField($model,'smsc_source', array('size'=>15,'maxlength'=>15)); ?>
 		</li>
 
 		<li>
 			<?php echo $model->getAttributeLabel('smsc_destination'); ?><br/>
-			<?php echo $form->textField($model,'smsc_destination',array('size'=>15,'maxlength'=>15)); ?>
+			<?php echo $form->textField($model,'smsc_destination', array('size'=>15,'maxlength'=>15)); ?>
 		</li>
 
 		<li>
 			<?php echo $model->getAttributeLabel('destination_nomor'); ?><br/>
-			<?php echo $form->textField($model,'destination_nomor',array('size'=>15,'maxlength'=>15)); ?>
+			<?php echo $form->textField($model,'destination_nomor', array('size'=>15,'maxlength'=>15)); ?>
 		</li>
 
 		<li>
 			<?php echo $model->getAttributeLabel('message'); ?><br/>
-			<?php echo $form->textArea($model,'message',array('rows'=>6, 'cols'=>50)); ?>
+			<?php echo $form->textArea($model,'message', array('rows'=>6, 'cols'=>50)); ?>
 		</li>
 
 		<li>
@@ -66,7 +66,7 @@
 
 		<li>
 			<?php echo $model->getAttributeLabel('creation_id'); ?><br/>
-			<?php echo $form->textField($model,'creation_id',array('size'=>11,'maxlength'=>11)); ?>
+			<?php echo $form->textField($model,'creation_id', array('size'=>11,'maxlength'=>11)); ?>
 		</li>
 
 		<li>

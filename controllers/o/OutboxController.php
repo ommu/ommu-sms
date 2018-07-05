@@ -18,7 +18,7 @@
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @contact (+62)856-299-4114
- * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (www.ommu.co)
  * @created date 15 February 2016, 11:43 WIB
  * @link https://github.com/ommu/ommu-sms
  *
@@ -126,7 +126,7 @@ class OutboxController extends Controller
 		$this->pageTitle = 'View Sms Outboxes Manage';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
-		$this->render('admin_manage',array(
+		$this->render('admin_manage', array(
 			'model'=>$model,
 			'columns' => $columns,
 		));
@@ -155,10 +155,10 @@ class OutboxController extends Controller
 				echo $jsonError;
 
 			} else {
-				if(isset($_GET['enablesave']) && $_GET['enablesave'] == 1) {
+				if(Yii::app()->getRequest()->getParam('enablesave') == 1) {
 					if($model->save()) {
 						SmsUtility::sendSMS($model->outbox_id, Yii::app()->user->id, $model->destination_nomor, $model->message);
-						if(isset($_GET['type']) && $_GET['type'] == 'inbox')
+						if(Yii::app()->getRequest()->getParam('type') == 'inbox')
 							$url = Yii::app()->controller->createUrl('o/inbox/manage');
 						else
 							$url = Yii::app()->controller->createUrl('manage');
@@ -203,7 +203,7 @@ class OutboxController extends Controller
 					}
 				}
 			
-				if(isset($_GET['type']) && $_GET['type'] == 'inbox')
+				if(Yii::app()->getRequest()->getParam('type') == 'inbox')
 					$url = Yii::app()->controller->createUrl('o/inbox/manage');
 				else
 					$url = Yii::app()->controller->createUrl('manage');
@@ -223,7 +223,7 @@ class OutboxController extends Controller
 			$this->pageTitle = 'Create Sms Outboxes';
 			$this->pageDescription = '';
 			$this->pageMeta = '';
-			$this->render('admin_add',array(
+			$this->render('admin_add', array(
 				'model'=>$model,
 			));			
 		//}
@@ -246,7 +246,7 @@ class OutboxController extends Controller
 		$this->pageTitle = 'View View Sms Outboxes';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
-		$this->render('admin_view',array(
+		$this->render('admin_view', array(
 			'model'=>$model,
 		));
 	}

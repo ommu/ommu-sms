@@ -4,7 +4,7 @@
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @contact (+62)856-299-4114
- * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (www.ommu.co)
  * @created date 12 February 2016, 04:03 WIB
  * @link https://github.com/ommu/ommu-sms
  *
@@ -145,29 +145,29 @@ class SmsInbox extends CActiveRecord
 			),
 		);
 
-		$criteria->compare('t.inbox_id',strtolower($this->inbox_id),true);
-		if(isset($_GET['phonebook']))
-			$criteria->compare('t.phonebook_id',$_GET['phonebook']);
+		$criteria->compare('t.inbox_id', strtolower($this->inbox_id), true);
+		if(Yii::app()->getRequest()->getParam('phonebook'))
+			$criteria->compare('t.phonebook_id', Yii::app()->getRequest()->getParam('phonebook'));
 		else
-			$criteria->compare('t.phonebook_id',$this->phonebook_id);
-		$criteria->compare('t.smsc_source',strtolower($this->smsc_source),true);
-		$criteria->compare('t.smsc_sender',strtolower($this->smsc_sender),true);
-		$criteria->compare('t.sender_nomor',strtolower($this->sender_nomor),true);
-		$criteria->compare('t.message',strtolower($this->message),true);
-		$criteria->compare('t.readed',$this->readed);
-		$criteria->compare('t.queue_no',$this->queue_no);
-		$criteria->compare('t.group',$this->group);
-		$criteria->compare('t.reply',$this->reply);
-		$criteria->compare('t.status',$this->status);
-		if($this->message_date != null && !in_array($this->message_date, array('0000-00-00 00:00:00', '0000-00-00')))
-			$criteria->compare('date(t.message_date)',date('Y-m-d', strtotime($this->message_date)));
-		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00', '0000-00-00')))
-			$criteria->compare('date(t.creation_date)',date('Y-m-d', strtotime($this->creation_date)));
-		$criteria->compare('t.c_timestamp',$this->c_timestamp);
+			$criteria->compare('t.phonebook_id', $this->phonebook_id);
+		$criteria->compare('t.smsc_source', strtolower($this->smsc_source), true);
+		$criteria->compare('t.smsc_sender', strtolower($this->smsc_sender), true);
+		$criteria->compare('t.sender_nomor', strtolower($this->sender_nomor), true);
+		$criteria->compare('t.message', strtolower($this->message), true);
+		$criteria->compare('t.readed', $this->readed);
+		$criteria->compare('t.queue_no', $this->queue_no);
+		$criteria->compare('t.group', $this->group);
+		$criteria->compare('t.reply', $this->reply);
+		$criteria->compare('t.status', $this->status);
+		if($this->message_date != null && !in_array($this->message_date, array('0000-00-00 00:00:00','1970-01-01 00:00:00','0002-12-02 07:07:12','-0001-11-30 00:00:00')))
+			$criteria->compare('date(t.message_date)', date('Y-m-d', strtotime($this->message_date)));
+		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00','1970-01-01 00:00:00','0002-12-02 07:07:12','-0001-11-30 00:00:00')))
+			$criteria->compare('date(t.creation_date)', date('Y-m-d', strtotime($this->creation_date)));
+		$criteria->compare('t.c_timestamp', $this->c_timestamp);
 		
-		$criteria->compare('phonebook.phonebook_name',strtolower($this->phonebook_search), true);
+		$criteria->compare('phonebook.phonebook_name', strtolower($this->phonebook_search), true);
 
-		if(!isset($_GET['SmsInbox_sort']))
+		if(!Yii::app()->getRequest()->getParam('SmsInbox_sort'))
 			$criteria->order = 't.inbox_id DESC';
 
 		return new CActiveDataProvider($this, array(
@@ -246,7 +246,7 @@ class SmsInbox extends CActiveRecord
 					),
 					'options'=>array(
 						'showOn' => 'focus',
-						'dateFormat' => 'dd-mm-yy',
+						'dateFormat' => 'yy-mm-dd',
 						'showOtherMonths' => true,
 						'selectOtherMonths' => true,
 						'changeMonth' => true,
@@ -265,7 +265,7 @@ class SmsInbox extends CActiveRecord
 	public static function getInfo($id, $column=null)
 	{
 		if($column != null) {
-			$model = self::model()->findByPk($id,array(
+			$model = self::model()->findByPk($id, array(
 				'select' => $column,
 			));
  			if(count(explode(',', $column)) == 1)

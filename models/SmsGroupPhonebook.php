@@ -4,7 +4,7 @@
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @contact (+62)856-299-4114
- * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (www.ommu.co)
  * @created date 12 February 2016, 18:27 WIB
  * @link https://github.com/ommu/ommu-sms
  *
@@ -127,19 +127,19 @@ class SmsGroupPhonebook extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('t.id',strtolower($this->id),true);
-		$criteria->compare('t.status',$this->status);
-		if(isset($_GET['group']))
-			$criteria->compare('t.group_id',$_GET['group']);
+		$criteria->compare('t.id', strtolower($this->id), true);
+		$criteria->compare('t.status', $this->status);
+		if(Yii::app()->getRequest()->getParam('group'))
+			$criteria->compare('t.group_id', Yii::app()->getRequest()->getParam('group'));
 		else
-			$criteria->compare('t.group_id',$this->group_id);
-		$criteria->compare('t.phonebook_id',strtolower($this->phonebook_id),true);
-		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00', '0000-00-00')))
-			$criteria->compare('date(t.creation_date)',date('Y-m-d', strtotime($this->creation_date)));
-		if(isset($_GET['creation']))
-			$criteria->compare('t.creation_id',$_GET['creation']);
+			$criteria->compare('t.group_id', $this->group_id);
+		$criteria->compare('t.phonebook_id', strtolower($this->phonebook_id), true);
+		if($this->creation_date != null && !in_array($this->creation_date, array('0000-00-00 00:00:00','1970-01-01 00:00:00','0002-12-02 07:07:12','-0001-11-30 00:00:00')))
+			$criteria->compare('date(t.creation_date)', date('Y-m-d', strtotime($this->creation_date)));
+		if(Yii::app()->getRequest()->getParam('creation'))
+			$criteria->compare('t.creation_id', Yii::app()->getRequest()->getParam('creation'));
 		else
-			$criteria->compare('t.creation_id',$this->creation_id);
+			$criteria->compare('t.creation_id', $this->creation_id);
 		
 		// Custom Search
 		$criteria->with = array(
@@ -156,12 +156,12 @@ class SmsGroupPhonebook extends CActiveRecord
 				'select'=>'displayname'
 			),
 		);
-		$criteria->compare('group.group_name',strtolower($this->group_search), true);
-		$criteria->compare('phonebook.phonebook_name',strtolower($this->phonebook_name_search), true);
-		$criteria->compare('phonebook.phonebook_nomor',strtolower($this->phonebook_nomor_search), true);
-		$criteria->compare('creation.displayname',strtolower($this->creation_search), true);
+		$criteria->compare('group.group_name', strtolower($this->group_search), true);
+		$criteria->compare('phonebook.phonebook_name', strtolower($this->phonebook_name_search), true);
+		$criteria->compare('phonebook.phonebook_nomor', strtolower($this->phonebook_nomor_search), true);
+		$criteria->compare('creation.displayname', strtolower($this->creation_search), true);
 
-		if(!isset($_GET['SmsGroupPhonebook_sort']))
+		if(!Yii::app()->getRequest()->getParam('SmsGroupPhonebook_sort'))
 			$criteria->order = 't.id DESC';
 
 		return new CActiveDataProvider($this, array(
@@ -217,7 +217,7 @@ class SmsGroupPhonebook extends CActiveRecord
 				'header' => 'No',
 				'value' => '$this->grid->dataProvider->pagination->currentPage*$this->grid->dataProvider->pagination->pageSize + $row+1'
 			);
-			if(!isset($_GET['group'])) {
+			if(!Yii::app()->getRequest()->getParam('group')) {
 				$this->defaultColumns[] = array(
 					//'name' => 'group_search',
 					'name' => 'group_id',
@@ -226,7 +226,7 @@ class SmsGroupPhonebook extends CActiveRecord
 					'type' => 'raw',
 				);
 			}
-			if(!isset($_GET['phonebook'])) {
+			if(!Yii::app()->getRequest()->getParam('phonebook')) {
 				$this->defaultColumns[] = array(
 					'name' => 'phonebook_name_search',
 					'value' => '$data->phonebook->phonebook_name',
@@ -257,7 +257,7 @@ class SmsGroupPhonebook extends CActiveRecord
 					),
 					'options'=>array(
 						'showOn' => 'focus',
-						'dateFormat' => 'dd-mm-yy',
+						'dateFormat' => 'yy-mm-dd',
 						'showOtherMonths' => true,
 						'selectOtherMonths' => true,
 						'changeMonth' => true,
@@ -266,10 +266,10 @@ class SmsGroupPhonebook extends CActiveRecord
 					),
 				), true),
 			);
-			if(!isset($_GET['type'])) {
+			if(!Yii::app()->getRequest()->getParam('type')) {
 				$this->defaultColumns[] = array(
 					'name' => 'status',
-					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("status",array("id"=>$data->id)), $data->status, "Disable,Enable")',
+					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("status", array("id"=>$data->id)), $data->status, "Disable,Enable")',
 					'htmlOptions' => array(
 						'class' => 'center',
 					),
@@ -290,7 +290,7 @@ class SmsGroupPhonebook extends CActiveRecord
 	public static function getInfo($id, $column=null)
 	{
 		if($column != null) {
-			$model = self::model()->findByPk($id,array(
+			$model = self::model()->findByPk($id, array(
 				'select' => $column,
 			));
  			if(count(explode(',', $column)) == 1)

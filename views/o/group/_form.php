@@ -7,7 +7,7 @@
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @contact (+62)856-299-4114
- * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (www.ommu.co)
  * @created date 12 February 2016, 18:27 WIB
  * @link https://github.com/ommu/ommu-sms
  *
@@ -43,7 +43,7 @@ EOP;
 		<div class="clearfix">
 			<?php echo $form->labelEx($model,'group_name'); ?>
 			<div class="desc">
-				<?php echo $form->textField($model,'group_name',array('maxlength'=>32)); ?>
+				<?php echo $form->textField($model,'group_name', array('maxlength'=>32)); ?>
 				<?php echo $form->error($model,'group_name'); ?>
 				<?php /*<div class="small-px silent"></div>*/?>
 			</div>
@@ -52,7 +52,7 @@ EOP;
 		<div class="clearfix">
 			<?php echo $form->labelEx($model,'group_desc'); ?>
 			<div class="desc">
-				<?php echo $form->textArea($model,'group_desc',array('rows'=>6, 'cols'=>50)); ?>
+				<?php echo $form->textArea($model,'group_desc', array('rows'=>6, 'cols'=>50)); ?>
 				<?php echo $form->error($model,'group_desc'); ?>
 				<?php /*<div class="small-px silent"></div>*/?>
 			</div>
@@ -62,7 +62,7 @@ EOP;
 			<?php echo $form->labelEx($model,'contact_input'); ?>
 			<div class="desc">
 				<?php 
-				//echo $form->textField($model,'contact_input',array('maxlength'=>32, 'class'=>'span-5'));
+				//echo $form->textField($model,'contact_input', array('maxlength'=>32, 'class'=>'span-5'));
 				$url = Yii::app()->controller->createUrl('o/groupbook/add', array('type'=>'sms'));
 				$group = $model->group_id;
 				$this->widget('zii.widgets.jui.CJuiAutoComplete', array(
@@ -100,7 +100,7 @@ EOP;
 								$contact = Yii::t('phrase', '$phonebook_name ($phonebook_nomor)', array('$phonebook_name'=>$val->phonebook->phonebook_name,'$phonebook_nomor'=>$val->phonebook->phonebook_nomor));
 							else
 								$contact = $val->phonebook->phonebook_name ? $val->phonebook->phonebook_name : $val->phonebook->phonebook_nomor; ?>
-							<div><?php echo $contact;?><a href="<?php echo Yii::app()->controller->createUrl('o/groupbook/delete',array('id'=>$val->id,'type'=>'sms'));?>" title="<?php echo Yii::t('phrase', 'Delete');?>"><?php echo Yii::t('phrase', 'Delete');?></a></div>
+							<div><?php echo $contact;?><a href="<?php echo Yii::app()->controller->createUrl('o/groupbook/delete', array('id'=>$val->id,'type'=>'sms'));?>" title="<?php echo Yii::t('phrase', 'Delete');?>"><?php echo Yii::t('phrase', 'Delete');?></a></div>
 					<?php }
 					}?>
 				</div>
@@ -137,7 +137,7 @@ EOP;
 		<div class="submit clearfix">
 			<label>&nbsp;</label>
 			<div class="desc">
-				<?php echo CHtml::submitButton($model->isNewRecord ? Yii::t('phrase', 'Create') : Yii::t('phrase', 'Save') ,array('onclick' => 'setEnableSave()')); ?>
+				<?php echo CHtml::submitButton($model->isNewRecord ? Yii::t('phrase', 'Create') : Yii::t('phrase', 'Save') , array('onclick' => 'setEnableSave()')); ?>
 			</div>
 		</div>
 

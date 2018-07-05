@@ -7,7 +7,7 @@
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @contact (+62)856-299-4114
- * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (www.ommu.co)
  * @created date 12 February 2016, 04:07 WIB
  * @link https://github.com/ommu/ommu-sms
  *
@@ -54,8 +54,8 @@ EOP;
 			<?php echo $form->labelEx($model,'messageType'); ?>
 			<div class="desc">
 				<?php 
-				if(isset($_GET['type']))
-					$model->messageType  = $_GET['type'];
+				if(Yii::app()->getRequest()->getParam('type'))
+					$model->messageType  = Yii::app()->getRequest()->getParam('type');
 				echo $form->dropDownList($model,'messageType', array(
 					'1' => 'Single',
 					//'2' => 'Multi SMS',
@@ -65,11 +65,11 @@ EOP;
 			</div>
 		</div>
 
-		<div id="single" class="type clearfix <?php echo (isset($_GET['type']) && $_GET['type'] == 1) || !isset($_GET['type']) ? '' : 'hide'?>">
+		<div id="single" class="type clearfix <?php echo (Yii::app()->getRequest()->getParam('type') == 1) || !Yii::app()->getRequest()->getParam('type') ? '' : 'hide'?>">
 			<label><?php echo $model->getAttributeLabel('contact_input');?> <span class="required">*</span></label>
 			<div class="desc">
 				<?php 
-				//echo $form->textField($model,'contact_input',array('maxlength'=>15));
+				//echo $form->textField($model,'contact_input', array('maxlength'=>15));
 				$this->widget('zii.widgets.jui.CJuiAutoComplete', array(
 					'model' => $model,
 					'attribute' => 'contact_input',
@@ -92,16 +92,16 @@ EOP;
 			</div>
 		</div>
 
-		<div id="multi" class="type clearfix <?php echo (isset($_GET['type']) && $_GET['type'] == 2) ? '' : 'hide'?>">
+		<div id="multi" class="type clearfix <?php echo (Yii::app()->getRequest()->getParam('type') == 2) ? '' : 'hide'?>">
 			<?php echo $form->labelEx($model,'multiple_input'); ?>
 			<div class="desc">
-				<?php echo $form->textField($model,'multiple_input',array('maxlength'=>15)); ?>
+				<?php echo $form->textField($model,'multiple_input', array('maxlength'=>15)); ?>
 				<?php echo $form->error($model,'multiple_input'); ?>
 				<?php /*<div class="small-px silent"></div>*/?>
 			</div>
 		</div>
 
-		<div id="group" class="type clearfix <?php echo (isset($_GET['type']) && $_GET['type'] == 3) ? '' : 'hide'?>">
+		<div id="group" class="type clearfix <?php echo (Yii::app()->getRequest()->getParam('type') == 3) ? '' : 'hide'?>">
 			<label><?php echo $model->getAttributeLabel('group_input');?> <span class="required">*</span></label>
 			<div class="desc">
 				<?php echo $form->dropDownList($model,'group_input', SmsGroups::getGroup(1), array('prompt'=>'Pilih Group')); ?>
@@ -113,7 +113,7 @@ EOP;
 		<div class="clearfix">
 			<?php echo $form->labelEx($model,'message'); ?>
 			<div class="desc">
-				<?php echo $form->textArea($model,'message',array('rows'=>6, 'cols'=>50)); ?>
+				<?php echo $form->textArea($model,'message', array('rows'=>6, 'cols'=>50)); ?>
 				<?php echo $form->error($model,'message'); ?>
 				<?php /*<div class="small-px silent"></div>*/?>
 			</div>
@@ -122,7 +122,7 @@ EOP;
 	</fieldset>
 </div>
 <div class="dialog-submit">
-	<?php echo CHtml::submitButton($model->isNewRecord ? Yii::t('phrase', 'Create') : Yii::t('phrase', 'Save')) ,array('onclick' => 'setEnableSave()')); ?>
+	<?php echo CHtml::submitButton($model->isNewRecord ? Yii::t('phrase', 'Create') : Yii::t('phrase', 'Save')) , array('onclick' => 'setEnableSave()')); ?>
 	<?php echo CHtml::button(Yii::t('phrase', 'Close'), array('id'=>'closed')); ?>
 </div>
 <?php $this->endWidget(); ?>

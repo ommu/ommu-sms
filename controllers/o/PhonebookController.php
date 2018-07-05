@@ -23,7 +23,7 @@
  *
  * @author Putra Sudaryanto <putra@sudaryanto.id>
  * @contact (+62)856-299-4114
- * @copyright Copyright (c) 2016 Ommu Platform (opensource.ommu.co)
+ * @copyright Copyright (c) 2016 Ommu Platform (www.ommu.co)
  * @created date 12 February 2016, 17:31 WIB
  * @link https://github.com/ommu/ommu-sms
  *
@@ -141,7 +141,7 @@ class PhonebookController extends Controller
 		$this->pageTitle = 'Sms Phonebooks Manage';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
-		$this->render('admin_manage',array(
+		$this->render('admin_manage', array(
 			'model'=>$model,
 			'columns' => $columns,
 		));
@@ -154,7 +154,7 @@ class PhonebookController extends Controller
 	 */
 	public function actionSuggest($limit=15) 
 	{
-		if(isset($_GET['term'])) {
+		if(Yii::app()->getRequest()->getParam('term')) {
 			$criteria = new CDbCriteria;
 			$criteria->select = "phonebook_id, phonebook_nomor, phonebook_name";
 			
@@ -168,8 +168,8 @@ class PhonebookController extends Controller
 				$criteria->condition = 'status=:status AND phonebook_nomor LIKE :number OR phonebook_name LIKE :name';
 				$criteria->params = array(
 					':status' => 1,
-					':number' => '%' . strtolower(SmsPhonebook::setPhoneNumber($_GET['term'])) . '%',
-					':name' => '%' . strtolower($_GET['term']) . '%',
+					':number' => '%' . strtolower(SmsPhonebook::setPhoneNumber(Yii::app()->getRequest()->getParam('term'))) . '%',
+					':name' => '%' . strtolower(Yii::app()->getRequest()->getParam('term')) . '%',
 					//':group' => $_GET['group'],
 				);
 				
@@ -177,8 +177,8 @@ class PhonebookController extends Controller
 				$criteria->condition = 'status=:status AND phonebook_nomor LIKE :number OR phonebook_name LIKE :name';
 				$criteria->params = array(
 					':status' => 1,
-					':number' => '%' . strtolower(SmsPhonebook::setPhoneNumber($_GET['term'])) . '%',
-					':name' => '%' . strtolower($_GET['term']) . '%',
+					':number' => '%' . strtolower(SmsPhonebook::setPhoneNumber(Yii::app()->getRequest()->getParam('term'))) . '%',
+					':name' => '%' . strtolower(Yii::app()->getRequest()->getParam('term')) . '%',
 				);
 			}
 			$criteria->limit = $limit;
@@ -196,7 +196,7 @@ class PhonebookController extends Controller
 				}
 			} else {
 				if(!isset($_GET['group']))
-					$result[] = array('id' => $_GET['term'], 'value' => ucwords($_GET['term']));
+					$result[] = array('id' => Yii::app()->getRequest()->getParam('term'), 'value' => ucwords(Yii::app()->getRequest()->getParam('term')));
 			}
 		}
 		echo CJSON::encode($result);
@@ -260,7 +260,7 @@ class PhonebookController extends Controller
 		$this->pageTitle = 'Import Phonebook';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
-		$this->render('admin_import',array(
+		$this->render('admin_import', array(
 			'model'=>$model,
 		));
 	}
@@ -284,7 +284,7 @@ class PhonebookController extends Controller
 				echo $jsonError;
 
 			} else {
-				if(isset($_GET['enablesave']) && $_GET['enablesave'] == 1) {
+				if(Yii::app()->getRequest()->getParam('enablesave') == 1) {
 					if($model->save()) {
 						echo CJSON::encode(array(
 							'type' => 5,
@@ -307,7 +307,7 @@ class PhonebookController extends Controller
 		$this->pageTitle = 'Create Sms Phonebooks';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
-		$this->render('admin_add',array(
+		$this->render('admin_add', array(
 			'model'=>$model,
 		));
 	}
@@ -335,7 +335,7 @@ class PhonebookController extends Controller
 				echo $jsonError;
 
 			} else {
-				if(isset($_GET['enablesave']) && $_GET['enablesave'] == 1) {
+				if(Yii::app()->getRequest()->getParam('enablesave') == 1) {
 					if($phonebook_nomor != $model->phonebook_nomor)
 						$model->phonebook_nomor = SmsPhonebook::setPhoneNumber($model->phonebook_nomor);
 						
@@ -361,7 +361,7 @@ class PhonebookController extends Controller
 		$this->pageTitle = 'Update Sms Phonebooks';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
-		$this->render('admin_edit',array(
+		$this->render('admin_edit', array(
 			'model'=>$model,
 		));
 	}
@@ -381,7 +381,7 @@ class PhonebookController extends Controller
 		$this->pageTitle = 'View Sms Phonebooks';
 		$this->pageDescription = '';
 		$this->pageMeta = '';
-		$this->render('admin_view',array(
+		$this->render('admin_view', array(
 			'model'=>$model,
 		));
 	}
@@ -393,7 +393,7 @@ class PhonebookController extends Controller
 	public function actionRunAction() {
 		$id       = $_POST['trash_id'];
 		$criteria = null;
-		$actions  = $_GET['action'];
+		$actions  = Yii::app()->getRequest()->getParam('action');
 
 		if(count($id) > 0) {
 			$criteria = new CDbCriteria;
@@ -417,7 +417,7 @@ class PhonebookController extends Controller
 		}
 
 		// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-		if(!isset($_GET['ajax'])) {
+		if(!Yii::app()->getRequest()->getParam('ajax')) {
 			$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('manage'));
 		}
 	}
@@ -495,7 +495,7 @@ class PhonebookController extends Controller
 			$this->pageTitle = $title;
 			$this->pageDescription = '';
 			$this->pageMeta = '';
-			$this->render('admin_status',array(
+			$this->render('admin_status', array(
 				'title'=>$title,
 				'model'=>$model,
 			));
