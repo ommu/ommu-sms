@@ -30,7 +30,7 @@ EOP;
 	$cs->registerScript('type', $js, CClientScript::POS_END);
 ?>
 
-<?php $form=$this->beginWidget('application.libraries.core.components.system.OActiveForm', array(
+<?php $form=$this->beginWidget('application.libraries.yii-traits.system.OActiveForm', array(
 	'id'=>'sms-outbox-form',
 	'enableAjaxValidation'=>true,
 	'htmlOptions' => array(
