@@ -53,7 +53,7 @@
 		),
 		array(
 			'name'=>'creation_date',
-			'value'=>$this->dateFormat($model->creation_date, true),
+			'value'=>$this->dateFormat($model->creation_date),
 		),
 		array(
 			'name'=>'creation_id',
