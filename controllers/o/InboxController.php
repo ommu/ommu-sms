@@ -126,7 +126,7 @@ class InboxController extends Controller
 	public function actionManage() 
 	{
 		$model=new SmsInbox('search');
-		$model->unsetAttributes();  // clear any default values
+		$model->unsetAttributes();	// clear any default values
 		if(isset($_GET['SmsInbox'])) {
 			$model->attributes=$_GET['SmsInbox'];
 		}

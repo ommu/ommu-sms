@@ -158,7 +158,7 @@ class GroupbookController extends Controller
 	public function actionManage() 
 	{
 		$model=new SmsGroupPhonebook('search');
-		$model->unsetAttributes();  // clear any default values
+		$model->unsetAttributes();	// clear any default values
 		if(isset($_GET['SmsGroupPhonebook'])) {
 			$model->attributes=$_GET['SmsGroupPhonebook'];
 		}

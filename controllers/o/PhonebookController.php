@@ -123,7 +123,7 @@ class PhonebookController extends Controller
 	public function actionManage() 
 	{
 		$model=new SmsPhonebook('search');
-		$model->unsetAttributes();  // clear any default values
+		$model->unsetAttributes();	// clear any default values
 		if(isset($_GET['SmsPhonebook'])) {
 			$model->attributes=$_GET['SmsPhonebook'];
 		}

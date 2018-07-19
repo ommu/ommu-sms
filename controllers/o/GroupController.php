@@ -110,7 +110,7 @@ class GroupController extends Controller
 	public function actionManage() 
 	{
 		$model=new SmsGroups('search');
-		$model->unsetAttributes();  // clear any default values
+		$model->unsetAttributes();	// clear any default values
 		if(isset($_GET['SmsGroups'])) {
 			$model->attributes=$_GET['SmsGroups'];
 		}

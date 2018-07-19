@@ -108,7 +108,7 @@ class OutboxController extends Controller
 	public function actionManage() 
 	{
 		$model=new ViewSmsOutbox('search');
-		$model->unsetAttributes();  // clear any default values
+		$model->unsetAttributes();	// clear any default values
 		if(isset($_GET['ViewSmsOutbox'])) {
 			$model->attributes=$_GET['ViewSmsOutbox'];
 		}

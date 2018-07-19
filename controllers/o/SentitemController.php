@@ -108,7 +108,7 @@ class SentitemController extends Controller
 	public function actionManage() 
 	{
 		$model=new SmsOutbox('search');
-		$model->unsetAttributes();  // clear any default values
+		$model->unsetAttributes();	// clear any default values
 		if(isset($_GET['SmsOutbox'])) {
 			$model->attributes=$_GET['SmsOutbox'];
 		}
