@@ -142,8 +142,8 @@ class SmsInbox extends CActiveRecord
 		// Custom Search
 		$criteria->with = array(
 			'phonebook' => array(
-				'alias'=>'phonebook',
-				'select'=>'phonebook_name'
+				'alias' => 'phonebook',
+				'select' => 'phonebook_name'
 			),
 		);
 

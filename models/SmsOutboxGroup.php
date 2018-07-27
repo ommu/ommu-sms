@@ -125,8 +125,8 @@ class SmsOutboxGroup extends CActiveRecord
 		// Custom Search
 		$criteria->with = array(
 			'creation_TO' => array(
-				'alias'=>'creation_TO',
-				'select'=>'displayname'
+				'alias' => 'creation_TO',
+				'select' => 'displayname'
 			),
 		);
 		$criteria->compare('creation_TO.displayname', strtolower($this->creation_search), true);

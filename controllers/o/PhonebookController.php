@@ -153,7 +153,7 @@ class PhonebookController extends Controller
 			if(isset($_GET['group'])) {
 				$criteria->with = array(
 					'group' => array(
-						'alias'=>'b',
+						'alias' => 'b',
 					),
 				);
 				//$criteria->condition = 't.status=:status AND (t.phonebook_nomor LIKE :number OR t.phonebook_name LIKE :name) AND b.group_id=:group AND b.group_id IS NULL';

@@ -248,7 +248,7 @@ class ViewSmsOutbox extends CActiveRecord
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
-				'filter'=>array(
+				'filter' =>array(
 					0=>'Pending',
 					1=>'Sent',
 					2=>'Failed',

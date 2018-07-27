@@ -180,12 +180,12 @@ class SmsOutbox extends CActiveRecord
 		// Custom Search
 		$criteria->with = array(
 			'user_TO' => array(
-				'alias'=>'user_TO',
-				'select'=>'displayname'
+				'alias' => 'user_TO',
+				'select' => 'displayname'
 			),
 			'creation_TO' => array(
-				'alias'=>'creation_TO',
-				'select'=>'displayname'
+				'alias' => 'creation_TO',
+				'select' => 'displayname'
 			),
 		);
 		$criteria->compare('user_TO.displayname', strtolower($this->user_search), true);
@@ -275,7 +275,7 @@ class SmsOutbox extends CActiveRecord
 				'htmlOptions' => array(
 					'class' => 'center',
 				),
-				'filter'=>array(
+				'filter' =>array(
 					0=>Yii::t('phrase', 'Pending'),
 					1=>Yii::t('phrase', 'Sent'),
 					2=>Yii::t('phrase', 'Failed'),

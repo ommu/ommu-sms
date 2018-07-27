@@ -146,16 +146,16 @@ class SmsGroupPhonebook extends CActiveRecord
 		// Custom Search
 		$criteria->with = array(
 			'group' => array(
-				'alias'=>'group',
-				'select'=>'group_name, group_desc'
+				'alias' => 'group',
+				'select' => 'group_name, group_desc'
 			),
 			'phonebook' => array(
-				'alias'=>'phonebook',
-				'select'=>'phonebook_nomor, phonebook_name'
+				'alias' => 'phonebook',
+				'select' => 'phonebook_nomor, phonebook_name'
 			),
 			'creation' => array(
-				'alias'=>'creation',
-				'select'=>'displayname'
+				'alias' => 'creation',
+				'select' => 'displayname'
 			),
 		);
 		$criteria->compare('group.group_name', strtolower($this->group_search), true);
@@ -224,7 +224,7 @@ class SmsGroupPhonebook extends CActiveRecord
 					//'name' => 'group_search',
 					'name' => 'group_id',
 					'value' => '$data->group->group_name',
-					'filter'=> SmsGroups::getGroup(),
+					'filter' => SmsGroups::getGroup(),
 					'type' => 'raw',
 				);
 			}
@@ -257,7 +257,7 @@ class SmsGroupPhonebook extends CActiveRecord
 					'htmlOptions' => array(
 						'class' => 'center',
 					),
-					'filter'=>array(
+					'filter' =>array(
 						1=>'Enable',
 						0=>'Disable',
 					),
