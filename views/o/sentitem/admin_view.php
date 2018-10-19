@@ -56,7 +56,7 @@
 			'value'=>$this->dateFormat($model->creation_date),
 		),
 		array(
-			'name'=>'creation_id',
+			'name'=>'creation_search',
 			'value'=>$model->noted != "" ? $model->noted : $model->creation->displayname,
 		),
 	),

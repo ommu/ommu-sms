@@ -257,7 +257,7 @@ class SmsGroups extends CActiveRecord
 			if(!Yii::app()->getRequest()->getParam('type')) {
 				$this->defaultColumns[] = array(
 					'name' => 'status',
-					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("status", array("id"=>$data->group_id)), $data->status, "Disable,Enable")',
+					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl(\'status\', array(\'id\'=>$data->group_id)), $data->status, "Disable,Enable")',
 					'htmlOptions' => array(
 						'class' => 'center',
 					),

@@ -16,7 +16,7 @@
 	$this->breadcrumbs=array(
 		'Sms Phonebooks'=>array('manage'),
 		$model->phonebook_id=>array('view','id'=>$model->phonebook_id),
-		'Update',
+		Yii::t('phrase', 'Update'),
 	);
 ?>
 

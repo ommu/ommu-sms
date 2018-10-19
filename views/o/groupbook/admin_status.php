@@ -15,14 +15,13 @@
 
 	$this->breadcrumbs=array(
 		'Sms Group Phonebooks'=>array('manage'),
-		'Status',
+		Yii::t('phrase', 'Status'),
 	);
 ?>
 
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'sms-group-phonebook-form',
 	'enableAjaxValidation'=>true,
-	//'htmlOptions' => array('enctype' => 'multipart/form-data')
 )); ?>
 
 	<div class="dialog-content">

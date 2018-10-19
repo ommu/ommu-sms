@@ -79,7 +79,7 @@ class SmsOutboxGroup extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'creation_TO' => array(self::BELONGS_TO, 'Users', 'creation_id'),			
+			'creation_TO' => array(self::BELONGS_TO, 'Users', 'creation_id'),
 		);
 	}
 

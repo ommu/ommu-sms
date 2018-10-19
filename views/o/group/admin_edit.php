@@ -16,7 +16,7 @@
 	$this->breadcrumbs=array(
 		'Sms Groups'=>array('manage'),
 		$model->group_id=>array('view','id'=>$model->group_id),
-		'Update',
+		Yii::t('phrase', 'Update'),
 	);
 ?>
 

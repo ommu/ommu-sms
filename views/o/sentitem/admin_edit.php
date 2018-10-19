@@ -16,7 +16,7 @@
 	$this->breadcrumbs=array(
 		'Sms Outboxes'=>array('manage'),
 		$model->outbox_id=>array('view','id'=>$model->outbox_id),
-		'Update',
+		Yii::t('phrase', 'Update'),
 	);
 ?>
 

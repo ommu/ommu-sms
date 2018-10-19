@@ -224,7 +224,7 @@ class ViewSmsOutbox extends CActiveRecord
 			$this->defaultColumns[] = 'message';
 			$this->defaultColumns[] = array(
 				'name' => 'sents',
-				'value' => 'CHtml::link($data->sents." contact", Yii::app()->controller->createUrl("o/sentitem/manage", array("group"=>$data->group_id)))',				
+				'value' => 'CHtml::link($data->sents." contact", Yii::app()->controller->createUrl("o/sentitem/manage", array("group"=>$data->group_id)))',
 				'htmlOptions' => array(
 					'class' => 'center',
 				),

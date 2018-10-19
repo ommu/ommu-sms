@@ -239,7 +239,7 @@ class SmsPhonebook extends CActiveRecord
 			if(!Yii::app()->getRequest()->getParam('type')) {
 				$this->defaultColumns[] = array(
 					'name' => 'status',
-					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl("status", array("id"=>$data->phonebook_id)), $data->status, \'Enable,Block\')',
+					'value' => 'Utility::getPublish(Yii::app()->controller->createUrl(\'status\', array(\'id\'=>$data->phonebook_id)), $data->status, \'Enable,Block\')',
 					'htmlOptions' => array(
 						'class' => 'center',
 					),
